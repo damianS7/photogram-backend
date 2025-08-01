@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 2
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop  # Crea y borra la BD en cada test
+    show-sql: false  # Muestra las consultas SQL en la consola
+    properties:
+      hibernate:
+        format_sql: true  # Formatea mejor los logs SQL
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG           # muestra las sentencias SQL
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # muestra los valores que se pasan a los parámetros
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    org.springframework.jdbc.core.StatementCreatorUtils: TRACE
