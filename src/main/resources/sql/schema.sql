@@ -32,12 +32,14 @@ CREATE CAST (varchar as customer_gender_type) WITH INOUT AS IMPLICIT;
 CREATE TABLE public.customer_profiles (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
+	username varchar(20) NOT NULL,
 	first_name varchar(20) NOT NULL,
 	last_name varchar(40) NOT NULL,
 	phone varchar(14) NOT NULL,
 	birthdate date NOT NULL,
 	gender public."customer_gender_type" NOT NULL,
-	avatar_filename varchar(100) NULL,
+	image_filename varchar(100) NULL,
+	about_me varchar(255) NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT profiles_customer_id_key UNIQUE (customer_id),
 	CONSTRAINT profiles_pkey PRIMARY KEY (id),
@@ -70,64 +72,50 @@ CREATE TABLE public.customer_auth (
 	CONSTRAINT auth_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
-CREATE TABLE public.customer_friends (
+CREATE TABLE public.customer_followers (
+    id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
+    followed_customer_id int4 NOT NULL,
+    follower_customer_id int4 NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+    CONSTRAINT customer_followers_pkey PRIMARY KEY (id),
+    CONSTRAINT unique_customer_follower UNIQUE (customer_id, follower_customer_id),
+    CONSTRAINT customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
+    CONSTRAINT follower_customer_id_fkey FOREIGN KEY (follower_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE public.customer_posts (
     id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     customer_id int4 NOT NULL,
-    friend_customer_id int4 NOT NULL,
+    photo_filename varchar(255) NOT NULL,
+    description varchar(255) NOT NULL,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    CONSTRAINT unique_customer_friend UNIQUE (customer_id, friend_customer_id),
-    CONSTRAINT customer_friends_pkey PRIMARY KEY (id),
+    CONSTRAINT customer_posts_pkey PRIMARY KEY (id),
+    CONSTRAINT customer_posts_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE public.customer_post_likes (
+    id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
+    post_id int4 NOT NULL,
+    customer_id int4 NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+    CONSTRAINT customer_post_like_pkey PRIMARY KEY (id),
+    CONSTRAINT unique_customer_post_like UNIQUE (post_id, customer_id),
+    CONSTRAINT post_id_fkey FOREIGN KEY (post_id) REFERENCES public.customer_posts(id) ON DELETE CASCADE,
+    CONSTRAINT customer_post_like_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE public.customer_post_comments (
+    id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
+    post_id int4 NOT NULL,
+    customer_id int4 NOT NULL,
+    comment varchar(255) NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+    CONSTRAINT customer_post_comment_pkey PRIMARY KEY (id),
     CONSTRAINT customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
-    CONSTRAINT friend_customer_id_fkey FOREIGN KEY (friend_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+    CONSTRAINT post_id_fkey FOREIGN KEY (post_id) REFERENCES public.customer_posts(id) ON DELETE CASCADE
 );
 
-CREATE TABLE public.groups (
-    id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
-    owner_customer_id int4 NOT NULL,
-    name varchar(30) NOT NULL,
-    description varchar(220) NOT NULL,
-    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    CONSTRAINT group_name_unique UNIQUE (name),
-    CONSTRAINT groups_pkey PRIMARY KEY (id),
-    CONSTRAINT owner_customer_id_fkey FOREIGN KEY (owner_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
-);
-
-CREATE TYPE public."group_member_role_type" AS ENUM (
-	'OWNER',
-	'MEMBER'
-);
-
-CREATE CAST (varchar as group_member_role_type) WITH INOUT AS IMPLICIT;
-
-CREATE TABLE public.group_members (
-    id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
-    group_id int4 NOT NULL,
-    member_customer_id int4 NOT NULL,
-    member_role public."group_member_role_type" DEFAULT 'MEMBER'::group_member_role_type NOT NULL,
-    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    CONSTRAINT group_member_unique UNIQUE (group_id, member_customer_id),
-    CONSTRAINT group_members_pkey PRIMARY KEY (id),
-    CONSTRAINT group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE CASCADE,
-    CONSTRAINT member_customer_id_fkey FOREIGN KEY (member_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
-);
-
-CREATE TABLE public.group_expenses (
-	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
-	group_id int4 NOT NULL,
-	payer_customer_id int4 NULL,
-	description text NOT NULL,
-	amount numeric(15, 2) NOT NULL,
-	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT customers_expenses_pkey PRIMARY KEY (id),
-	CONSTRAINT group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE CASCADE,
-	CONSTRAINT customer_payer_customer_id_fkey FOREIGN KEY (payer_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
-);
-
-CREATE TABLE public.settings (
+CREATE TABLE public.customer_settings (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
 	key varchar(255) NOT NULL,
