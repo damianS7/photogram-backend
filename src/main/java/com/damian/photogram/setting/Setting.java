@@ -4,7 +4,7 @@ import com.damian.photogram.customer.Customer;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "settings")
+@Table(name = "customer_settings")
 public class Setting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
