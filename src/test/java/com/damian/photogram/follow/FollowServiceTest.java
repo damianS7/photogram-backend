@@ -148,7 +148,7 @@ public class FollowServiceTest {
         }
 
         // when
-        when(followRepository.countByFollowedCustomer_Id(followerCustomer.getId())).thenReturn((long) MAX_FOLLOWS + 1);
+        when(followRepository.countFollowersFromCustomer(followerCustomer.getId())).thenReturn((long) MAX_FOLLOWS + 1);
         FollowersLimitExceededException exception = assertThrows(
                 FollowersLimitExceededException.class,
                 () -> followService.follow(0L)

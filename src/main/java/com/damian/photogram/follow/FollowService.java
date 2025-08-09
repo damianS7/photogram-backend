@@ -52,7 +52,7 @@ public class FollowService {
         Customer followerCustomer = AuthHelper.getLoggedCustomer();
 
         // check if the followerCustomer can add more followed
-        if (followRepository.countByFollowedCustomer_Id(followerCustomer.getId()) >= MAX_FOLLOWS) {
+        if (followRepository.countFollowersFromCustomer(followerCustomer.getId()) >= MAX_FOLLOWS) {
             throw new FollowersLimitExceededException(Exceptions.FOLLOW.MAX_FOLLOWERS);
         }
 
