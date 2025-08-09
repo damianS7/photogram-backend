@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "customer_followers")
+@Table(name = "customer_follows")
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
