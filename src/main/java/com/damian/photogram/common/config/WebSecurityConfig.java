@@ -53,12 +53,8 @@ public class WebSecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:8081");
-        config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("http://dev.paynext.local:8081");
-        config.addAllowedOrigin("http://paynext.local:8081");
-        config.addAllowedOrigin("http://paynext.local:8082");
-        config.addAllowedOrigin("http://paynext.local:5173");
+        config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("http://photogram.local:8080");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
