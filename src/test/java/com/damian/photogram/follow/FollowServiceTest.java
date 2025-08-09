@@ -1,13 +1,13 @@
-package com.damian.photogram.follower;
+package com.damian.photogram.follow;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.customer.Customer;
 import com.damian.photogram.customer.CustomerRepository;
 import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.follower.exception.FollowerAlreadyExistException;
-import com.damian.photogram.follower.exception.FollowerAuthorizationException;
-import com.damian.photogram.follower.exception.FollowerNotFoundException;
-import com.damian.photogram.follower.exception.MaxFollowersLimitReachedException;
+import com.damian.photogram.follow.exception.FollowNotFoundException;
+import com.damian.photogram.follow.exception.FollowerAlreadyExistsException;
+import com.damian.photogram.follow.exception.FollowerAuthorizationException;
+import com.damian.photogram.follow.exception.FollowersLimitExceededException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,19 +30,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FollowerServiceTest {
+public class FollowServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
 
     @Mock
-    private FollowerRepository followerRepository;
+    private FollowRepository followRepository;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private FollowerService followerService;
+    private FollowService followService;
 
     @BeforeEach
     void setUp() {
@@ -65,8 +64,8 @@ public class FollowerServiceTest {
     }
 
     @Test
-    @DisplayName("Should get all friends")
-    void shouldGetAllFriends() {
+    @DisplayName("Should get all follows")
+    void shouldGetAllFollows() {
         // given
         Customer loggedCustomer = new Customer(
                 1L, "customer@test.com",
@@ -74,33 +73,33 @@ public class FollowerServiceTest {
         );
         setUpContext(loggedCustomer);
 
-        Customer friend1 = new Customer(
+        Customer follow1 = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Customer friend2 = new Customer(
+        Customer follow2 = new Customer(
                 3L, "customer2@test.com", passwordEncoder.encode("password")
         );
 
-        Set<Follower> followerList = Set.of(
-                new Follower(loggedCustomer, friend1),
-                new Follower(loggedCustomer, friend2)
+        Set<Follow> followList = Set.of(
+                new Follow(loggedCustomer, follow1),
+                new Follow(loggedCustomer, follow2)
         );
 
         // when
-        when(followerRepository.findAllByCustomerId(loggedCustomer.getId()))
-                .thenReturn(followerList);
-        Set<Follower> result = followerService.getFriends();
+        when(followRepository.findAllByFollowedCustomer_Id(loggedCustomer.getId()))
+                .thenReturn(followList);
+        Set<Follow> result = followService.getFollowers();
 
         // then
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(followerRepository, times(1)).findAllByCustomerId(loggedCustomer.getId());
+        verify(followRepository, times(1)).findAllByFollowedCustomer_Id(loggedCustomer.getId());
     }
 
     @Test
-    @DisplayName("Should add a follower")
-    void shouldAddFriend() {
+    @DisplayName("Should add a follow")
+    void shouldFollow() {
         // given
         Customer loggedCustomer = new Customer(
                 1L,
@@ -113,61 +112,55 @@ public class FollowerServiceTest {
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follower givenFollower = new Follower(loggedCustomer, friendCustomer);
+        Follow givenFollow = new Follow(loggedCustomer, friendCustomer);
 
         // when
         when(customerRepository.findById(friendCustomer.getId())).thenReturn(Optional.of(friendCustomer));
-        when(followerRepository.save(any(Follower.class)))
-                .thenReturn(givenFollower);
+        when(followRepository.save(any(Follow.class)))
+                .thenReturn(givenFollow);
 
-        Follower result = followerService.addFriend(friendCustomer.getId());
+        Follow result = followService.follow(friendCustomer.getId());
 
         // then
         assertNotNull(result);
-        verify(followerRepository, times(1)).save(any(Follower.class));
+        verify(followRepository, times(1)).save(any(Follow.class));
     }
 
     @Test
-    @DisplayName("Should not add a follower when limit reached")
-    void shouldNotAddFriendWhenLimitReached() {
+    @DisplayName("Should not add a follow when limit reached")
+    void shouldNotFollowWhenLimitReached() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer followerCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
 
-        setUpContext(loggedCustomer);
-        short MAX_FRIENDS = 3;
+        setUpContext(followerCustomer);
+        short MAX_FOLLOWS = 3;
 
         Field field = null;
         try {
-            field = FollowerService.class.getDeclaredField("MAX_FRIENDS");
+            field = FollowService.class.getDeclaredField("MAX_FOLLOWS");
             field.setAccessible(true);
-            MAX_FRIENDS = (short) field.get(followerService); // null porque es static
+            MAX_FOLLOWS = (short) field.get(followService); // null porque es static
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-
-        Set<Follower> followerList = new HashSet<>();
-        for (int i = 0; i <= MAX_FRIENDS; i++) {
-            followerList.add(new Follower());
-        }
-
         // when
-        when(followerRepository.findAllByCustomerId(loggedCustomer.getId())).thenReturn(followerList);
-        MaxFollowersLimitReachedException exception = assertThrows(
-                MaxFollowersLimitReachedException.class,
-                () -> followerService.addFriend(0L)
+        when(followRepository.countByFollowedCustomer_Id(followerCustomer.getId())).thenReturn((long) MAX_FOLLOWS + 1);
+        FollowersLimitExceededException exception = assertThrows(
+                FollowersLimitExceededException.class,
+                () -> followService.follow(0L)
         );
 
         // then
-        assertEquals(Exceptions.FRIEND_LIST.MAX_FRIENDS, exception.getMessage());
+        assertEquals(Exceptions.FOLLOW.MAX_FOLLOWERS, exception.getMessage());
     }
 
     @Test
-    @DisplayName("Should not add a follower when already exists")
-    void shouldNotAddFriendWhenAlreadyExists() {
+    @DisplayName("Should not add a follow when already exists")
+    void shouldNotFollowWhenAlreadyExists() {
         // given
         Customer loggedCustomer = new Customer(
                 1L,
@@ -182,19 +175,19 @@ public class FollowerServiceTest {
 
         // when
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.of(friend1));
-        when(followerRepository.friendExists(loggedCustomer.getId(), friend1.getId())).thenReturn(true);
-        FollowerAlreadyExistException exception = assertThrows(
-                FollowerAlreadyExistException.class,
-                () -> followerService.addFriend(friend1.getId())
+        when(followRepository.isFollowing(loggedCustomer.getId(), friend1.getId())).thenReturn(true);
+        FollowerAlreadyExistsException exception = assertThrows(
+                FollowerAlreadyExistsException.class,
+                () -> followService.follow(friend1.getId())
         );
 
         // then
-        assertEquals(Exceptions.FRIEND_LIST.ALREADY_EXISTS, exception.getMessage());
+        assertEquals(Exceptions.FOLLOW.ALREADY_EXISTS, exception.getMessage());
     }
 
     @Test
-    @DisplayName("Should not add a follower when customer not found")
-    void shouldNotAddFriendWhenCustomerNotFound() {
+    @DisplayName("Should not add a follow when customer not found")
+    void shouldNotFollowWhenCustomerNotFound() {
         // given
         Customer loggedCustomer = new Customer(
                 1L,
@@ -211,7 +204,7 @@ public class FollowerServiceTest {
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.empty());
         CustomerNotFoundException exception = assertThrows(
                 CustomerNotFoundException.class,
-                () -> followerService.addFriend(friend1.getId())
+                () -> followService.follow(friend1.getId())
         );
 
         // then
@@ -219,8 +212,8 @@ public class FollowerServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete a follower")
-    void shouldDeleteFriend() {
+    @DisplayName("Should delete a follow")
+    void shouldUnfollow() {
         // given
         Customer loggedCustomer = new Customer(
                 1L, "customer@test.com",
@@ -232,59 +225,59 @@ public class FollowerServiceTest {
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follower givenCC = new Follower(loggedCustomer, friend1);
+        Follow givenCC = new Follow(loggedCustomer, friend1);
         givenCC.setId(1L);
 
         // when
-        when(followerRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
-        doNothing().when(followerRepository).deleteById(givenCC.getId());
+        when(followRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
+        doNothing().when(followRepository).deleteById(givenCC.getId());
 
-        followerService.deleteFriend(givenCC.getId());
+        followService.unfollow(givenCC.getId());
 
         // then
-        verify(followerRepository, times(1)).deleteById(givenCC.getId());
+        verify(followRepository, times(1)).deleteById(givenCC.getId());
     }
 
     @Test
-    @DisplayName("Should not delete a follower when not found")
-    void shouldNotDeleteFriendWhenNotFound() {
+    @DisplayName("Should not delete a follow when not found")
+    void shouldNotUnfollowWhenNotFound() {
         // given
         Customer loggedCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
         setUpContext(loggedCustomer);
 
         // when
-        when(followerRepository.findById(anyLong())).thenReturn(Optional.empty());
-        FollowerNotFoundException exception = assertThrows(
-                FollowerNotFoundException.class,
-                () -> followerService.deleteFriend(0L)
+        when(followRepository.findById(anyLong())).thenReturn(Optional.empty());
+        FollowNotFoundException exception = assertThrows(
+                FollowNotFoundException.class,
+                () -> followService.unfollow(0L)
         );
 
         // then
-        assertEquals(Exceptions.FRIEND_LIST.NOT_FOUND, exception.getMessage());
+        assertEquals(Exceptions.FOLLOW.NOT_FOUND, exception.getMessage());
     }
 
     @Test
-    @DisplayName("Should not delete a follower when not authorized")
-    void shouldNotDeleteFriendWhenNotAuthorized() {
+    @DisplayName("Should not delete a follow when not authorized")
+    void shouldNotUnfollowWhenNotAuthorized() {
         // given
         Customer loggedCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
         setUpContext(loggedCustomer);
 
-        Follower givenCC = new Follower(
+        Follow givenCC = new Follow(
                 new Customer(5L, "customer1@test.com", passwordEncoder.encode("password")),
                 new Customer(8L, "customer2@test.com", passwordEncoder.encode("password"))
         );
         givenCC.setId(1L);
 
         // when
-        when(followerRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
+        when(followRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
         FollowerAuthorizationException exception = assertThrows(
                 FollowerAuthorizationException.class,
-                () -> followerService.deleteFriend(givenCC.getId())
+                () -> followService.unfollow(givenCC.getId())
         );
 
         // then
-        assertEquals(Exceptions.FRIEND_LIST.ACCESS_FORBIDDEN, exception.getMessage());
+        assertEquals(Exceptions.FOLLOW.ACCESS_FORBIDDEN, exception.getMessage());
     }
 
 }

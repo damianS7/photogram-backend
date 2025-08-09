@@ -1,4 +1,4 @@
-package com.damian.photogram.follower.exception;
+package com.damian.photogram.follow.exception;
 
 import com.damian.photogram.auth.exception.AuthorizationException;
 

@@ -6,11 +6,17 @@ public class Exceptions {
         public static final String BAD_CREDENTIALS = "Bad credentials.";
     }
 
-    public static class FRIEND_LIST {
-        public static final String ALREADY_EXISTS = "Friend already exists.";
-        public static final String ACCESS_FORBIDDEN = "You cannot access this follower.";
-        public static final String NOT_FOUND = "Friend not found.";
-        public static final String MAX_FRIENDS = "You have reached the maximum number of friends.";
+    public static class POSTS {
+        public static final String ACCESS_FORBIDDEN = "You cannot access this post.";
+        public static final String NOT_FOUND = "Post not found.";
+    }
+
+    public static class FOLLOW {
+        public static final String ALREADY_EXISTS = "Follower already exists.";
+        public static final String ACCESS_FORBIDDEN = "You cannot access this follow.";
+        public static final String SELF_FOLLOW = "You cannot follow yourself.";
+        public static final String NOT_FOUND = "Follower not found.";
+        public static final String MAX_FOLLOWERS = "You have reached the maximum number of followers.";
     }
 
 
@@ -18,17 +24,6 @@ public class Exceptions {
         public static final String DISABLED = "Customer is disabled.";
         public static final String EMAIL_TAKEN = "Email is already taken.";
         public static final String NOT_FOUND = "Customer not found.";
-    }
-
-    public static class EXPENSES {
-        public static final String NOT_FOUND = "Expense not found.";
-    }
-
-    public static class GROUP {
-        public static final String NOT_FOUND = "Group not found.";
-        public static final String NOT_OWNER = "You are not the owner of this group.";
-        public static final String ACCESS_FORBIDDEN = "You are not authorized to access this group.";
-        public static final String NOT_MEMBER = "You are not members of this group.";
     }
 
     public static class SETTINGS {

@@ -1,4 +1,4 @@
-package com.damian.photogram.follower;
+package com.damian.photogram.follow;
 
 import com.damian.photogram.auth.http.AuthenticationRequest;
 import com.damian.photogram.auth.http.AuthenticationResponse;
@@ -6,8 +6,8 @@ import com.damian.photogram.customer.Customer;
 import com.damian.photogram.customer.CustomerGender;
 import com.damian.photogram.customer.CustomerRepository;
 import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.follower.dto.FollowerDTO;
-import com.damian.photogram.follower.http.FriendCreateRequest;
+import com.damian.photogram.follow.dto.FollowDto;
+import com.damian.photogram.follow.http.FriendCreateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class FollowerIntegrationTest {
+public class FollowIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -42,7 +42,7 @@ public class FollowerIntegrationTest {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private FollowerRepository followerRepository;
+    private FollowRepository followRepository;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -52,7 +52,7 @@ public class FollowerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        followerRepository.deleteAll();
+        followRepository.deleteAll();
         customerRepository.deleteAll();
 
         customer = new Customer();
@@ -97,12 +97,12 @@ public class FollowerIntegrationTest {
         loginWithCustomer(customer);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
-        followerRepository.save(
-                new Follower(customer, customerFriend)
+        followRepository.save(
+                new Follow(customer, customerFriend)
         );
 
         // when
@@ -116,25 +116,25 @@ public class FollowerIntegrationTest {
                 .andReturn();
 
         // then
-        FollowerDTO[] followerDTO = objectMapper.readValue(
+        FollowDto[] followDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                FollowerDTO[].class
+                FollowDto[].class
         );
 
         // then
-        assertThat(followerDTO).isNotNull();
-        assertThat(followerDTO.length).isGreaterThanOrEqualTo(1);
-        assertThat(followerDTO[0].customerId()).isEqualTo(customerFriend.getId());
+        assertThat(followDto).isNotNull();
+        assertThat(followDto.length).isGreaterThanOrEqualTo(1);
+        assertThat(followDto[0].followedCustomerId()).isEqualTo(customerFriend.getId());
     }
 
     @Test
-    @DisplayName("Should add a follower")
+    @DisplayName("Should add a follow")
     void shouldAddFriend() throws Exception {
         // given
         loginWithCustomer(customer);
 
         Customer friend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(friend);
@@ -156,30 +156,30 @@ public class FollowerIntegrationTest {
                 .andReturn();
 
         // then
-        FollowerDTO followerDTO = objectMapper.readValue(
+        FollowDto followDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                FollowerDTO.class
+                FollowDto.class
         );
 
         // then
-        assertThat(followerDTO).isNotNull();
-        assertEquals(followerDTO.customerId(), friend.getId());
+        assertThat(followDto).isNotNull();
+        assertEquals(followDto.followedCustomerId(), friend.getId());
     }
 
     @Test
-    @DisplayName("Should not add a follower when already exists")
+    @DisplayName("Should not add a follow when already exists")
     void shouldNotAddFriendWhenAlreadyExists() throws Exception {
         // given
         loginWithCustomer(customer);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
 
-        Follower follower = new Follower(customer, customerFriend);
-        followerRepository.save(follower);
+        Follow follow = new Follow(customer, customerFriend);
+        followRepository.save(follow);
 
         FriendCreateRequest friendCreateRequest = new FriendCreateRequest(
                 customerFriend.getId()
@@ -199,13 +199,13 @@ public class FollowerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not add a follower when customer not found")
+    @DisplayName("Should not add a follow when customer not found")
     void shouldNotAddFriendWhenCustomerNotFount() throws Exception {
         // given
         loginWithCustomer(customer);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
@@ -228,24 +228,24 @@ public class FollowerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should delete a follower")
+    @DisplayName("Should delete a follow")
     void shouldDeleteFriend() throws Exception {
         // given
         loginWithCustomer(customer);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
 
-        Follower givenFollower = new Follower(customer, customerFriend);
-        followerRepository.save(givenFollower);
+        Follow givenFollow = new Follow(customer, customerFriend);
+        followRepository.save(givenFollow);
 
         // when
         MvcResult result = mockMvc
                 .perform(
-                        delete("/api/v1/friends/{id}", givenFollower.getId())
+                        delete("/api/v1/friends/{id}", givenFollow.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(204))
@@ -255,13 +255,13 @@ public class FollowerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not delete follower when not found")
+    @DisplayName("Should not delete follow when not found")
     void shouldNotDeleteFriendWhenNotFound() throws Exception {
         // given
         loginWithCustomer(customer);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
@@ -279,7 +279,7 @@ public class FollowerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not delete follower when not your follower")
+    @DisplayName("Should not delete follow when not your follow")
     void shouldNotDeleteFriendWhenNotYourFriend() throws Exception {
         // given
         loginWithCustomer(customer);
@@ -291,18 +291,18 @@ public class FollowerIntegrationTest {
         customerRepository.save(customerA);
 
         Customer customerFriend = new Customer(
-                "follower@test.com",
+                "follow@test.com",
                 bCryptPasswordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
 
-        Follower givenFollower = new Follower(customerA, customerFriend);
-        followerRepository.save(givenFollower);
+        Follow givenFollow = new Follow(customerA, customerFriend);
+        followRepository.save(givenFollow);
 
         // when
         mockMvc
                 .perform(
-                        delete("/api/v1/friends/{id}", givenFollower.getId())
+                        delete("/api/v1/friends/{id}", givenFollow.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(403))
