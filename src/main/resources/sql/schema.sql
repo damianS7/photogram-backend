@@ -72,14 +72,14 @@ CREATE TABLE public.customer_auth (
 	CONSTRAINT auth_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
-CREATE TABLE public.customer_followers (
+CREATE TABLE public.customer_follows (
     id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     followed_customer_id int4 NOT NULL,
     follower_customer_id int4 NOT NULL,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
     CONSTRAINT customer_followers_pkey PRIMARY KEY (id),
-    CONSTRAINT unique_customer_follower UNIQUE (customer_id, follower_customer_id),
-    CONSTRAINT customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
+    CONSTRAINT unique_customer_follower UNIQUE (followed_customer_id, follower_customer_id),
+    CONSTRAINT followed_customer_id_fkey FOREIGN KEY (followed_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
     CONSTRAINT follower_customer_id_fkey FOREIGN KEY (follower_customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
