@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.http.request;
+package com.damian.photogram.customers.http.request;
 
 
 import jakarta.validation.constraints.NotBlank;
@@ -9,8 +9,11 @@ public record CustomerPasswordUpdateRequest(
         String currentPassword,
 
         @NotBlank(message = "New password must not be blank")
-        @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+        @Pattern(
+                regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
                 message = "Password must be at least 8 characters long, contain at least one uppercase letter, " +
-                        "one number, and one special character.")
-        String newPassword) {
+                          "one number, and one special character."
+        )
+        String newPassword
+) {
 }

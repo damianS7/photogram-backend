@@ -1,10 +1,10 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.auth.http.AuthenticationRequest;
 import com.damian.photogram.auth.http.AuthenticationResponse;
-import com.damian.photogram.customer.dto.CustomerDTO;
-import com.damian.photogram.customer.dto.CustomerWithProfileDTO;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.dto.CustomerDTO;
+import com.damian.photogram.customers.dto.CustomerWithProfileDTO;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -51,7 +51,7 @@ public class CustomerIntegrationTest {
 
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
-        customer.setEmail("customer@test.com");
+        customer.setEmail("customers@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode("123456"));
 
         customer.getProfile().setFirstName("John");
@@ -85,7 +85,7 @@ public class CustomerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should get logged customer")
+    @DisplayName("Should get logged customers")
     void shouldGetCustomer() throws Exception {
         // given
         loginWithCustomer(customer);

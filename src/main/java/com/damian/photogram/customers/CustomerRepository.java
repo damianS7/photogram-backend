@@ -1,4 +1,4 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

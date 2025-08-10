@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.http.request;
+package com.damian.photogram.customers.http.request;
 
 
 import jakarta.validation.constraints.Email;
@@ -10,5 +10,6 @@ public record CustomerEmailUpdateRequest(
 
         @NotBlank(message = "Email must not be blank")
         @Email(message = "Email must be a well-formed email address.")
-        String newEmail) {
+        String newEmail
+) {
 }

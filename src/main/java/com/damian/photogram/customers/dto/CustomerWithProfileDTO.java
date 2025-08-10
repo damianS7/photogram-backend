@@ -1,7 +1,7 @@
-package com.damian.photogram.customer.dto;
+package com.damian.photogram.customers.dto;
 
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.profile.ProfileDTO;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.profile.ProfileDTO;
 
 import java.time.Instant;
 

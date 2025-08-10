@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.dto;
+package com.damian.photogram.customers.dto;
 
 public record CustomerNonFriendDTO(
         Long customerId,

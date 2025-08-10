@@ -1,4 +1,4 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.common.exception.Exceptions;

@@ -1,11 +1,11 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
-import com.damian.photogram.customer.exception.CustomerEmailTakenException;
-import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
-import com.damian.photogram.customer.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.customers.exception.CustomerEmailTakenException;
+import com.damian.photogram.customers.exception.CustomerNotFoundException;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -89,12 +89,12 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should find customer")
+    @DisplayName("Should find customers")
     void shouldFindCustomer() {
         // given
         Customer customer = new Customer(
                 1L,
-                "customer@test.com",
+                "customers@test.com",
                 "1234"
         );
 
@@ -109,7 +109,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not find customer when not exist")
+    @DisplayName("Should not find customers when not exist")
     void shouldNotFindCustomerWhenNotExist() {
         // given
         Long id = -1L;
@@ -125,7 +125,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should create customer")
+    @DisplayName("Should create customers")
     void shouldCreateCustomer() {
         // given
         final String passwordHash = "¢5554ml;f;lsd";
@@ -156,7 +156,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not create any customer when email is taken")
+    @DisplayName("Should not create any customers when email is taken")
     void shouldNotCreateCustomerWhenEmailIsTaken() {
         // given
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
@@ -182,7 +182,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete customer")
+    @DisplayName("Should delete customers")
     void shouldDeleteCustomer() {
         // given
         Long id = 7L;
@@ -198,7 +198,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not delete customer when not exist")
+    @DisplayName("Should not delete customers when not exist")
     void shouldNotDeleteCustomerWhenNotExist() {
         // given
         Long id = -1L;
@@ -216,7 +216,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should update customer email")
+    @DisplayName("Should update customers email")
     void shouldUpdateCustomerEmail() {
         // given
         String currentRawPassword = "123456";
@@ -224,11 +224,11 @@ public class CustomerServiceTest {
 
         Customer customer = new Customer(
                 10L,
-                "customer@test.com",
+                "customers@test.com",
                 currentEncodedPassword
         );
 
-        // set the customer on the context
+        // set the customers on the context
         setUpContext(customer);
 
         CustomerEmailUpdateRequest updateRequest = new CustomerEmailUpdateRequest(
@@ -249,7 +249,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not update customer email when password is wrong")
+    @DisplayName("Should not update customers email when password is wrong")
     void shouldNotUpdateCustomerEmailWhenPasswordIsWrong() {
         // given
         String currentRawPassword = "123456";
@@ -257,11 +257,11 @@ public class CustomerServiceTest {
 
         Customer customer = new Customer(
                 10L,
-                "customer@test.com",
+                "customers@test.com",
                 currentEncodedPassword
         );
 
-        // set the customer on the context
+        // set the customers on the context
         setUpContext(customer);
 
         CustomerEmailUpdateRequest updateRequest = new CustomerEmailUpdateRequest(

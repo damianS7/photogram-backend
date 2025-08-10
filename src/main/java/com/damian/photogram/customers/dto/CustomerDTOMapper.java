@@ -1,10 +1,10 @@
-package com.damian.photogram.customer.dto;
+package com.damian.photogram.customers.dto;
 
 import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.profile.ProfileDTO;
-import com.damian.photogram.customer.profile.ProfileDTOMapper;
-import com.damian.photogram.customer.profile.exception.ProfileNotFoundException;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.profile.ProfileDTO;
+import com.damian.photogram.customers.profile.ProfileDTOMapper;
+import com.damian.photogram.customers.profile.exception.ProfileNotFoundException;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class CustomerDTOMapper {
                                 customer.getId(),
                                 customer.getProfile().getFirstName(),
                                 customer.getProfile().getLastName(),
-                                customer.getProfile().getAvatarFilename()
+                                customer.getProfile().getImageFilename()
                         )
                 ).collect(Collectors.toSet());
     }

@@ -1,7 +1,7 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.auth.Auth;
-import com.damian.photogram.customer.profile.Profile;
+import com.damian.photogram.customers.profile.Profile;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

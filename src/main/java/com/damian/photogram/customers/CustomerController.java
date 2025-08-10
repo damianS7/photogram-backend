@@ -1,10 +1,10 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
-import com.damian.photogram.customer.dto.CustomerDTO;
-import com.damian.photogram.customer.dto.CustomerDTOMapper;
-import com.damian.photogram.customer.dto.CustomerNonFriendDTO;
-import com.damian.photogram.customer.dto.CustomerWithProfileDTO;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.dto.CustomerDTO;
+import com.damian.photogram.customers.dto.CustomerDTOMapper;
+import com.damian.photogram.customers.dto.CustomerNonFriendDTO;
+import com.damian.photogram.customers.dto.CustomerWithProfileDTO;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,7 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    // endpoint to fetch all non friends from logged customer filtered by name.
+    // endpoint to fetch all non friends from logged customers filtered by name.
     @GetMapping("/customers/{name}")
     public ResponseEntity<?> searchCustomers(
             @PathVariable @NotNull
@@ -38,7 +38,7 @@ public class CustomerController {
                 .body(customersDTO);
     }
 
-    // endpoint to receive logged customer
+    // endpoint to receive logged customers
     @GetMapping("/customers/me")
     public ResponseEntity<?> getLoggedCustomerData() {
         Customer customer = customerService.getCustomer();
@@ -49,7 +49,7 @@ public class CustomerController {
                 .body(dto);
     }
 
-    // endpoint to modify logged customer email
+    // endpoint to modify logged customers email
     @PatchMapping("/customers/me/email")
     public ResponseEntity<?> updateLoggedCustomerEmail(
             @Validated @RequestBody

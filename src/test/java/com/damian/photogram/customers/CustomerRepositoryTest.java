@@ -1,4 +1,4 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.auth.Auth;
 import com.damian.photogram.auth.AuthenticationRepository;
@@ -28,10 +28,10 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should find a customer")
+    @DisplayName("Should find a customers")
     void shouldFindCustomer() {
         // given
-        final String customerEmail = "customer@test.com";
+        final String customerEmail = "customers@test.com";
         final String customerPassword = "123456";
         Customer givenCustomer = new Customer(null, customerEmail, customerPassword);
         customerRepository.save(givenCustomer);
@@ -46,7 +46,7 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should not find a customer")
+    @DisplayName("Should not find a customers")
     void shouldNotFindCustomer() {
         // given
         Long customerId = -1L;
@@ -59,10 +59,10 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should save a customer")
+    @DisplayName("Should save a customers")
     void shouldSaveCustomer() {
         // given
-        final String customerEmail = "customer@test.com";
+        final String customerEmail = "customers@test.com";
         final String customerPassword = "123456";
 
         // when
@@ -77,10 +77,10 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should delete a customer")
+    @DisplayName("Should delete a customers")
     void shouldDeleteCustomerByIdCustomer() {
         // given
-        final String customerEmail = "customer@test.com";
+        final String customerEmail = "customers@test.com";
         final String customerPassword = "123456";
 
         Customer savedCustomer = customerRepository.save(
@@ -95,7 +95,7 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should save customer with profile")
+    @DisplayName("Should save customers with profile")
     void shouldSaveCustomerWithProfile() {
         // given
         final String customerName = "david";
@@ -109,7 +109,7 @@ public class CustomerRepositoryTest {
         final String customerNationalId = "444111222J";
         final String customerPhotoPath = "/upload/images/9sdf324283sdf47293479fsdff23232347.jpg";
 
-        final Customer givenCustomer = new Customer(null, "customer@test.com", "123456");
+        final Customer givenCustomer = new Customer(null, "customers@test.com", "123456");
         givenCustomer.getProfile().setFirstName(customerName);
         givenCustomer.getProfile().setLastName(customerSurname);
         givenCustomer.getProfile().setPhone(customerPhone);
@@ -130,11 +130,11 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should save customer with auth")
+    @DisplayName("Should save customers with auth")
     void shouldSaveCustomerWithAuth() {
         // given
         Customer customer = customerRepository.save(
-                new Customer(null, "customer@test.com", "123456")
+                new Customer(null, "customers@test.com", "123456")
         );
 
         // when

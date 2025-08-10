@@ -1,11 +1,11 @@
-package com.damian.photogram.customer.admin;
+package com.damian.photogram.customers.admin;
 
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerService;
-import com.damian.photogram.customer.dto.CustomerDTO;
-import com.damian.photogram.customer.dto.CustomerDTOMapper;
-import com.damian.photogram.customer.dto.CustomerWithAllDataDTO;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerService;
+import com.damian.photogram.customers.dto.CustomerDTO;
+import com.damian.photogram.customers.dto.CustomerDTOMapper;
+import com.damian.photogram.customers.dto.CustomerWithAllDataDTO;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,7 +40,7 @@ public class CustomerAdminController {
                 .body(customerDTO);
     }
 
-    // endpoint to receive certain customer
+    // endpoint to receive certain customers
     @GetMapping("/admin/customers/{id}")
     public ResponseEntity<?> getCustomer(
             @PathVariable @Positive
@@ -53,7 +53,7 @@ public class CustomerAdminController {
                 .body(customerDTO);
     }
 
-    // endpoint to delete a customer
+    // endpoint to delete a customers
     @DeleteMapping("/admin/customers/{id}")
     public ResponseEntity<?> deleteCustomer(
             @PathVariable @Positive
@@ -65,7 +65,7 @@ public class CustomerAdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // endpoint to update customer email
+    // endpoint to update customers email
     @PatchMapping("/admin/customers/{id}/email")
     public ResponseEntity<?> updateCustomerEmail(
             @PathVariable @Positive

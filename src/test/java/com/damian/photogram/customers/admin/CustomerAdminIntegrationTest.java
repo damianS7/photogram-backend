@@ -1,13 +1,13 @@
-package com.damian.photogram.customer.admin;
+package com.damian.photogram.customers.admin;
 
 import com.damian.photogram.auth.http.AuthenticationRequest;
 import com.damian.photogram.auth.http.AuthenticationResponse;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.dto.CustomerDTO;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.dto.CustomerDTO;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class CustomerAdminIntegrationTest {
 
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
-        customer.setEmail("customer@test.com");
+        customer.setEmail("customers@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode("123456"));
 
         customer.getProfile().setFirstName("John");
@@ -97,7 +97,7 @@ public class CustomerAdminIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should delete customer")
+    @DisplayName("Should delete customers")
     void shouldDeleteCustomer() throws Exception {
         // given
         loginWithCustomer(customerAdmin);
@@ -112,7 +112,7 @@ public class CustomerAdminIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should update customer email")
+    @DisplayName("Should update customers email")
     void shouldUpdateCustomerEmail() throws Exception {
         // given
         loginWithCustomer(customerAdmin);
@@ -145,7 +145,7 @@ public class CustomerAdminIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not update customer email when not admin")
+    @DisplayName("Should not update customers email when not admin")
     void shouldNotUpdateCustomerEmailWhenNotAdmin() throws Exception {
         // given
         loginWithCustomer(customer);

@@ -1,13 +1,13 @@
-package com.damian.photogram.customer;
+package com.damian.photogram.customers;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
 import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customer.exception.CustomerEmailTakenException;
-import com.damian.photogram.customer.exception.CustomerException;
-import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.customer.http.request.CustomerEmailUpdateRequest;
-import com.damian.photogram.customer.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.customers.exception.CustomerEmailTakenException;
+import com.damian.photogram.customers.exception.CustomerException;
+import com.damian.photogram.customers.exception.CustomerNotFoundException;
+import com.damian.photogram.customers.http.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,16 +29,16 @@ public class CustomerService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    // get all the non friends for the logged customer filtered by name.
+    // get all the non friends for the logged customers filtered by name.
     public Set<Customer> searchCustomers(String name) {
         return customerRepository.findTop10ByName(name);
     }
 
     /**
-     * Creates a new customer
+     * Creates a new customers
      *
-     * @param request contains the fields needed for the customer creation
-     * @return the customer created
+     * @param request contains the fields needed for the customers creation
+     * @return the customers created
      * @throws CustomerException if another user has the email
      */
     public Customer createCustomer(CustomerRegistrationRequest request) {
@@ -50,7 +50,7 @@ public class CustomerService {
             );
         }
 
-        // we create the customer and assign the data
+        // we create the customers and assign the data
         Customer customer = new Customer();
         customer.setEmail(request.email());
         customer.setPassword(bCryptPasswordEncoder.encode(request.password()));
@@ -64,21 +64,21 @@ public class CustomerService {
     }
 
     /**
-     * Deletes a customer
+     * Deletes a customers
      *
-     * @param customerId the id of the customer to be deleted
-     * @return true if the customer was deleted
-     * @throws CustomerException if the customer does not exist or if the logged user is not ADMIN
+     * @param customerId the id of the customers to be deleted
+     * @return true if the customers was deleted
+     * @throws CustomerException if the customers does not exist or if the logged user is not ADMIN
      */
     public boolean deleteCustomer(Long customerId) {
-        // if the customer does not exist we throw an exception
+        // if the customers does not exist we throw an exception
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(
                     Exceptions.CUSTOMER.NOT_FOUND
             );
         }
 
-        // we delete the customer
+        // we delete the customers
         customerRepository.deleteById(customerId);
 
         // if no exception is thrown we return true
@@ -97,14 +97,14 @@ public class CustomerService {
     }
 
     /**
-     * Returns a customer
+     * Returns a customers
      *
-     * @param customerId the id of the customer to be returned
-     * @return the customer
-     * @throws CustomerException if the customer does not exist or if the logged user is not ADMIN
+     * @param customerId the id of the customers to be returned
+     * @return the customers
+     * @throws CustomerException if the customers does not exist or if the logged user is not ADMIN
      */
     public Customer getCustomer(Long customerId) {
-        // if the customer does not exist we throw an exception
+        // if the customers does not exist we throw an exception
         return customerRepository.findById(customerId).orElseThrow(
                 () -> new CustomerNotFoundException(
                         Exceptions.CUSTOMER.NOT_FOUND
@@ -112,7 +112,7 @@ public class CustomerService {
         );
     }
 
-    // returns the logged customer
+    // returns the logged customers
     public Customer getCustomer() {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
         return this.getCustomer(loggedCustomer.getId());
@@ -130,12 +130,12 @@ public class CustomerService {
     }
 
     /**
-     * It updates the email of a customer
+     * It updates the email of a customers
      *
-     * @param customerId the id of the customer
+     * @param customerId the id of the customers
      * @param email      the new email to set
-     * @return the customer updated
-     * @throws CustomerException if the password does not match, or if the customer does not exist
+     * @return the customers updated
+     * @throws CustomerException if the password does not match, or if the customers does not exist
      */
     public Customer updateEmail(Long customerId, String email) {
         // we get the Customer entity so we can save at the end
@@ -156,17 +156,17 @@ public class CustomerService {
     }
 
     /**
-     * It updates the email from the logged customer
+     * It updates the email from the logged customers
      *
      * @param request that contains the current password and the new email.
-     * @return the customer updated
+     * @return the customers updated
      * @throws PasswordMismatchException if the password does not match
      */
     public Customer updateEmail(CustomerEmailUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext
         final Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
-        // Before making any changes we check that the password sent by the customer matches the one in the entity
+        // Before making any changes we check that the password sent by the customers matches the one in the entity
         AuthHelper.validatePassword(loggedCustomer, request.currentPassword());
 
         return this.updateEmail(loggedCustomer.getId(), request.newEmail());

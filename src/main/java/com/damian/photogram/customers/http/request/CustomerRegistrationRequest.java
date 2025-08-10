@@ -1,6 +1,6 @@
-package com.damian.photogram.customer.http.request;
+package com.damian.photogram.customers.http.request;
 
-import com.damian.photogram.customer.CustomerGender;
+import com.damian.photogram.customers.CustomerGender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
