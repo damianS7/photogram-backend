@@ -5,7 +5,10 @@ import com.damian.photogram.common.utils.AuthHelper;
 import com.damian.photogram.customer.Customer;
 import com.damian.photogram.customer.CustomerRepository;
 import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.follow.exception.*;
+import com.damian.photogram.follow.exception.CannotFollowYourselfException;
+import com.damian.photogram.follow.exception.FollowNotFoundException;
+import com.damian.photogram.follow.exception.FollowerAlreadyExistsException;
+import com.damian.photogram.follow.exception.FollowersLimitExceededException;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -36,22 +39,40 @@ public class FollowService {
         return followRepository.findAllByFollowedCustomer_Id(customerId);
     }
 
-    // get all the followed users by the logged customer
+    // get all the following users by the logged customer
     public Set<Follow> getFollowed() {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
         return getFollowed(loggedCustomer.getId());
     }
 
-    // get all the followed users from a specific customer
+    // get all the following users from a specific customer
     public Set<Follow> getFollowed(Long customerId) {
         return followRepository.findAllByFollowerCustomer_Id(customerId);
+    }
+
+    // check if logged customer already following customer
+    public Follow checkFollow(Long customerId) {
+        Customer followerCustomer = AuthHelper.getLoggedCustomer();
+
+        // check followedCustomer is not already following the followerCustomer
+        //        if (!followRepository.isFollowing(customerId, followerCustomer.getId())) {
+        //            throw new FollowNotFoundException(Exceptions.FOLLOW.NOT_FOUND);
+        //        }
+
+        // check if the follow exists
+        return followRepository
+                .findFollowRelationshipBetweenCustomers(customerId, followerCustomer.getId())
+                .orElseThrow(
+                        () -> new FollowNotFoundException(Exceptions.FOLLOW.NOT_FOUND)
+                );
+
     }
 
     // followedCustomerId is the id of the customer the logged customer will follow.
     public Follow follow(Long followedCustomerId) {
         Customer followerCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the followerCustomer can add more followed
+        // check if the followerCustomer can add more following
         if (followRepository.countFollowersFromCustomer(followerCustomer.getId()) >= MAX_FOLLOWS) {
             throw new FollowersLimitExceededException(Exceptions.FOLLOW.MAX_FOLLOWERS);
         }
@@ -62,7 +83,7 @@ public class FollowService {
         );
 
         // check followedCustomer is not already following the followerCustomer
-        if (followRepository.isFollowing(followerCustomer.getId(), followedCustomer.getId())) {
+        if (followRepository.isFollowing(followedCustomer.getId(), followerCustomer.getId())) {
             throw new FollowerAlreadyExistsException(Exceptions.FOLLOW.ALREADY_EXISTS);
         }
 
@@ -72,26 +93,21 @@ public class FollowService {
         }
 
         return followRepository.save(
-                new Follow(followerCustomer, followedCustomer)
+                new Follow(followedCustomer, followerCustomer)
         );
     }
 
-    // TODO: ...
-    // removes the follow .
-    // removes the follow for the logged customer.
-    public void unfollow(Long id) {
-        Customer followedCustomer = AuthHelper.getLoggedCustomer();
+    // unfollow customer following by logged customer
+    public void unfollow(Long customerId) {
+        Customer followerCustomer = AuthHelper.getLoggedCustomer();
 
         // check if the follow exists
-        Follow follow = followRepository.findById(id).orElseThrow(
-                () -> new FollowNotFoundException(Exceptions.FOLLOW.NOT_FOUND)
-        );
+        Follow follow = followRepository
+                .findFollowRelationshipBetweenCustomers(customerId, followerCustomer.getId())
+                .orElseThrow(
+                        () -> new FollowNotFoundException(Exceptions.FOLLOW.NOT_FOUND)
+                );
 
-        // check if the logged customer is the owner of the follow.
-        if (!followedCustomer.getId().equals(follow.getFollowedCustomer().getId())) {
-            throw new FollowerAuthorizationException(Exceptions.FOLLOW.ACCESS_FORBIDDEN);
-        }
-
-        followRepository.deleteById(id);
+        followRepository.deleteById(follow.getId());
     }
 }
