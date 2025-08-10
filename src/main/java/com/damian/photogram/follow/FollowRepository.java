@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -15,6 +16,12 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("SELECT COUNT(c) > 0 FROM Follow c WHERE c.followedCustomer.id = :followedCustomerId AND c.followerCustomer.id = :followerCustomerId")
     boolean isFollowing(
+            @Param("followedCustomerId") Long followedCustomerId,
+            @Param("followerCustomerId") Long followerCustomerId
+    );
+
+    @Query("SELECT c FROM Follow c WHERE c.followedCustomer.id = :followedCustomerId AND c.followerCustomer.id = :followerCustomerId")
+    Optional<Follow> findFollowRelationshipBetweenCustomers(
             @Param("followedCustomerId") Long followedCustomerId,
             @Param("followerCustomerId") Long followerCustomerId
     );
