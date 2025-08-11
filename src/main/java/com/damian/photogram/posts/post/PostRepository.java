@@ -1,5 +1,7 @@
 package com.damian.photogram.posts.post;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,9 +13,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Set<Post> findAllByCustomerId(Long customerId);
 
     @Query("SELECT p FROM Post p WHERE p.customer.profile.username = :username")
-    Set<Post> findAllByUsername(String username);
+    Page<Post> findAllByUsername(String username, Pageable pageable);
 
-    // count the number of posts for a specific customer
+    // count the number of posts for a specific customers
     @Query("SELECT COUNT(p) FROM Post p WHERE p.customer.id = :customerId")
     Long countByCustomerId(Long customerId);
 }
