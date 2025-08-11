@@ -1,7 +1,7 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -39,7 +39,18 @@ public class ProfileController {
                 .body(profileDTO);
     }
 
-    // endpoint to modify the logged customer profile
+    @GetMapping("/customers/profile/check-username/{username}")
+    public ResponseEntity<?> checkUsername(
+            @PathVariable @NotBlank
+            String username
+    ) {
+        profileService.checkUsername(username);
+
+        return ResponseEntity
+                .status(HttpStatus.OK).build();
+    }
+
+    // endpoint to modify the logged customers profile
     @PatchMapping("/customers/me/profile")
     public ResponseEntity<?> updateLoggedCustomerProfile(
             @Validated @RequestBody
@@ -53,9 +64,9 @@ public class ProfileController {
                 .body(profileDTO);
     }
 
-    // endpoint to get the logged customer profile photo
-    @GetMapping("/customers/me/profile/photo/{filename:.+}")
-    public ResponseEntity<?> getLoggedCustomerPhoto(
+    // endpoint to get the logged customers profile photo
+    @GetMapping("/customers/profile/photo/{filename:.+}")
+    public ResponseEntity<?> getCustomerProfilePhoto(
             @PathVariable @NotBlank
             String filename
     ) {

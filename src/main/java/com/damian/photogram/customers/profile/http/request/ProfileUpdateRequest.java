@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.profile.http.request;
+package com.damian.photogram.customers.profile.http.request;
 
 import jakarta.validation.constraints.NotBlank;
 

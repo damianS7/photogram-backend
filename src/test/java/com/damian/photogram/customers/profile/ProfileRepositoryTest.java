@@ -1,8 +1,8 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class ProfileRepositoryTest {
         customer.getProfile().setPhone("123 123 123");
         customer.getProfile().setGender(CustomerGender.MALE);
         customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setAvatarFilename("/images/photoPath.jpg");
+        customer.getProfile().setImageFilename("/images/photoPath.jpg");
 
         customerRepository.save(customer);
     }

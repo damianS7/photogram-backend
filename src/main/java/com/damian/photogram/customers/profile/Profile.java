@@ -1,7 +1,7 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -19,6 +19,9 @@ public class Profile {
     private Customer customer;
 
     @Column
+    private String username;
+
+    @Column
     private String firstName;
 
     @Column
@@ -34,8 +37,11 @@ public class Profile {
     @Enumerated(EnumType.STRING)
     private CustomerGender gender;
 
-    @Column(name = "avatar_filename")
-    private String avatarFilename;
+    @Column(name = "image_filename")
+    private String imageFilename;
+
+    @Column(name = "about_me")
+    private String aboutMe;
 
     @Column
     private Instant updatedAt;
@@ -115,11 +121,27 @@ public class Profile {
         this.updatedAt = updatedAt;
     }
 
-    public String getAvatarFilename() {
-        return avatarFilename;
+    public String getImageFilename() {
+        return imageFilename;
     }
 
-    public void setAvatarFilename(String avatarFilename) {
-        this.avatarFilename = avatarFilename;
+    public void setImageFilename(String imageFilename) {
+        this.imageFilename = imageFilename;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAboutMe() {
+        return aboutMe;
+    }
+
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
     }
 }

@@ -1,9 +1,9 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +33,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ProfileImageUploaderServiceTest {
 
+    private final String RAW_PASSWORD = "123456";
+
     @Mock
     private ProfileRepository profileRepository;
 
@@ -45,9 +47,7 @@ public class ProfileImageUploaderServiceTest {
 
     @InjectMocks
     private ProfileImageUploaderService profileImageUploaderService;
-
     private Customer customer;
-    private final String RAW_PASSWORD = "123456";
 
     @BeforeEach
     void setUp() {
@@ -56,7 +56,7 @@ public class ProfileImageUploaderServiceTest {
 
         customer = new Customer();
         customer.setId(2L);
-        customer.setEmail("customer@test.com");
+        customer.setEmail("customers@test.com");
         customer.setPassword(passwordEncoder.encode(RAW_PASSWORD));
         customer.getProfile().setId(5L);
         customer.getProfile().setFirstName("John");

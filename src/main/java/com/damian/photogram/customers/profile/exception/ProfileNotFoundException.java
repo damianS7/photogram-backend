@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.profile.exception;
+package com.damian.photogram.customers.profile.exception;
 
 public class ProfileNotFoundException extends ProfileException {
     public ProfileNotFoundException(String message) {

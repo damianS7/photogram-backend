@@ -1,12 +1,12 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.profile.exception.ProfileAuthorizationException;
-import com.damian.photogram.customer.profile.exception.ProfileNotFoundException;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.customers.profile.exception.ProfileNotFoundException;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -36,7 +36,7 @@ public class ProfileService {
                 );
     }
 
-    // it updates the logged customer profile
+    // it updates the logged customers profile
     public Profile updateProfile(ProfileUpdateRequest request) {
         final Customer customerLogged = AuthHelper.getLoggedCustomer();
 
@@ -55,7 +55,7 @@ public class ProfileService {
 
         // if the logged user is not admin
         if (!AuthHelper.isAdmin(customerLogged)) {
-            // we make sure that this profile belongs to the customer logged
+            // we make sure that this profile belongs to the customers logged
             ProfileAuthorizationHelper
                     .authorize(customerLogged, profile)
                     .checkOwner();
@@ -69,7 +69,7 @@ public class ProfileService {
                 case "firstName" -> profile.setFirstName((String) value);
                 case "lastName" -> profile.setLastName((String) value);
                 case "phone" -> profile.setPhone((String) value);
-                case "avatarFilename" -> profile.setAvatarFilename((String) value);
+                case "avatarFilename" -> profile.setImageFilename((String) value);
                 case "gender" -> profile.setGender(CustomerGender.valueOf((String) value));
                 case "birthdate" -> profile.setBirthdate(LocalDate.parse((String) value));
                 default -> throw new ProfileAuthorizationException(
@@ -82,5 +82,13 @@ public class ProfileService {
         profile.setUpdatedAt(Instant.now());
 
         return profileRepository.save(profile);
+    }
+
+    public void checkUsername(String username) {
+        profileRepository
+                .findByUsername(username)
+                .orElseThrow(
+                        () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
+                );
     }
 }

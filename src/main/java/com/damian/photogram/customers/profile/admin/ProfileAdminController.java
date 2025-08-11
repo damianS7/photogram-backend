@@ -1,10 +1,10 @@
-package com.damian.photogram.customer.profile.admin;
+package com.damian.photogram.customers.profile.admin;
 
-import com.damian.photogram.customer.profile.Profile;
-import com.damian.photogram.customer.profile.ProfileDTO;
-import com.damian.photogram.customer.profile.ProfileDTOMapper;
-import com.damian.photogram.customer.profile.ProfileService;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.profile.Profile;
+import com.damian.photogram.customers.profile.ProfileDTO;
+import com.damian.photogram.customers.profile.ProfileDTOMapper;
+import com.damian.photogram.customers.profile.ProfileService;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class ProfileAdminController {
         this.profileService = profileService;
     }
 
-    // endpoint to get the profile of a customer
+    // endpoint to get the profile of a customers
     @GetMapping("/admin/profiles/{id}")
     public ResponseEntity<?> getCustomerProfile(
             @PathVariable @Positive

@@ -1,4 +1,4 @@
-package com.damian.photogram.customer.profile.exception;
+package com.damian.photogram.customers.profile.exception;
 
 import com.damian.photogram.common.exception.ApplicationException;
 

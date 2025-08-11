@@ -1,12 +1,12 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.profile.exception.ProfileAuthorizationException;
-import com.damian.photogram.customer.profile.exception.ProfileNotFoundException;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.customers.profile.exception.ProfileNotFoundException;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +35,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ProfileServiceTest {
 
+    private final String RAW_PASSWORD = "123456";
+
     @Mock
     private ProfileRepository profileRepository;
 
@@ -44,9 +46,7 @@ public class ProfileServiceTest {
 
     @InjectMocks
     private ProfileService profileService;
-
     private Customer customer;
-    private final String RAW_PASSWORD = "123456";
 
     @BeforeEach
     void setUp() {
@@ -55,7 +55,7 @@ public class ProfileServiceTest {
 
         customer = new Customer();
         customer.setId(2L);
-        customer.setEmail("customer@test.com");
+        customer.setEmail("customers@test.com");
         customer.setPassword(passwordEncoder.encode(RAW_PASSWORD));
         customer.getProfile().setId(5L);
         customer.getProfile().setFirstName("John");
@@ -173,7 +173,7 @@ public class ProfileServiceTest {
         );
 
         Profile givenProfile = new Profile();
-        givenProfile.setCustomer(new Customer(5L, "customer@test.com", "12345"));
+        givenProfile.setCustomer(new Customer(5L, "customers@test.com", "12345"));
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(givenProfile));

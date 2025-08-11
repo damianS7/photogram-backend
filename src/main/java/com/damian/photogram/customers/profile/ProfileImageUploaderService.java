@@ -1,11 +1,11 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.profile.exception.ProfileAuthorizationException;
-import com.damian.photogram.customer.profile.exception.ProfileException;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.customers.profile.exception.ProfileException;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -113,7 +113,7 @@ public class ProfileImageUploaderService {
     }
 
     /**
-     * It sets the customer profile photo
+     * It sets the customers profile photo
      */
     public Resource uploadImage(String currentPassword, MultipartFile file) {
         final Customer customerLogged = AuthHelper.getLoggedCustomer();

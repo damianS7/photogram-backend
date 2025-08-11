@@ -1,12 +1,12 @@
-package com.damian.photogram.customer.profile;
+package com.damian.photogram.customers.profile;
 
 import com.damian.photogram.auth.http.AuthenticationRequest;
 import com.damian.photogram.auth.http.AuthenticationResponse;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +70,7 @@ public class ProfileIntegrationTest {
         customerA.getProfile().setLastName("Wick");
         customerA.getProfile().setGender(CustomerGender.MALE);
         customerA.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customerA.getProfile().setAvatarFilename("image.jpg");
+        customerA.getProfile().setImageFilename("image.jpg");
         customerRepository.save(customerA);
 
         customerB = new Customer();
@@ -108,7 +108,7 @@ public class ProfileIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should get customer profile")
+    @DisplayName("Should get customers profile")
     void shouldGetCustomerProfile() throws Exception {
         // given
         loginWithCustomer(customerA);
@@ -215,14 +215,14 @@ public class ProfileIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should upload customer profile image")
+    @DisplayName("Should upload customers profile image")
     void shouldUploadCustomerProfileImage() throws Exception {
         // given
         loginWithCustomer(customerA);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                customerA.getProfile().getAvatarFilename(),
+                customerA.getProfile().getImageFilename(),
                 "image/jpeg",
                 new byte[5]
         );
