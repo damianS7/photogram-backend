@@ -1,6 +1,10 @@
+app:
+  frontend:
+    domain: "localhost"
+    port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/postgres
+    url: jdbc:postgresql://localhost:5440/postgres
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
@@ -24,6 +28,14 @@ spring:
       enabled: true
     livereload:
       enabled: true
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
 logging:
   level:
     org.hibernate.orm.jdbc.bind: TRACE

@@ -1,6 +1,10 @@
+app:
+  frontend:
+    domain: "photogram.local"
+    port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/postgres
+    url: jdbc:postgresql://localhost:5440/postgres
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver

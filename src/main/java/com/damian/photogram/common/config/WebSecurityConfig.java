@@ -2,6 +2,7 @@ package com.damian.photogram.common.config;
 
 import com.damian.photogram.auth.AuthenticationFilter;
 import com.damian.photogram.auth.CustomAuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,7 +21,16 @@ public class WebSecurityConfig {
     private final AuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    public WebSecurityConfig(AuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
+    @Value("${app.frontend.domain}")
+    private String domain;
+
+    @Value("${app.frontend.port}")
+    private String port;
+
+    public WebSecurityConfig(
+            AuthenticationFilter jwtAuthFilter,
+            AuthenticationProvider authenticationProvider
+    ) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
     }
@@ -53,8 +63,9 @@ public class WebSecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:8080");
-        config.addAllowedOrigin("http://photogram.local:8080");
+        //        config.addAllowedOrigin("http://localhost:8080");
+        //        config.addAllowedOrigin("http://photogram.local:8080");
+        config.addAllowedOrigin("http://" + domain + ":" + port);
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);

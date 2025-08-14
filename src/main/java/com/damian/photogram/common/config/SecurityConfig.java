@@ -1,6 +1,6 @@
 package com.damian.photogram.common.config;
 
-import com.damian.photogram.customer.CustomerDetailsService;
+import com.damian.photogram.customers.CustomerDetailsService;
 import net.datafaker.Faker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
