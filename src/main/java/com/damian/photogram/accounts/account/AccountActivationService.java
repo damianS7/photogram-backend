@@ -1,17 +1,12 @@
-package com.damian.photogram.accounts.activation;
+package com.damian.photogram.accounts.account;
 
-import com.damian.photogram.accounts.account.Account;
-import com.damian.photogram.accounts.account.AccountRepository;
-import com.damian.photogram.accounts.account.AccountStatus;
+import com.damian.photogram.accounts.account.exception.AccountActivationException;
 import com.damian.photogram.accounts.account.exception.AccountNotFoundException;
-import com.damian.photogram.accounts.activation.exception.AccountActivationException;
 import com.damian.photogram.accounts.token.AccountToken;
 import com.damian.photogram.accounts.token.AccountTokenRepository;
 import com.damian.photogram.accounts.token.AccountTokenType;
 import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customers.Customer;
 import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.customers.exception.CustomerNotFoundException;
 import com.damian.photogram.mail.EmailSenderService;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -27,37 +22,39 @@ public class AccountActivationService {
     private final AccountTokenRepository accountTokenRepository;
     private final AccountRepository accountRepository;
     private final EmailSenderService emailSenderService;
-    private final AccountVerificationService accountVerificationService;
+    private final AccountActivationTokenVerificationService accountActivationTokenVerificationService;
 
     public AccountActivationService(
-            Environment env, CustomerRepository customerRepository,
+            Environment env,
+            CustomerRepository customerRepository,
             AccountTokenRepository accountTokenRepository,
             AccountRepository accountRepository,
             EmailSenderService emailSenderService,
-            AccountVerificationService accountVerificationService
+            AccountActivationTokenVerificationService accountActivationTokenVerificationService
     ) {
         this.env = env;
         this.customerRepository = customerRepository;
         this.accountTokenRepository = accountTokenRepository;
         this.accountRepository = accountRepository;
         this.emailSenderService = emailSenderService;
-        this.accountVerificationService = accountVerificationService;
+        this.accountActivationTokenVerificationService = accountActivationTokenVerificationService;
     }
 
-    // Activate an accounts using the token
+    // Activate an account using the token
     public void activate(String token) {
         // check the token is valid and not expired.
-        AccountToken accountToken = accountVerificationService.verify(token);
+        AccountToken accountToken = accountActivationTokenVerificationService.verify(token);
 
+        // find the customer associated with the token
         Account accountCustomer = accountRepository
                 .findByCustomer_Id(accountToken.getCustomer().getId())
                 .orElseThrow(
                         () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND)
                 );
 
-        // only accounts pending for verification can request the email
+        // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_VERIFICATION_PENDING);
+            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // mark the token as used
@@ -79,25 +76,25 @@ public class AccountActivationService {
         );
     }
 
-    // Send an activation email to the customer's email address
+    // Send an activation email to the customer email address
     public void sendAccountActivationToken(String email) {
         // retrieve the customer by email
-        Customer customer = customerRepository.findByEmail(email).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
+        Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
+                () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND_BY_EMAIL)
         );
 
         // only accounts pending for verification can request the email
-        if (!customer.getAccount().getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_VERIFICATION_PENDING);
+        if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
+            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // check if AccountToken exists orElse create a new one
-        AccountToken accountToken = accountTokenRepository.findByCustomer_Id(customer.getId()).orElseGet(
+        AccountToken accountToken = accountTokenRepository.findByCustomer_Id(account.getCustomer().getId()).orElseGet(
                 AccountToken::new
         );
 
         // we set the accountToken data
-        accountToken.setCustomer(customer);
+        accountToken.setCustomer(account.getCustomer());
         accountToken.setType(AccountTokenType.ACCOUNT_VERIFICATION);
         accountToken.setToken(UUID.randomUUID().toString());
         accountToken.setCreatedAt(Instant.now());
@@ -113,7 +110,7 @@ public class AccountActivationService {
     public void sendAccountActivationTokenEmail(String email, String token) {
 
         String url = env.getProperty("app.frontend.url");
-        String activationLink = url + "/auth/activate-accounts/" + token;
+        String activationLink = url + "/auth/activate-account/" + token;
         // Send email to confirm registration
         emailSenderService.send(
                 email,

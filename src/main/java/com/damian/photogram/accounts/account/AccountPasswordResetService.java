@@ -1,6 +1,5 @@
-package com.damian.photogram.accounts.password;
+package com.damian.photogram.accounts.account;
 
-import com.damian.photogram.accounts.account.AccountRepository;
 import com.damian.photogram.accounts.token.AccountTokenRepository;
 import com.damian.photogram.common.utils.JWTUtil;
 import com.damian.photogram.customers.CustomerService;
@@ -10,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PasswordResetService {
+public class AccountPasswordResetService {
     private final JWTUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final CustomerService customerService;
@@ -19,7 +18,7 @@ public class PasswordResetService {
     private final AccountTokenRepository accountTokenRepository;
     private final EmailSenderService emailSenderService;
 
-    public PasswordResetService(
+    public AccountPasswordResetService(
             JWTUtil jwtUtil,
             AuthenticationManager authenticationManager,
             CustomerService customerService,

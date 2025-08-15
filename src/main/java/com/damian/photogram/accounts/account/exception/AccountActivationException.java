@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.activation.exception;
+package com.damian.photogram.accounts.account.exception;
 
 import com.damian.photogram.accounts.auth.exception.AuthenticationException;
 
