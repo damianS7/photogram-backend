@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
     ports:
-      - "5434:5432"
+      - "5440:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -30,7 +30,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
     ports:
-      - "8080:8080"
+      - "8090:8090"
 
 volumes:
   pgdata:
