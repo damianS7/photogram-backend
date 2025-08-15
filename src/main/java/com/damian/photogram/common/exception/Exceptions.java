@@ -1,14 +1,33 @@
 package com.damian.photogram.common.exception;
 
 public class Exceptions {
-    public static class AUTH {
+    public static class ACCOUNT {
         public static final String NOT_ADMIN = "You are not an admin.";
         public static final String BAD_CREDENTIALS = "Bad credentials.";
+        public static final String EMAIL_NOT_VERIFIED = "Email is not verified.";
+        public static final String SUSPENDED = "Account is suspended.";
+        public static final String NOT_FOUND = "Account not found.";
+        public static final String NOT_FOUND_BY_EMAIL = "Account not found. Invalid email.";
+    }
+
+    public static class ACCOUNT_ACTIVATION {
+        public static final String NOT_ELEGIBLE_FOR_ACTIVATION = "Account not elegible for activation.";
+        public static final String INVALID_TOKEN = "Token is invalid.";
+        public static final String EXPIRED_TOKEN = "Token has expired.";
+    }
+
+    public static class ACCOUNT_TOKEN {
+        public static final String NOT_FOUND = "Token not found.";
     }
 
     public static class POSTS {
         public static final String ACCESS_FORBIDDEN = "You cannot access this post.";
         public static final String NOT_FOUND = "Post not found.";
+    }
+
+    public static class LIKES {
+        public static final String ACCESS_FORBIDDEN = "You cannot access this like.";
+        public static final String NOT_FOUND = "Like not found.";
     }
 
     public static class FOLLOW {
@@ -28,7 +47,7 @@ public class Exceptions {
 
     public static class SETTINGS {
         public static final String NOT_FOUND = "Group not found.";
-        public static final String NOT_OWNER = "You are not the owner of this setting.";
+        public static final String NOT_OWNER = "You are not the owner of this settings.";
     }
 
     public static class PROFILE {
