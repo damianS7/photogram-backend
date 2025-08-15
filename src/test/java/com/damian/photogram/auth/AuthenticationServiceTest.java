@@ -104,6 +104,7 @@ public class AuthenticationServiceTest {
         CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(
                 givenCustomer.getEmail(),
                 givenCustomer.getPassword(),
+                givenCustomer.getProfile().getUsername(),
                 givenCustomer.getProfile().getFirstName(),
                 givenCustomer.getProfile().getLastName(),
                 givenCustomer.getProfile().getPhone(),
@@ -173,7 +174,7 @@ public class AuthenticationServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.AUTH.BAD_CREDENTIALS, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.BAD_CREDENTIALS, exception.getMessage());
     }
 
     @Test
