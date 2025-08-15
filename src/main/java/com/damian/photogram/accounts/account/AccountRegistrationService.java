@@ -1,6 +1,5 @@
 package com.damian.photogram.accounts.account;
 
-import com.damian.photogram.accounts.activation.AccountActivationService;
 import com.damian.photogram.customers.Customer;
 import com.damian.photogram.customers.CustomerService;
 import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;

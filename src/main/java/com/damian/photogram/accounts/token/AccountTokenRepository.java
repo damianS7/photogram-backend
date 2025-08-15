@@ -7,12 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface AccountTokenRepository extends JpaRepository<AccountToken, Long> {
-    /**
-     * Finds an Auth instance by the customer_id
-     *
-     * @param customerId is the id of the customers
-     * @return an Optional containing the Auth instance if found
-     */
     Optional<AccountToken> findByCustomer_Id(Long customerId);
 
     Optional<AccountToken> findByToken(String token);

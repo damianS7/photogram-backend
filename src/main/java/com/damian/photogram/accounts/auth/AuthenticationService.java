@@ -64,7 +64,7 @@ public class AuthenticationService {
             );
         } catch (BadCredentialsException e) {
             throw new AuthenticationBadCredentialsException(
-                    Exceptions.AUTH.BAD_CREDENTIALS
+                    Exceptions.ACCOUNT.BAD_CREDENTIALS
             );
         }
 
@@ -84,14 +84,14 @@ public class AuthenticationService {
         // check if the accounts is disabled
         if (customer.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
             throw new AccountDisabledException(
-                    Exceptions.AUTH.SUSPENDED
+                    Exceptions.ACCOUNT.SUSPENDED
             );
         }
 
         // check if the accounts is verified
         if (!customer.getAccount().isEmailVerified()) {
             throw new AccountDisabledException(
-                    Exceptions.AUTH.EMAIL_NOT_VERIFIED
+                    Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED
             );
         }
 

@@ -1,4 +1,4 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.accounts.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,9 +24,11 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
      * @throws IOException if an input or output exception occurs
      */
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException
+    ) throws IOException {
 
         // Set the response status to 401 Unauthorized
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

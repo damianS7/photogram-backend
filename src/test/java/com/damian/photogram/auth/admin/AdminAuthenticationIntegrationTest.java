@@ -1,12 +1,12 @@
 package com.damian.photogram.auth.admin;
 
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
+import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.http.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AdminAuthenticationIntegrationTest {
-    private final String email = "customer@test.com";
+    private static final String RAW_PASSWORD = "123456";
+    private final String email = "customers@test.com";
     private final String rawPassword = "123456";
 
     @Autowired
@@ -47,13 +48,10 @@ public class AdminAuthenticationIntegrationTest {
 
     @Autowired
     private JWTUtil jwtUtil;
-
     private Customer customerA;
     private Customer customerB;
     private Customer customerAdmin;
-
     private String token;
-    private static final String RAW_PASSWORD = "123456";
 
     @BeforeEach
     void setUp() {
@@ -92,7 +90,7 @@ public class AdminAuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should update customer password")
+    @DisplayName("Should update customers password")
     void shouldUpdateCustomerPassword() throws Exception {
         // given
         loginWithCustomer(customerAdmin);

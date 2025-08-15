@@ -1,7 +1,6 @@
 package com.damian.photogram.accounts.account;
 
-import com.damian.photogram.accounts.activation.AccountActivationService;
-import com.damian.photogram.accounts.activation.http.ResendActivationRequest;
+import com.damian.photogram.accounts.account.http.AccountActivationResendRequest;
 import com.damian.photogram.common.utils.ApiResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,7 @@ public class AccountController {
         this.accountActivationService = accountActivationService;
     }
 
-    // endpoint for accounts activation
+    // endpoint to activate an account
     @GetMapping("/auth/accounts/activate/{token:.+}")
     public ResponseEntity<?> activate(
             @PathVariable @NotBlank
@@ -34,11 +33,11 @@ public class AccountController {
                 .body(ApiResponse.success("Account has been activated."));
     }
 
-    // endpoint for accounts activation
+    // endpoint for accounts to request resending activation
     @PostMapping("/auth/accounts/resend-activation")
     public ResponseEntity<?> resendActivation(
             @Validated @RequestBody
-            ResendActivationRequest request
+            AccountActivationResendRequest request
     ) {
         accountActivationService.sendAccountActivationToken(request.email());
 
