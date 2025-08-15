@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts;
+package com.damian.photogram.accounts.account;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

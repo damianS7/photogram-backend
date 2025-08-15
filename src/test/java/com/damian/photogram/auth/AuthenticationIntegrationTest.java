@@ -1,6 +1,6 @@
 package com.damian.photogram.auth;
 
-import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.account.AccountStatus;
 import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
 import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
 import com.damian.photogram.common.exception.Exceptions;

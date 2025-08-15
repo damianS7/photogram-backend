@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts;
+package com.damian.photogram.accounts.account;
 
 import com.damian.photogram.accounts.activation.AccountActivationService;
 import com.damian.photogram.customers.Customer;

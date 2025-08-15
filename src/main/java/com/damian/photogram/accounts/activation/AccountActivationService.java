@@ -1,10 +1,10 @@
 package com.damian.photogram.accounts.activation;
 
-import com.damian.photogram.accounts.Account;
-import com.damian.photogram.accounts.AccountRepository;
-import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.account.Account;
+import com.damian.photogram.accounts.account.AccountRepository;
+import com.damian.photogram.accounts.account.AccountStatus;
+import com.damian.photogram.accounts.account.exception.AccountNotFoundException;
 import com.damian.photogram.accounts.activation.exception.AccountActivationException;
-import com.damian.photogram.accounts.exception.AccountNotFoundException;
 import com.damian.photogram.accounts.token.AccountToken;
 import com.damian.photogram.accounts.token.AccountTokenRepository;
 import com.damian.photogram.accounts.token.AccountTokenType;

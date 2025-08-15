@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.exception;
+package com.damian.photogram.accounts.account.exception;
 
 import com.damian.photogram.customers.exception.CustomerException;
 

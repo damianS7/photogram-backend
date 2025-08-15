@@ -1,6 +1,6 @@
 package com.damian.photogram.accounts.password;
 
-import com.damian.photogram.accounts.AccountRepository;
+import com.damian.photogram.accounts.account.AccountRepository;
 import com.damian.photogram.accounts.token.AccountTokenRepository;
 import com.damian.photogram.common.utils.JWTUtil;
 import com.damian.photogram.customers.CustomerService;

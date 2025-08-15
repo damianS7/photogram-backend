@@ -1,6 +1,6 @@
 package com.damian.photogram.accounts.auth;
 
-import com.damian.photogram.accounts.AccountRegistrationService;
+import com.damian.photogram.accounts.account.AccountRegistrationService;
 import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
 import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
 import com.damian.photogram.customers.Customer;

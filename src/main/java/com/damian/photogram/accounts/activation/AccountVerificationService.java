@@ -1,6 +1,6 @@
 package com.damian.photogram.accounts.activation;
 
-import com.damian.photogram.accounts.AccountRepository;
+import com.damian.photogram.accounts.account.AccountRepository;
 import com.damian.photogram.accounts.token.AccountToken;
 import com.damian.photogram.accounts.token.AccountTokenRepository;
 import com.damian.photogram.accounts.token.exception.TokenExpiredException;

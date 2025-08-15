@@ -1,12 +1,12 @@
 package com.damian.photogram.accounts.auth;
 
-import com.damian.photogram.accounts.Account;
-import com.damian.photogram.accounts.AccountRepository;
-import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.account.Account;
+import com.damian.photogram.accounts.account.AccountRepository;
+import com.damian.photogram.accounts.account.AccountStatus;
+import com.damian.photogram.accounts.account.exception.AccountDisabledException;
 import com.damian.photogram.accounts.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
 import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
-import com.damian.photogram.accounts.exception.AccountDisabledException;
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
 import com.damian.photogram.common.utils.AuthHelper;
