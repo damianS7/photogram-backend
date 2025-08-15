@@ -46,30 +46,43 @@ CREATE TABLE public.customer_profiles (
 	CONSTRAINT profiles_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
-CREATE TYPE public."auth_status_type" AS ENUM (
-	'DISABLED',
-	'ENABLED'
+CREATE TYPE public."account_status_type" AS ENUM (
+	'PENDING_VERIFICATION',
+	'SUSPENDED',
+	'ACTIVE'
 );
 
-CREATE CAST (varchar as auth_status_type) WITH INOUT AS IMPLICIT;
-
-CREATE TYPE public."email_verification_status_type" AS ENUM (
-	'NOT_VERIFIED',
-	'VERIFIED'
-);
-
-CREATE CAST (varchar as email_verification_status_type) WITH INOUT AS IMPLICIT;
+CREATE CAST (varchar as account_status_type) WITH INOUT AS IMPLICIT;
 
 CREATE TABLE public.customer_auth (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
 	password_hash varchar(60) NOT NULL,
-	auth_account_status public."auth_status_type" DEFAULT 'ENABLED'::auth_status_type NOT NULL,
-	"email_verification_status" public."email_verification_status_type" DEFAULT 'NOT_VERIFIED'::email_verification_status_type NOT NULL,
+	account_status public."account_status_type" DEFAULT 'ENABLED'::account_status_type NOT NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT auth_customer_id_key UNIQUE (customer_id),
 	CONSTRAINT auth_pkey PRIMARY KEY (id),
+	CONSTRAINT auth_customer_id_key UNIQUE (customer_id),
 	CONSTRAINT auth_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+);
+
+CREATE TYPE public."auth_token_type" AS ENUM (
+	'ACCOUNT_ACTIVATION',
+	'RESET_PASSWORD'
+);
+
+CREATE CAST (varchar as auth_token_type) WITH INOUT AS IMPLICIT;
+
+CREATE TABLE public.customer_auth_tokens (
+	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
+	customer_id int4 NOT NULL,
+	token varchar(100) NOT NULL,
+	used BOOLEAN DEFAULT FALSE,
+	type public."auth_token_type" NOT NULL,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	expires_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT auth_token_pkey PRIMARY KEY (id),
+	CONSTRAINT unique_customer_type_token UNIQUE (customer_id, type),
+	CONSTRAINT auth_token_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.customer_follows (
