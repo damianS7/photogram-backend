@@ -1,19 +1,22 @@
 package com.damian.photogram.auth;
 
-import com.damian.photogram.auth.exception.AccountDisabledException;
-import com.damian.photogram.auth.exception.AuthenticationBadCredentialsException;
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.AccountRepository;
+import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.auth.AuthenticationService;
+import com.damian.photogram.accounts.auth.exception.AuthenticationBadCredentialsException;
+import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
+import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.exception.AccountDisabledException;
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerService;
-import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.customer.http.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.customer.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerService;
+import com.damian.photogram.customers.exception.CustomerNotFoundException;
+import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,11 +44,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
 public class AuthenticationServiceTest {
 
+    private final String RAW_PASSWORD = "123456";
+
     @Mock
     private CustomerRepository customerRepository;
 
     @Mock
-    private AuthenticationRepository authenticationRepository;
+    private AccountRepository accountRepository;
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -62,8 +67,6 @@ public class AuthenticationServiceTest {
 
     @Mock
     private JWTUtil jwtUtil;
-
-    private final String RAW_PASSWORD = "123456";
 
     @BeforeEach
     void setUp() {
@@ -85,18 +88,18 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("should register a new customer")
+    @DisplayName("should register a new customers")
     void shouldRegisterCustomer() {
         // given
         Customer givenCustomer = new Customer();
-        givenCustomer.setEmail("customer@test.com");
+        givenCustomer.setEmail("customers@test.com");
         givenCustomer.setPassword("123456");
         givenCustomer.getProfile().setFirstName("John");
         givenCustomer.getProfile().setLastName("Wick");
         givenCustomer.getProfile().setPhone("123 123 123");
         givenCustomer.getProfile().setGender(CustomerGender.MALE);
         givenCustomer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        givenCustomer.getProfile().setAvatarFilename("no photoPath");
+        givenCustomer.getProfile().setImageFilename("no photoPath");
 
         CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(
                 givenCustomer.getEmail(),
@@ -174,7 +177,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("should not login when account is disabled")
+    @DisplayName("should not login when accounts is disabled")
     void shouldNotLoginWhenAccountIsDisabled() {
         // given
         Authentication authentication = mock(Authentication.class);
@@ -185,7 +188,7 @@ public class AuthenticationServiceTest {
                 "alice@gmail.com",
                 "123456"
         );
-        customer.getAuth().setAuthAccountStatus(AuthAccountStatus.DISABLED);
+        customer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
 
@@ -204,7 +207,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should update customer password")
+    @DisplayName("Should update customers password")
     void shouldUpdateCustomerPassword() {
         // given
         final String currentRawPassword = "123456";
@@ -214,7 +217,7 @@ public class AuthenticationServiceTest {
 
         Customer customer = new Customer(
                 10L,
-                "customer@test.com",
+                "customers@test.com",
                 currentEncodedPassword
         );
 
@@ -223,16 +226,16 @@ public class AuthenticationServiceTest {
                 rawNewPassword
         );
 
-        // set the customer on the context
+        // set the customers on the context
         setUpContext(customer);
 
         // when
         when(bCryptPasswordEncoder.encode(rawNewPassword)).thenReturn(encodedNewPassword);
-        when(authenticationRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAuth()));
+        when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
         authenticationService.updatePassword(updateRequest);
 
         // then
-        verify(authenticationRepository, times(1)).save(customer.getAuth());
+        verify(accountRepository, times(1)).save(customer.getAccount());
         assertThat(customer.getPassword()).isEqualTo(encodedNewPassword);
     }
 
@@ -242,11 +245,11 @@ public class AuthenticationServiceTest {
         // given
         Customer customer = new Customer(
                 10L,
-                "customer@test.com",
+                "customers@test.com",
                 bCryptPasswordEncoder.encode("1234")
         );
 
-        // set the customer on the context
+        // set the customers on the context
         setUpContext(customer);
 
         CustomerPasswordUpdateRequest updateRequest = new CustomerPasswordUpdateRequest(
@@ -271,11 +274,11 @@ public class AuthenticationServiceTest {
         // given
         Customer customer = new Customer(
                 10L,
-                "customer@test.com",
+                "customers@test.com",
                 passwordEncoder.encode("1234")
         );
 
-        // set the customer on the context
+        // set the customers on the context
         setUpContext(customer);
 
         CustomerPasswordUpdateRequest updateRequest = new CustomerPasswordUpdateRequest(
@@ -283,7 +286,7 @@ public class AuthenticationServiceTest {
                 "1234678Ax$"
         );
 
-        when(authenticationRepository.findByCustomer_Id(customer.getId()))
+        when(accountRepository.findByCustomer_Id(customer.getId()))
                 .thenReturn(Optional.empty());
 
         CustomerNotFoundException exception = assertThrows(

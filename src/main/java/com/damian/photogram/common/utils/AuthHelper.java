@@ -1,8 +1,8 @@
 package com.damian.photogram.common.utils;
 
 import com.damian.photogram.common.exception.PasswordMismatchException;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerRole;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerRole;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -10,7 +10,7 @@ public class AuthHelper {
     private static final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     public static void validatePassword(Customer customer, String rawPassword) {
-        if (!bCryptPasswordEncoder.matches(rawPassword, customer.getAuth().getPassword())) {
+        if (!bCryptPasswordEncoder.matches(rawPassword, customer.getAccount().getPassword())) {
             throw new PasswordMismatchException(PasswordMismatchException.PASSWORD_MISMATCH);
         }
     }

@@ -1,10 +1,10 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.accounts.auth;
 
 
-import com.damian.photogram.auth.exception.JwtAuthenticationException;
+import com.damian.photogram.accounts.auth.exception.JwtAuthenticationException;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.CustomerDetails;
-import com.damian.photogram.customer.CustomerDetailsService;
+import com.damian.photogram.customers.CustomerDetails;
+import com.damian.photogram.customers.CustomerDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -89,7 +89,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         // currently in the SecurityContext, then we can go ahead and
         // authenticate the user.
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Load the customer details from the database.
+            // Load the customers details from the database.
             CustomerDetails customerDetails = customerDetailsService.loadCustomerByEmail(email);
 
             // If the token is valid, then we can go ahead and

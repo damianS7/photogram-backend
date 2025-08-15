@@ -1,13 +1,13 @@
 package com.damian.photogram.auth;
 
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
+import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,14 +60,14 @@ public class AuthorizationIntegrationTest {
     void setUp() {
         customerRepository.deleteAll();
         customer = new Customer();
-        customer.setEmail("customer@test.com");
+        customer.setEmail("customers@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode(rawPassword));
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
         customer.getProfile().setPhone("123 123 123");
         customer.getProfile().setGender(CustomerGender.MALE);
         customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setAvatarFilename("no photoPath");
+        customer.getProfile().setImageFilename("no photoPath");
 
         customerRepository.save(customer);
 

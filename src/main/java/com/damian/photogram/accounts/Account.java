@@ -1,13 +1,13 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.accounts;
 
-import com.damian.photogram.customer.Customer;
+import com.damian.photogram.customers.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "customer_auth")
-public class Auth {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,13 +16,9 @@ public class Auth {
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
 
-    @Column(name = "email_verification_status")
+    @Column(name = "account_status")
     @Enumerated(EnumType.STRING)
-    private AuthEmailVerificationStatus emailVerificationStatus;
-
-    @Column(name = "auth_account_status")
-    @Enumerated(EnumType.STRING)
-    private AuthAccountStatus authAccountStatus;
+    private AccountStatus accountStatus;
 
     @Column(name = "password_hash")
     private String passwordHash;
@@ -30,12 +26,11 @@ public class Auth {
     @Column
     private Instant updatedAt;
 
-    public Auth() {
-        this.authAccountStatus = AuthAccountStatus.ENABLED;
-        this.emailVerificationStatus = AuthEmailVerificationStatus.NOT_VERIFIED;
+    public Account() {
+        this.accountStatus = AccountStatus.PENDING_VERIFICATION;
     }
 
-    public Auth(Customer customer) {
+    public Account(Customer customer) {
         this();
         this.customer = customer;
     }
@@ -69,15 +64,15 @@ public class Auth {
     }
 
     public boolean isEmailVerified() {
-        return this.emailVerificationStatus.equals(AuthEmailVerificationStatus.VERIFIED);
+        return this.accountStatus.equals(AccountStatus.ACTIVE);
     }
 
-    public AuthAccountStatus getAuthAccountStatus() {
-        return this.authAccountStatus;
+    public AccountStatus getAccountStatus() {
+        return this.accountStatus;
     }
 
-    public void setAuthAccountStatus(AuthAccountStatus authAccountStatus) {
-        this.authAccountStatus = authAccountStatus;
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
     }
 
     public Instant getUpdatedAt() {

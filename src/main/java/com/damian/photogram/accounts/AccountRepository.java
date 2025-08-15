@@ -1,4 +1,4 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.accounts;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,13 +6,13 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AuthenticationRepository extends JpaRepository<Auth, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
     /**
      * Finds an Auth instance by the customer_id
      *
-     * @param customerId is the id of the customer
+     * @param customerId is the id of the customers
      * @return an Optional containing the Auth instance if found
      */
-    Optional<Auth> findByCustomer_Id(Long customerId);
+    Optional<Account> findByCustomer_Id(Long customerId);
 }
 

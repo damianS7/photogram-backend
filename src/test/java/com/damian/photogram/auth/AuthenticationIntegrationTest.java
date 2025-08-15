@@ -1,15 +1,16 @@
 package com.damian.photogram.auth;
 
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
+import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerGender;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.CustomerRole;
-import com.damian.photogram.customer.http.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.customer.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.customers.CustomerRole;
+import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AuthenticationIntegrationTest {
-    private final String email = "customer@test.com";
+    private final String email = "customers@test.com";
     private final String rawPassword = "123456";
 
     @Autowired
@@ -70,7 +71,7 @@ public class AuthenticationIntegrationTest {
         customer.getProfile().setPhone("123 123 123");
         customer.getProfile().setGender(CustomerGender.MALE);
         customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setAvatarFilename("no photoPath");
+        customer.getProfile().setImageFilename("no photoPath");
 
         customerRepository.save(customer);
     }
@@ -151,13 +152,13 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not login when account is disabled")
+    @DisplayName("Should not login when accounts is disabled")
     void shouldNotLoginWhenAccountIsDisabled() throws Exception {
         // given
         Customer givenCustomer = new Customer();
-        givenCustomer.setEmail("disabled-customer@test.com");
+        givenCustomer.setEmail("disabled-customers@test.com");
         givenCustomer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
-        givenCustomer.getAuth().setAuthAccountStatus(AuthAccountStatus.DISABLED);
+        givenCustomer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
         customerRepository.save(givenCustomer);
 
@@ -224,7 +225,7 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should register customer when request is valid")
+    @DisplayName("Should register customers when request is valid")
     void shouldRegisterCustomerWhenValidRequest() throws Exception {
         // given
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
@@ -257,7 +258,7 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not register customer when missing fields")
+    @DisplayName("Should not register customers when missing fields")
     void shouldNotRegisterCustomerWhenMissingFields() throws Exception {
         // given
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
@@ -284,7 +285,7 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not register customer when email is not well-formed")
+    @DisplayName("Should not register customers when email is not well-formed")
     void shouldNotRegisterCustomerWhenEmailIsNotWellFormed() throws Exception {
         // given
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
@@ -312,7 +313,7 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not register customer when email is taken")
+    @DisplayName("Should not register customers when email is taken")
     void shouldNotRegisterCustomerWhenEmailIsTaken() throws Exception {
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
                 this.email,
@@ -339,7 +340,7 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not register customer when password policy not satisfied")
+    @DisplayName("Should not register customers when password policy not satisfied")
     void shouldNotRegisterCustomerWhenPasswordPolicyNotSatisfied() throws Exception {
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(
                 this.email,

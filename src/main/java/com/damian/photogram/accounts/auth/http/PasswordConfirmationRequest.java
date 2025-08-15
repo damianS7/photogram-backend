@@ -1,4 +1,4 @@
-package com.damian.photogram.auth.http;
+package com.damian.photogram.accounts.auth.http;
 
 import jakarta.validation.constraints.NotNull;
 

@@ -1,18 +1,19 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.accounts.auth;
 
-import com.damian.photogram.auth.exception.AccountDisabledException;
-import com.damian.photogram.auth.exception.AuthenticationBadCredentialsException;
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.Account;
+import com.damian.photogram.accounts.AccountRepository;
+import com.damian.photogram.accounts.AccountStatus;
+import com.damian.photogram.accounts.auth.exception.AuthenticationBadCredentialsException;
+import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
+import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
+import com.damian.photogram.accounts.exception.AccountDisabledException;
 import com.damian.photogram.common.exception.Exceptions;
 import com.damian.photogram.common.exception.PasswordMismatchException;
 import com.damian.photogram.common.utils.AuthHelper;
 import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerService;
-import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.customer.http.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.customer.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.customers.Customer;
+import com.damian.photogram.customers.exception.CustomerNotFoundException;
+import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,44 +22,25 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
 
 @Service
 public class AuthenticationService {
     private final JWTUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
-    private final CustomerService customerService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationRepository authenticationRepository;
+    private final AccountRepository accountRepository;
 
     public AuthenticationService(
             JWTUtil jwtUtil,
             AuthenticationManager authenticationManager,
-            CustomerService customerService,
             BCryptPasswordEncoder bCryptPasswordEncoder,
-            AuthenticationRepository authenticationRepository
+            AccountRepository accountRepository
     ) {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
-        this.customerService = customerService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.authenticationRepository = authenticationRepository;
-    }
-
-    /**
-     * Register a new customer.
-     *
-     * @param request Contains the fields needed for the customer creation
-     * @return The customer created
-     */
-    public Customer register(CustomerRegistrationRequest request) {
-        // It uses the customer service to create a new customer
-        // Customer registeredCustomer = customerService.createCustomer(request);
-
-        // send welcome email
-        // Generate token for email validation
-        // send email to confirm registration
-
-        return customerService.createCustomer(request);
+        this.accountRepository = accountRepository;
     }
 
     /**
@@ -67,7 +49,7 @@ public class AuthenticationService {
      * @param request Contains the fields needed to login into the service
      * @return Contains the data (Customer, Profile) and the token
      * @throws AuthenticationBadCredentialsException if credentials are invalid
-     * @throws AccountDisabledException              if the account is not enabled
+     * @throws AccountDisabledException              if the accounts is not enabled
      */
     public AuthenticationResponse login(AuthenticationRequest request) {
         final String email = request.email();
@@ -86,66 +68,80 @@ public class AuthenticationService {
             );
         }
 
-        // Generate a token for the authenticated user
-        final String token = jwtUtil.generateToken(email);
-
         // Get the authenticated user
         final Customer customer = (Customer) auth.getPrincipal();
 
-        // check if the account is disabled
-        if (customer.getAuth().getAuthAccountStatus().equals(AuthAccountStatus.DISABLED)) {
+        HashMap<String, Object> claims = new HashMap<>();
+        claims.put("email", customer.getEmail());
+        claims.put("role", customer.getRole());
+
+        // Generate a token for the authenticated user
+        final String token = jwtUtil.generateToken(
+                claims,
+                email
+        );
+
+        // check if the accounts is disabled
+        if (customer.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
             throw new AccountDisabledException(
-                    Exceptions.CUSTOMER.DISABLED
+                    Exceptions.AUTH.SUSPENDED
             );
         }
 
-        // Return the customer data and the token
+        // check if the accounts is verified
+        if (!customer.getAccount().isEmailVerified()) {
+            throw new AccountDisabledException(
+                    Exceptions.AUTH.EMAIL_NOT_VERIFIED
+            );
+        }
+
+        // Return the customers data and the token
         return new AuthenticationResponse(
                 token
         );
     }
 
     /**
-     * It updates the password of given customerId.
+     * It updates the password of given followedCustomerId.
      *
-     * @param customerId the id of the customer to be updated
+     * @param customerId the id of the customers to be updated
      * @param password   the new password to be set
-     * @throws CustomerNotFoundException if the customer does not exist
+     * @throws CustomerNotFoundException if the customers does not exist
      * @throws PasswordMismatchException if the password does not match
      */
     public void updatePassword(Long customerId, String password) {
 
         // we get the CustomerAuth entity so we can save.
-        Auth customerAuth = authenticationRepository.findByCustomer_Id(customerId).orElseThrow(
+        Account customerAccount = accountRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> new CustomerNotFoundException(
                         Exceptions.CUSTOMER.NOT_FOUND
                 )
         );
 
         // set the new password
-        customerAuth.setPassword(
+        customerAccount.setPassword(
                 bCryptPasswordEncoder.encode(password)
         );
 
         // we change the updateAt timestamp field
-        customerAuth.setUpdatedAt(Instant.now());
+        customerAccount.setUpdatedAt(Instant.now());
 
         // save the changes
-        authenticationRepository.save(customerAuth);
+        accountRepository.save(customerAccount);
     }
 
     /**
-     * It updates the password of the logged customer
+     * It updates the password of the logged customers
      *
      * @param request the request body that contains the current password and the new password
-     * @throws CustomerNotFoundException if the customer does not exist
+     * @throws CustomerNotFoundException if the customers does not exist
      * @throws PasswordMismatchException if the password does not match
      */
     public void updatePassword(CustomerPasswordUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext
         final Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
-        // Before making any changes we check that the password sent by the customer matches the one in the entity
+        // Before making any changes we check that the password sent by the customers matches the one in the entity
         AuthHelper.validatePassword(loggedCustomer, request.currentPassword());
 
         // update the password
