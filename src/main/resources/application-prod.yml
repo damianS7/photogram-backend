@@ -2,6 +2,7 @@ app:
   frontend:
     domain: "photogram.local"
     port: 8080
+    url: "http://photogram.local:8080"
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5440/postgres

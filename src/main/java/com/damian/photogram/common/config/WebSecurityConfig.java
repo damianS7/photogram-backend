@@ -1,7 +1,7 @@
 package com.damian.photogram.common.config;
 
-import com.damian.photogram.auth.AuthenticationFilter;
-import com.damian.photogram.auth.CustomAuthenticationEntryPoint;
+import com.damian.photogram.accounts.auth.AuthenticationFilter;
+import com.damian.photogram.accounts.auth.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,8 +45,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/register",
+                                "/api/v1/auth/**",
                                 "/ws/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
@@ -63,8 +62,6 @@ public class WebSecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        //        config.addAllowedOrigin("http://localhost:8080");
-        //        config.addAllowedOrigin("http://photogram.local:8080");
         config.addAllowedOrigin("http://" + domain + ":" + port);
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
