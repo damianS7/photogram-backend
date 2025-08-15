@@ -20,6 +20,10 @@ public class ApiResponse<T> {
         this.status = status;
     }
 
+    public static <T> ApiResponse<T> success(String message) {
+        return new ApiResponse<>(message, null, HttpStatus.OK);
+    }
+
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(null, data, HttpStatus.OK);
     }
@@ -58,10 +62,6 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    public void setErrors(T errors) {
-        this.errors = errors;
-    }
-
     public int getStatus() {
         return this.status.value();
     }
@@ -76,5 +76,9 @@ public class ApiResponse<T> {
 
     public T getErrors() {
         return errors;
+    }
+
+    public void setErrors(T errors) {
+        this.errors = errors;
     }
 }
