@@ -1,8 +1,11 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.mapper;
 
-public class ProfileDTOMapper {
-    public static ProfileDTO toProfileDTO(Profile profile) {
-        return new ProfileDTO(
+import com.damian.photogram.domain.customer.dto.response.ProfileDto;
+import com.damian.photogram.domain.customer.model.Profile;
+
+public class ProfileDtoMapper {
+    public static ProfileDto toProfileDto(Profile profile) {
+        return new ProfileDto(
                 profile.getId(),
                 profile.getUsername(),
                 profile.getFirstName(),

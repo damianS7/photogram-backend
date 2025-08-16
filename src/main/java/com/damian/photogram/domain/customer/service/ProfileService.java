@@ -1,12 +1,15 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.service;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
-import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
-import com.damian.photogram.customers.profile.exception.ProfileNotFoundException;
-import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
+import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
+import com.damian.photogram.domain.customer.helper.ProfileAuthorizationHelper;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.model.Profile;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -36,7 +39,7 @@ public class ProfileService {
                 );
     }
 
-    // it updates the logged customers profile
+    // it updates the logged customer profile
     public Profile updateProfile(ProfileUpdateRequest request) {
         final Customer customerLogged = AuthHelper.getLoggedCustomer();
 
@@ -55,7 +58,7 @@ public class ProfileService {
 
         // if the logged user is not admin
         if (!AuthHelper.isAdmin(customerLogged)) {
-            // we make sure that this profile belongs to the customers logged
+            // we make sure that this profile belongs to the customer logged
             ProfileAuthorizationHelper
                     .authorize(customerLogged, profile)
                     .checkOwner();
@@ -84,6 +87,7 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
+    // check if the username given exists
     public void checkUsername(String username) {
         profileRepository
                 .findByUsername(username)

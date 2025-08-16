@@ -1,11 +1,11 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.dto.response;
 
-import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
-public record ProfileDTO(
+public record ProfileDto(
         Long id,
         String username,
         String firstName,

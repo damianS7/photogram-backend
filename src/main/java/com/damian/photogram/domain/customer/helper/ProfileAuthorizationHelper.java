@@ -1,8 +1,9 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.helper;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.model.Profile;
 
 public class ProfileAuthorizationHelper {
     private Customer customer;
@@ -16,13 +17,13 @@ public class ProfileAuthorizationHelper {
     }
 
     /**
-     * Check if the BankingCard belongs to this customers
+     * Check if the BankingCard belongs to this customer
      *
      * @return ProfileAuthorizationHelper
      */
     public ProfileAuthorizationHelper checkOwner() {
         if (!profile.getOwner().getId().equals(customer.getId())) {
-            // banking card does not belong to this customers
+            // banking card does not belong to this customer
             throw new ProfileAuthorizationException(
                     Exceptions.PROFILE.ACCESS_FORBIDDEN
             );

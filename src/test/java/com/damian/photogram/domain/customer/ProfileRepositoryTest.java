@@ -1,8 +1,10 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
-import com.damian.photogram.customers.CustomerRepository;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.model.Profile;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

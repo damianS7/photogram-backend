@@ -1,12 +1,14 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.auth.http.AuthenticationRequest;
-import com.damian.photogram.auth.http.AuthenticationResponse;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
-import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.customers.CustomerRole;
-import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.domain.account.enums.AccountStatus;
+import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.domain.customer.dto.response.ProfileDto;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerRole;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,20 +68,23 @@ public class ProfileIntegrationTest {
         customerA.setEmail("customerA@test.com");
         customerA.setRole(CustomerRole.CUSTOMER);
         customerA.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customerA.getAccount().setAccountStatus(AccountStatus.ACTIVE);
         customerA.getProfile().setFirstName("John");
         customerA.getProfile().setLastName("Wick");
         customerA.getProfile().setGender(CustomerGender.MALE);
         customerA.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
         customerA.getProfile().setImageFilename("image.jpg");
         customerRepository.save(customerA);
-
         customerB = new Customer();
         customerB.setPassword(bCryptPasswordEncoder.encode("123456"));
         customerB.setEmail("customerB@test.com");
+        customerB.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+
         customerRepository.save(customerB);
 
         customerAdmin = new Customer();
         customerAdmin.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customerAdmin.getAccount().setAccountStatus(AccountStatus.ACTIVE);
         customerAdmin.setEmail("admin@test.com");
         customerAdmin.setRole(CustomerRole.ADMIN);
         customerRepository.save(customerAdmin);
@@ -108,7 +113,7 @@ public class ProfileIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should get customers profile")
+    @DisplayName("Should get customer profile")
     void shouldGetCustomerProfile() throws Exception {
         // given
         loginWithCustomer(customerA);
@@ -125,9 +130,9 @@ public class ProfileIntegrationTest {
                 .andReturn();
 
         // then
-        ProfileDTO profileDTO = objectMapper.readValue(
+        ProfileDto profileDTO = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                ProfileDTO.class
+                ProfileDto.class
         );
 
         assertThat(profileDTO).isNotNull();
@@ -168,9 +173,9 @@ public class ProfileIntegrationTest {
                 .andReturn();
 
         // then
-        ProfileDTO profileDTO = objectMapper.readValue(
+        ProfileDto profileDTO = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                ProfileDTO.class
+                ProfileDto.class
         );
 
         assertThat(profileDTO).isNotNull();
@@ -215,7 +220,7 @@ public class ProfileIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should upload customers profile image")
+    @DisplayName("Should upload customer profile image")
     void shouldUploadCustomerProfileImage() throws Exception {
         // given
         loginWithCustomer(customerA);

@@ -1,7 +1,6 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.model;
 
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
 import jakarta.persistence.*;
 
 import java.time.Instant;

@@ -1,9 +1,12 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.core;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
-import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.customer.service.ProfileImageUploaderService;
+import com.damian.photogram.domain.customer.service.ProfileService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,7 +59,7 @@ public class ProfileImageUploaderServiceTest {
 
         customer = new Customer();
         customer.setId(2L);
-        customer.setEmail("customers@test.com");
+        customer.setEmail("customer@test.com");
         customer.setPassword(passwordEncoder.encode(RAW_PASSWORD));
         customer.getProfile().setId(5L);
         customer.getProfile().setFirstName("John");

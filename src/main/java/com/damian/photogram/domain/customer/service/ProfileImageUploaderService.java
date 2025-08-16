@@ -1,11 +1,12 @@
-package com.damian.photogram.customers.profile;
+package com.damian.photogram.domain.customer.service;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.profile.exception.ProfileAuthorizationException;
-import com.damian.photogram.customers.profile.exception.ProfileException;
-import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
+import com.damian.photogram.domain.customer.exception.ProfilePhotoNotFoundException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO should use ImageProfileUploaderService
+// here just check image meets ProfileImage params
 @Service
 public class ProfileImageUploaderService {
     private final String PROFILE_IMAGE_PATH = "uploads/profile/images";
@@ -93,7 +96,7 @@ public class ProfileImageUploaderService {
         try {
             resource = new UrlResource(path.toUri());
         } catch (MalformedURLException e) {
-            throw new ProfileException(Exceptions.PROFILE.IMAGE.NOT_FOUND);
+            throw new ProfilePhotoNotFoundException(Exceptions.PROFILE.IMAGE.NOT_FOUND);
         }
 
         return resource;
@@ -105,7 +108,7 @@ public class ProfileImageUploaderService {
         Resource resource = this.createResource(filePath);
 
         if (!resource.exists()) {
-            throw new ProfileException(
+            throw new ProfilePhotoNotFoundException(
                     Exceptions.PROFILE.IMAGE.NOT_FOUND
             );
         }
@@ -113,7 +116,7 @@ public class ProfileImageUploaderService {
     }
 
     /**
-     * It sets the customers profile photo
+     * It sets the customer profile photo
      */
     public Resource uploadImage(String currentPassword, MultipartFile file) {
         final Customer customerLogged = AuthHelper.getLoggedCustomer();
