@@ -1,6 +1,6 @@
-package com.damian.photogram.feed;
+package com.damian.photogram.app.feed;
 
-import com.damian.photogram.feed.dto.FeedDTO;
+import com.damian.photogram.app.feed.dto.FeedDto;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,13 +20,13 @@ public class FeedController {
         this.feedService = feedService;
     }
 
-    // endpoint to fetch feed data from specific customers
-    @GetMapping("/feed/{username}")
-    public ResponseEntity<?> getFeed(
+    // endpoint to fetch feed data from specific customer
+    @GetMapping("customers/{username}/feed")
+    public ResponseEntity<?> getCustomerFeed(
             @PathVariable @NotNull
             String username
     ) {
-        FeedDTO feedDTO = feedService.getUserFeed(username);
+        FeedDto feedDTO = feedService.getUserFeed(username);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

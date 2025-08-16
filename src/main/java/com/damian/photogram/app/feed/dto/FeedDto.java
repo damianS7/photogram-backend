@@ -1,6 +1,6 @@
-package com.damian.photogram.feed.dto;
+package com.damian.photogram.app.feed.dto;
 
-public record FeedDTO(
+public record FeedDto(
         Long customerId,
         String username,
         Long totalPosts,

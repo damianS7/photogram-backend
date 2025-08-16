@@ -1,12 +1,12 @@
-package com.damian.photogram.feed;
+package com.damian.photogram.app.feed;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customers.exception.CustomerNotFoundException;
-import com.damian.photogram.customers.profile.Profile;
-import com.damian.photogram.customers.profile.ProfileRepository;
-import com.damian.photogram.feed.dto.FeedDTO;
-import com.damian.photogram.follow.FollowRepository;
-import com.damian.photogram.posts.post.PostRepository;
+import com.damian.photogram.app.feed.dto.FeedDto;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.model.Profile;
+import com.damian.photogram.domain.customer.repository.FollowRepository;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
 
@@ -26,12 +26,12 @@ public class FeedService {
         this.followRepository = followRepository;
     }
 
-    public FeedDTO getUserFeed(String username) {
+    public FeedDto getUserFeed(String username) {
         Profile profile = profileRepository.findByUsername(username).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
 
-        return new FeedDTO(
+        return new FeedDto(
                 profile.getOwner().getId(),
                 username,
                 postRepository.countByCustomerId(profile.getOwner().getId()),
@@ -41,6 +41,4 @@ public class FeedService {
                 profile.getAboutMe()
         );
     }
-
-
 }
