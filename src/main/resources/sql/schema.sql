@@ -131,8 +131,9 @@ CREATE TABLE public.customer_post_comments (
 CREATE TABLE public.customer_settings (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
-	key varchar(255) NOT NULL,
-    value varchar(255) NOT NULL,
+	setting_key varchar(255) NOT NULL,
+    setting_value varchar(255) NOT NULL,
+	CONSTRAINT settings_pkey PRIMARY KEY (id),
     CONSTRAINT settings_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
-	CONSTRAINT settings_pkey PRIMARY KEY (id)
+    CONSTRAINT unique_customer_setting UNIQUE (customer_id, key)
 );
