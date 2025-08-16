@@ -1,6 +1,9 @@
-package com.damian.photogram.follow;
+package com.damian.photogram.domain.customer.controller;
 
-import com.damian.photogram.follow.dto.FollowDto;
+import com.damian.photogram.domain.customer.dto.response.FollowDto;
+import com.damian.photogram.domain.customer.mapper.FollowDtoMapper;
+import com.damian.photogram.domain.customer.model.Follow;
+import com.damian.photogram.domain.customer.service.FollowService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +24,13 @@ public class FollowController {
     }
 
     // endpoint to check if logged customer already follows
-    @GetMapping("/customers/{customerId}/checkFollowing")
-    public ResponseEntity<?> checkFollowing(
+    @GetMapping("/customers/{customerId}/follow")
+    public ResponseEntity<?> getFollow(
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
-        Follow follow = followService.checkFollow(customerId);
-        FollowDto followDto = FollowDtoMapper.toDto(follow);
+        Follow follow = followService.getFollow(customerId);
+        FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -35,10 +38,10 @@ public class FollowController {
     }
 
     // endpoint to fetch all followers from logged customer
-    @GetMapping("/followers")
+    @GetMapping("/customers/me/followers")
     public ResponseEntity<?> getFollowers() {
         Set<Follow> follows = followService.getFollowers();
-        Set<FollowDto> friendsDTO = FollowDtoMapper.toDtoSet(follows);
+        Set<FollowDto> friendsDTO = FollowDtoMapper.toFolloDtoSet(follows);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -52,7 +55,7 @@ public class FollowController {
             Long customerId
     ) {
         Set<Follow> follows = followService.getFollowers(customerId);
-        Set<FollowDto> followersDTO = FollowDtoMapper.toDtoSet(follows);
+        Set<FollowDto> followersDTO = FollowDtoMapper.toFolloDtoSet(follows);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -66,7 +69,7 @@ public class FollowController {
             Long customerId
     ) {
         Set<Follow> followed = followService.getFollowed(customerId);
-        Set<FollowDto> followedDTO = FollowDtoMapper.toDtoSet(followed);
+        Set<FollowDto> followedDTO = FollowDtoMapper.toFolloDtoSet(followed);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -80,7 +83,7 @@ public class FollowController {
             Long customerId
     ) {
         Follow follow = followService.follow(customerId);
-        FollowDto followDto = FollowDtoMapper.toDto(follow);
+        FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

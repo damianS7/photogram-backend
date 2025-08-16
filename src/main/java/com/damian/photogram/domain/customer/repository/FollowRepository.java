@@ -1,5 +1,6 @@
-package com.damian.photogram.follow;
+package com.damian.photogram.domain.customer.repository;
 
+import com.damian.photogram.domain.customer.model.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,10 +29,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("SELECT COUNT(c) FROM Follow c WHERE c.followedCustomer.id = :customerId")
     Long countFollowersFromCustomer(@Param("customerId") Long customerId);
-    //    Long countByFollowedCustomer_Id(@Param("followedCustomerId") Long followedCustomerId);
 
     @Query("SELECT COUNT(c) FROM Follow c WHERE c.followerCustomer.id = :customerId")
     Long countFollowsFromCustomer(@Param("customerId") Long customerId);
-    //    Long countByFollowerCustomer_Id(@Param("followerCustomerId") Long followerCustomerId);
 }
 

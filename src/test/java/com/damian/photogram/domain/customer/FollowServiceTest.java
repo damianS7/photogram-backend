@@ -1,13 +1,15 @@
-package com.damian.photogram.follow;
+package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customer.Customer;
-import com.damian.photogram.customer.CustomerRepository;
-import com.damian.photogram.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.follow.exception.FollowNotFoundException;
-import com.damian.photogram.follow.exception.FollowerAlreadyExistsException;
-import com.damian.photogram.follow.exception.FollowerAuthorizationException;
-import com.damian.photogram.follow.exception.FollowersLimitExceededException;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.exception.FollowNotFoundException;
+import com.damian.photogram.domain.customer.exception.FollowerAlreadyExistsException;
+import com.damian.photogram.domain.customer.exception.FollowersLimitExceededException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.model.Follow;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.customer.repository.FollowRepository;
+import com.damian.photogram.domain.customer.service.FollowService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -87,6 +89,7 @@ public class FollowServiceTest {
         );
 
         // when
+        when(customerRepository.existsById(loggedCustomer.getId())).thenReturn(true);
         when(followRepository.findAllByFollowedCustomer_Id(loggedCustomer.getId()))
                 .thenReturn(followList);
         Set<Follow> result = followService.getFollowers();
@@ -175,7 +178,7 @@ public class FollowServiceTest {
 
         // when
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.of(friend1));
-        when(followRepository.isFollowing(loggedCustomer.getId(), friend1.getId())).thenReturn(true);
+        when(followRepository.isFollowing(anyLong(), anyLong())).thenReturn(true);
         FollowerAlreadyExistsException exception = assertThrows(
                 FollowerAlreadyExistsException.class,
                 () -> followService.follow(friend1.getId())
@@ -212,7 +215,7 @@ public class FollowServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete a follow")
+    @DisplayName("Should unfollow")
     void shouldUnfollow() {
         // given
         Customer loggedCustomer = new Customer(
@@ -221,21 +224,22 @@ public class FollowServiceTest {
         );
         setUpContext(loggedCustomer);
 
-        Customer friend1 = new Customer(
+        Customer customerToFollow = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follow givenCC = new Follow(loggedCustomer, friend1);
-        givenCC.setId(1L);
+        Follow givenFollow = new Follow(loggedCustomer, customerToFollow);
+        givenFollow.setId(1L);
 
         // when
-        when(followRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
-        doNothing().when(followRepository).deleteById(givenCC.getId());
+        when(followRepository.findFollowRelationshipBetweenCustomers(givenFollow.getId(), loggedCustomer.getId()))
+                .thenReturn(Optional.of(givenFollow));
+        doNothing().when(followRepository).deleteById(givenFollow.getId());
 
-        followService.unfollow(givenCC.getId());
+        followService.unfollow(givenFollow.getId());
 
         // then
-        verify(followRepository, times(1)).deleteById(givenCC.getId());
+        verify(followRepository, times(1)).deleteById(givenFollow.getId());
     }
 
     @Test
@@ -246,7 +250,10 @@ public class FollowServiceTest {
         setUpContext(loggedCustomer);
 
         // when
-        when(followRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(followRepository.findFollowRelationshipBetweenCustomers(
+                anyLong(),
+                anyLong()
+        )).thenReturn(Optional.empty());
         FollowNotFoundException exception = assertThrows(
                 FollowNotFoundException.class,
                 () -> followService.unfollow(0L)
@@ -255,29 +262,4 @@ public class FollowServiceTest {
         // then
         assertEquals(Exceptions.FOLLOW.NOT_FOUND, exception.getMessage());
     }
-
-    @Test
-    @DisplayName("Should not delete a follow when not authorized")
-    void shouldNotUnfollowWhenNotAuthorized() {
-        // given
-        Customer loggedCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
-        setUpContext(loggedCustomer);
-
-        Follow givenCC = new Follow(
-                new Customer(5L, "customer1@test.com", passwordEncoder.encode("password")),
-                new Customer(8L, "customer2@test.com", passwordEncoder.encode("password"))
-        );
-        givenCC.setId(1L);
-
-        // when
-        when(followRepository.findById(givenCC.getId())).thenReturn(Optional.of(givenCC));
-        FollowerAuthorizationException exception = assertThrows(
-                FollowerAuthorizationException.class,
-                () -> followService.unfollow(givenCC.getId())
-        );
-
-        // then
-        assertEquals(Exceptions.FOLLOW.ACCESS_FORBIDDEN, exception.getMessage());
-    }
-
 }

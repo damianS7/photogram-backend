@@ -1,6 +1,6 @@
-package com.damian.photogram.follow.exception;
+package com.damian.photogram.domain.customer.exception;
 
-import com.damian.photogram.common.exception.ApplicationException;
+import com.damian.photogram.core.exception.ApplicationException;
 
 public class FollowNotFoundException extends ApplicationException {
     public FollowNotFoundException(String message) {

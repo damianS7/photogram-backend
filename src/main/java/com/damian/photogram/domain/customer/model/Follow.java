@@ -1,6 +1,5 @@
-package com.damian.photogram.follow;
+package com.damian.photogram.domain.customer.model;
 
-import com.damian.photogram.customer.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;

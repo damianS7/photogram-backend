@@ -1,4 +1,4 @@
-package com.damian.photogram.follow.dto;
+package com.damian.photogram.domain.customer.dto.response;
 
 public record FollowDto(
         Long followedCustomerId,

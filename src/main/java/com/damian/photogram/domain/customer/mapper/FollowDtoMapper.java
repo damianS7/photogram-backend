@@ -1,12 +1,13 @@
-package com.damian.photogram.follow;
+package com.damian.photogram.domain.customer.mapper;
 
-import com.damian.photogram.follow.dto.FollowDto;
+import com.damian.photogram.domain.customer.dto.response.FollowDto;
+import com.damian.photogram.domain.customer.model.Follow;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FollowDtoMapper {
-    public static FollowDto toDto(Follow follow) {
+    public static FollowDto toFollowDto(Follow follow) {
         return new FollowDto(
                 follow.getFollowedCustomer().getId(),
                 follow.getFollowedCustomer().getProfile().getUsername(),
@@ -17,11 +18,11 @@ public class FollowDtoMapper {
         );
     }
 
-    public static Set<FollowDto> toDtoSet(Set<Follow> follows) {
+    public static Set<FollowDto> toFolloDtoSet(Set<Follow> follows) {
         return follows
                 .stream()
                 .map(
-                        FollowDtoMapper::toDto
+                        FollowDtoMapper::toFollowDto
                 ).collect(Collectors.toSet());
     }
 }
