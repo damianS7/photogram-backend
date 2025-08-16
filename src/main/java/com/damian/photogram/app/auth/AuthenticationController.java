@@ -1,7 +1,7 @@
-package com.damian.photogram.accounts.auth;
+package com.damian.photogram.app.auth;
 
-import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
-import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
+import com.damian.photogram.app.auth.dto.AuthenticationRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

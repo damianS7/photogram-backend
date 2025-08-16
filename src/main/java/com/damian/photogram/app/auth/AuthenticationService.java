@@ -1,13 +1,13 @@
-package com.damian.photogram.accounts.auth;
+package com.damian.photogram.app.auth;
 
-import com.damian.photogram.accounts.account.AccountStatus;
-import com.damian.photogram.accounts.account.exception.AccountDisabledException;
-import com.damian.photogram.accounts.auth.exception.AuthenticationBadCredentialsException;
-import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
-import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customers.Customer;
+import com.damian.photogram.app.auth.dto.AuthenticationRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.app.auth.exception.AuthenticationBadCredentialsException;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.utils.JwtUtil;
+import com.damian.photogram.domain.account.enums.AccountStatus;
+import com.damian.photogram.domain.account.exception.AccountDisabledException;
+import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +18,11 @@ import java.util.HashMap;
 
 @Service
 public class AuthenticationService {
-    private final JWTUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationService(
-            JWTUtil jwtUtil,
+            JwtUtil jwtUtil,
             AuthenticationManager authenticationManager
     ) {
         this.jwtUtil = jwtUtil;
@@ -35,7 +35,7 @@ public class AuthenticationService {
      * @param request Contains the fields needed to login into the service
      * @return Contains the data (Customer, Profile) and the token
      * @throws AuthenticationBadCredentialsException if credentials are invalid
-     * @throws AccountDisabledException              if the accounts is not enabled
+     * @throws AccountDisabledException              if the account is not enabled
      */
     public AuthenticationResponse login(AuthenticationRequest request) {
         final String email = request.email();
@@ -67,21 +67,21 @@ public class AuthenticationService {
                 email
         );
 
-        // check if the accounts is disabled
+        // check if the account is disabled
         if (customer.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
             throw new AccountDisabledException(
                     Exceptions.ACCOUNT.SUSPENDED
             );
         }
 
-        // check if the accounts is verified
+        // check if the account is verified
         if (!customer.getAccount().isEmailVerified()) {
             throw new AccountDisabledException(
                     Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED
             );
         }
 
-        // Return the customers data and the token
+        // Return the customer data and the token
         return new AuthenticationResponse(
                 token
         );

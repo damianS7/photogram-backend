@@ -1,6 +1,6 @@
-package com.damian.photogram.accounts.auth.exception;
+package com.damian.photogram.app.auth.exception;
 
-import com.damian.photogram.common.exception.ApplicationException;
+import com.damian.photogram.core.exception.ApplicationException;
 
 public class AuthenticationException extends ApplicationException {
     public AuthenticationException(String message) {

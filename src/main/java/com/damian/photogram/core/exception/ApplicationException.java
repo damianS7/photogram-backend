@@ -1,4 +1,4 @@
-package com.damian.photogram.common.exception;
+package com.damian.photogram.core.exception;
 
 public class ApplicationException extends RuntimeException {
     public ApplicationException(String message) {

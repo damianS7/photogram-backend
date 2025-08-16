@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.auth.exception;
+package com.damian.photogram.app.auth.exception;
 
 import org.springframework.security.authentication.BadCredentialsException;
 

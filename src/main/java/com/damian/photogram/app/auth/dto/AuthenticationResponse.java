@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.auth.http;
+package com.damian.photogram.app.auth.dto;
 
 public record AuthenticationResponse(
         String token

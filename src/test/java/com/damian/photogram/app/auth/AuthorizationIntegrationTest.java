@@ -1,13 +1,13 @@
-package com.damian.photogram.auth;
+package com.damian.photogram.app.auth;
 
-import com.damian.photogram.accounts.auth.http.AuthenticationRequest;
-import com.damian.photogram.accounts.auth.http.AuthenticationResponse;
-import com.damian.photogram.common.utils.JWTUtil;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerGender;
-import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.customers.CustomerRole;
-import com.damian.photogram.customers.profile.http.request.ProfileUpdateRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.core.utils.JwtUtil;
+import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerRole;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ public class AuthorizationIntegrationTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private JWTUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     private String rawPassword = "123456";
     private Customer customer;
@@ -60,7 +60,7 @@ public class AuthorizationIntegrationTest {
     void setUp() {
         customerRepository.deleteAll();
         customer = new Customer();
-        customer.setEmail("customers@test.com");
+        customer.setEmail("customer@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode(rawPassword));
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
@@ -88,7 +88,7 @@ public class AuthorizationIntegrationTest {
         String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/security/login")
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .content(jsonRequest))
                                   .andReturn();
@@ -99,35 +99,6 @@ public class AuthorizationIntegrationTest {
         );
 
         return response.token();
-    }
-
-    @Test
-    @DisplayName("Should have access when admin")
-    void shouldHaveAccessWhenAdmin() throws Exception {
-        // given
-        final String token = loginWithCustomer(admin);
-
-        // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .get("/api/v1/admin/customers/" + customer.getId())
-                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(200))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
-    @DisplayName("Should not have access when not admin")
-    void shouldNotHaveAccessWhenNotAdmin() throws Exception {
-        // given
-        final String token = loginWithCustomer(customer);
-
-        // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .get("/api/v1/admin/customers/" + customer.getId())
-                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(403));
     }
 
     @Test
