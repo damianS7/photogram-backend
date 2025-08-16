@@ -1,4 +1,4 @@
-package com.damian.photogram.common.utils;
+package com.damian.photogram.core.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.http.HttpStatus;
