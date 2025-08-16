@@ -1,4 +1,4 @@
-package com.damian.photogram.common.exception;
+package com.damian.photogram.core.exception;
 
 public class PasswordMismatchException extends ApplicationException {
     public static final String PASSWORD_MISMATCH = "Password does not match.";

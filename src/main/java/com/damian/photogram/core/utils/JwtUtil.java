@@ -1,6 +1,6 @@
-package com.damian.photogram.common.utils;
+package com.damian.photogram.core.utils;
 
-import com.damian.photogram.customer.CustomerDetails;
+import com.damian.photogram.core.security.CustomerDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JWTUtil {
+public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
@@ -28,10 +28,10 @@ public class JWTUtil {
 
     private Claims getAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+                   .setSigningKey(getSigningKey())
+                   .build()
+                   .parseClaimsJws(token)
+                   .getBody();
     }
 
     public String generateToken(CustomerDetails customerDetails) {
@@ -48,22 +48,22 @@ public class JWTUtil {
 
     public String generateToken(String email, Date expiration) {
         return Jwts.builder()
-                .setClaims(Map.of())
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(expiration) // 1 hora
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+                   .setClaims(Map.of())
+                   .setSubject(email)
+                   .setIssuedAt(new Date())
+                   .setExpiration(expiration) // 1 hora
+                   .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                   .compact();
     }
 
     public String generateToken(Map<String, Object> claims, String email) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+                   .setClaims(claims)
+                   .setSubject(email)
+                   .setIssuedAt(new Date())
+                   .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
+                   .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                   .compact();
     }
 
     public boolean isTokenValid(String token, CustomerDetails customerDetails) {

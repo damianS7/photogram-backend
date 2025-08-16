@@ -1,7 +1,7 @@
-package com.damian.photogram.common.config;
+package com.damian.photogram.core.config;
 
-import com.damian.photogram.accounts.auth.AuthenticationFilter;
-import com.damian.photogram.accounts.auth.CustomAuthenticationEntryPoint;
+import com.damian.photogram.core.security.AuthenticationFilter;
+import com.damian.photogram.core.security.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
