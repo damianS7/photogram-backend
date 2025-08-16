@@ -1,8 +1,8 @@
-package com.damian.photogram.setting;
+package com.damian.photogram.domain.setting;
 
-import com.damian.photogram.setting.dto.SettingDTO;
-import com.damian.photogram.setting.http.SettingUpdateRequest;
-import com.damian.photogram.setting.http.SettingsPatchRequest;
+import com.damian.photogram.domain.setting.dto.SettingDto;
+import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.domain.setting.dto.SettingsPatchRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +23,11 @@ public class SettingController {
         this.settingService = settingService;
     }
 
-    // endpoint to fetch all settings from logged customer
+    // endpoint to fetch all setting from logged customer
     @GetMapping("/settings")
     public ResponseEntity<?> getSettings() {
         Set<Setting> settings = settingService.getSettings();
-        Set<SettingDTO> settingsDTO = SettingDTOMapper.toSettingDTOList(settings);
+        Set<SettingDto> settingsDTO = SettingDtoMapper.toSettingDTOList(settings);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -43,7 +43,7 @@ public class SettingController {
             SettingUpdateRequest request
     ) {
         Setting setting = settingService.updateSetting(id, request);
-        SettingDTO settingDTO = SettingDTOMapper.toSettingDTO(setting);
+        SettingDto settingDTO = SettingDtoMapper.toSettingDTO(setting);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -57,7 +57,7 @@ public class SettingController {
             SettingsPatchRequest request
     ) {
         Set<Setting> setting = settingService.updateSettings(request);
-        Set<SettingDTO> settingDTO = SettingDTOMapper.toSettingDTOList(setting);
+        Set<SettingDto> settingDTO = SettingDtoMapper.toSettingDTOList(setting);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

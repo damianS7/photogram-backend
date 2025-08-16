@@ -1,4 +1,4 @@
-package com.damian.photogram.setting.http;
+package com.damian.photogram.domain.setting.dto;
 
 import java.util.Map;
 
