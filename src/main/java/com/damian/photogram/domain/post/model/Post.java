@@ -1,6 +1,6 @@
-package com.damian.photogram.posts.post;
+package com.damian.photogram.domain.post.model;
 
-import com.damian.photogram.customers.Customer;
+import com.damian.photogram.domain.customer.model.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -12,6 +12,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // FIXME add comments relation?
+
+    // FIXME rename to author?
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;

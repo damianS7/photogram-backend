@@ -1,14 +1,17 @@
-package com.damian.photogram.posts.post;
+package com.damian.photogram.domain.post.service;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.customers.exception.CustomerNotFoundException;
-import com.damian.photogram.customers.profile.ProfileRepository;
-import com.damian.photogram.posts.post.exception.PostAuthorizationException;
-import com.damian.photogram.posts.post.exception.PostNotFoundException;
-import com.damian.photogram.posts.post.http.PostCreateRequest;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
+import com.damian.photogram.domain.post.exception.PostNotAuthorException;
+import com.damian.photogram.domain.post.exception.PostNotFoundException;
+import com.damian.photogram.domain.post.helper.PostHelper;
+import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +36,7 @@ public class PostService {
     }
 
     public Page<Post> getPostsByUsername(String username, Pageable pageable) {
-        // check if the customers exists by this username
+        // check if the customer exists by this username
         profileRepository.findByUsername(username).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
@@ -41,11 +44,11 @@ public class PostService {
         return postRepository.findAllByUsername(username, pageable);
     }
 
-    // add a new post for the logged customers
-    public Post addPost(PostCreateRequest request) {
+    // add a new post for the logged customer
+    public Post createPost(PostCreateRequest request) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the customers we want to add as a post exists.
+        // check if the customer we want to add as a post exists.
         Customer customer = customerRepository.findById(loggedCustomer.getId()).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
@@ -60,7 +63,7 @@ public class PostService {
         );
     }
 
-    // delete a post from the post list of the logged customers.
+    // delete a post created by logged customer.
     public void deletePost(Long id) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
@@ -69,9 +72,9 @@ public class PostService {
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        // check if the logged customers is the owner of the post.
-        if (!loggedCustomer.getId().equals(post.getCustomer().getId())) {
-            throw new PostAuthorizationException(Exceptions.POSTS.ACCESS_FORBIDDEN);
+        // check if the logged customer is the owner of the post.
+        if (!PostHelper.isAuthor(loggedCustomer, post)) {
+            throw new PostNotAuthorException(Exceptions.POSTS.NOT_AUTHOR);
         }
 
         postRepository.deleteById(id);

@@ -1,4 +1,4 @@
-package com.damian.photogram.posts.post.http;
+package com.damian.photogram.domain.post.dto.response;
 
 public record PostCreateRequest(
         String photoFilename,

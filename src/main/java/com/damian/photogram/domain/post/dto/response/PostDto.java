@@ -1,6 +1,6 @@
-package com.damian.photogram.posts.post.dto;
+package com.damian.photogram.domain.post.dto.response;
 
-public record PostDTO(
+public record PostDto(
         Long id,
         Long customerId,
         String description,

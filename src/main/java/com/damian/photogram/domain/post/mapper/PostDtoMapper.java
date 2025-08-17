@@ -1,15 +1,16 @@
-package com.damian.photogram.posts.post;
+package com.damian.photogram.domain.post.mapper;
 
 
-import com.damian.photogram.posts.post.dto.PostDTO;
+import com.damian.photogram.domain.post.dto.response.PostDto;
+import com.damian.photogram.domain.post.model.Post;
 import org.springframework.data.domain.Page;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PostDTOMapper {
-    public static PostDTO map(Post post) {
-        return new PostDTO(
+public class PostDtoMapper {
+    public static PostDto toPostDtoPaginated(Post post) {
+        return new PostDto(
                 post.getId(),
                 post.getCustomer().getId(),
                 post.getDescription(),
@@ -19,18 +20,18 @@ public class PostDTOMapper {
         );
     }
 
-    public static Set<PostDTO> map(Set<Post> posts) {
+    public static Set<PostDto> toPostDtoSet(Set<Post> posts) {
         return posts
                 .stream()
                 .map(
-                        PostDTOMapper::map
+                        PostDtoMapper::toPostDtoPaginated
                 ).collect(Collectors.toSet());
     }
 
-    public static Page<PostDTO> map(Page<Post> posts) {
+    public static Page<PostDto> toPostDtoPaginated(Page<Post> posts) {
         return posts
                 .map(
-                        PostDTOMapper::map
+                        PostDtoMapper::toPostDtoPaginated
                 );
     }
 }

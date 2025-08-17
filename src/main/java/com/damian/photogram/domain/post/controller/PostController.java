@@ -1,9 +1,12 @@
-package com.damian.photogram.posts.post;
+package com.damian.photogram.domain.post.controller;
 
-import com.damian.photogram.posts.post.dto.ImageUploadedDTO;
-import com.damian.photogram.posts.post.dto.PostDTO;
-import com.damian.photogram.posts.post.http.PostCreateRequest;
-import jakarta.validation.constraints.NotBlank;
+import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
+import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
+import com.damian.photogram.domain.post.dto.response.PostDto;
+import com.damian.photogram.domain.post.mapper.PostDtoMapper;
+import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.post.service.PostImageUploaderService;
+import com.damian.photogram.domain.post.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ public class PostController {
         this.postImageUploaderService = postImageUploaderService;
     }
 
-    // endpoint to fetch all posts from specific customers
+    // endpoint to fetch all post from specific customer
     @GetMapping("/posts/{username}")
     public ResponseEntity<?> getPostsByUsername(
             @PathVariable @NotNull
@@ -40,28 +43,28 @@ public class PostController {
             Pageable pageable
     ) {
         Page<Post> posts = postService.getPostsByUsername(username, pageable);
-        Page<PostDTO> postsDTO = PostDTOMapper.map(posts);
+        Page<PostDto> postsDTO = PostDtoMapper.toPostDtoPaginated(posts);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(postsDTO);
     }
 
-    // endpoint to add a new post for the logged customers
+    // endpoint to add a new post for the logged customer
     @PostMapping("/posts")
-    public ResponseEntity<?> addPost(
+    public ResponseEntity<?> createPost(
             @Validated @RequestBody
             PostCreateRequest request
     ) {
-        Post post = postService.addPost(request);
-        PostDTO postDTO = PostDTOMapper.map(post);
+        Post post = postService.createPost(request);
+        PostDto postDTO = PostDtoMapper.toPostDtoPaginated(post);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(postDTO);
     }
 
-    // endpoint to delete a post from the logged customers post list.
+    // endpoint to delete a post from the logged.
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<?> deletePost(
             @PathVariable @NotNull @Positive
@@ -75,12 +78,13 @@ public class PostController {
     }
 
     // endpoint to get a photo
-    @GetMapping("/posts/photo/{filename:.+}")
+    @GetMapping("/posts/{postId}/photo")
     public ResponseEntity<?> getPostPhoto(
-            @PathVariable @NotBlank
-            String filename
+            @PathVariable @Positive
+            Long postId
     ) {
-        Resource resource = postImageUploaderService.getImage(filename);
+        // FIXME imageService.getImage('post', filename)
+        Resource resource = postImageUploaderService.getPostImage(postId);
         String contentType = postImageUploaderService.getContentType(resource);
 
         return ResponseEntity
@@ -96,7 +100,7 @@ public class PostController {
             @RequestParam("file") MultipartFile file
     ) {
         String filename = postImageUploaderService.uploadImage(file);
-        ImageUploadedDTO imageUploadedDTO = new ImageUploadedDTO(filename);
+        ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(filename);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
