@@ -1,7 +1,10 @@
-package com.damian.photogram.posts.comments;
+package com.damian.photogram.domain.post.controller;
 
-import com.damian.photogram.posts.comments.dto.CommentDto;
-import com.damian.photogram.posts.comments.http.CommentCreateRequest;
+import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
+import com.damian.photogram.domain.post.dto.response.CommentDto;
+import com.damian.photogram.domain.post.mapper.CommentDtoMapper;
+import com.damian.photogram.domain.post.model.Comment;
+import com.damian.photogram.domain.post.service.CommentService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // endpoint to fetch all posts from specific customers
+    // endpoint to fetch all post from specific customer
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<?> getCommentsPageByPostId(
             @PathVariable @NotNull @Positive
@@ -40,8 +43,8 @@ public class CommentController {
                 .body(commentsDTO);
     }
 
-    // endpoint to add a new post for the logged customers
-    @PostMapping("/posts/{postId}/comments")
+    // endpoint to add a new post for the logged customer
+    @PostMapping("/posts/{postId}/comment")
     public ResponseEntity<?> addComment(
             @PathVariable @NotNull @Positive
             Long postId,

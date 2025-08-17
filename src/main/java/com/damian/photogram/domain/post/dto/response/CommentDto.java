@@ -1,4 +1,4 @@
-package com.damian.photogram.posts.comments.dto;
+package com.damian.photogram.domain.post.dto.response;
 
 public record CommentDto(
         Long id,

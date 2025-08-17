@@ -1,7 +1,6 @@
-package com.damian.photogram.posts.comments;
+package com.damian.photogram.domain.post.model;
 
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.posts.post.Post;
+import com.damian.photogram.domain.customer.model.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -13,6 +12,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // FIXME change to author/writer
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
@@ -29,6 +29,11 @@ public class Comment {
 
     public Comment() {
         this.createdAt = Instant.now();
+    }
+
+    public Comment(Customer author, Post post) {
+        this(author);
+        this.post = post;
     }
 
     public Comment(Customer postCustomer) {

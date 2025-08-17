@@ -1,6 +1,7 @@
-package com.damian.photogram.posts.comments;
+package com.damian.photogram.domain.post.mapper;
 
-import com.damian.photogram.posts.comments.dto.CommentDto;
+import com.damian.photogram.domain.post.dto.response.CommentDto;
+import com.damian.photogram.domain.post.model.Comment;
 import org.springframework.data.domain.Page;
 
 import java.util.Set;

@@ -1,16 +1,18 @@
-package com.damian.photogram.posts.comments;
+package com.damian.photogram.domain.post.service;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.customers.exception.CustomerNotFoundException;
-import com.damian.photogram.posts.comments.exception.CommentNotFoundException;
-import com.damian.photogram.posts.comments.http.CommentCreateRequest;
-import com.damian.photogram.posts.post.Post;
-import com.damian.photogram.posts.post.PostRepository;
-import com.damian.photogram.posts.post.exception.PostAuthorizationException;
-import com.damian.photogram.posts.post.exception.PostNotFoundException;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
+import com.damian.photogram.domain.post.exception.CommentNotFoundException;
+import com.damian.photogram.domain.post.exception.PostNotAuthorException;
+import com.damian.photogram.domain.post.exception.PostNotFoundException;
+import com.damian.photogram.domain.post.model.Comment;
+import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.post.repository.CommentRepository;
+import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,8 +35,7 @@ public class CommentService {
     }
 
     public Page<Comment> getCommentsPageByPostId(Long postId, Pageable pageable) {
-        // TODO: check other methods and ensure that they implements existsById
-        // check if the posts exists
+        // check if the post exists
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException(Exceptions.POSTS.NOT_FOUND);
         }
@@ -46,7 +47,7 @@ public class CommentService {
     public Comment addComment(Long postId, CommentCreateRequest request) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the customers we want to add as a post exists.
+        // check if the customer we want to add as a post exists.
         Customer customer = customerRepository.findById(loggedCustomer.getId()).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
@@ -55,15 +56,13 @@ public class CommentService {
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        Comment comment = new Comment();
-        comment.setCustomer(customer);
-        comment.setPost(post);
+        Comment comment = new Comment(customer, post);
         comment.setComment(request.comment());
 
         return commentRepository.save(comment);
     }
 
-    // delete a post from the post list of the logged customers.
+    // delete a post from the post list of the logged customer.
     public void deleteComment(Long id) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
@@ -72,11 +71,16 @@ public class CommentService {
                 () -> new CommentNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        // check if the logged customers is the owner of the post.
-        if (!loggedCustomer.getId().equals(comment.getCustomer().getId())) {
-            throw new PostAuthorizationException(Exceptions.POSTS.ACCESS_FORBIDDEN);
+        // check if the logged customer is the author of the post.
+        if (!isAuthor(loggedCustomer, comment)) {
+            throw new PostNotAuthorException(Exceptions.POSTS.NOT_AUTHOR);
         }
 
         commentRepository.deleteById(id);
+    }
+
+    public boolean isAuthor(Customer customer, Comment comment) {
+        // check if the customer is the author of the post.
+        return customer.getId().equals(comment.getCustomer().getId());
     }
 }
