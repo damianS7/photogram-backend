@@ -1,11 +1,13 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.service;
 
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.common.exception.PasswordMismatchException;
-import com.damian.photogram.common.utils.AuthHelper;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.exception.CustomerNotFoundException;
-import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.account.model.Account;
+import com.damian.photogram.domain.account.repository.AccountRepository;
+import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,9 @@ public class AccountPasswordService {
     /**
      * It updates the password of given followedCustomerId.
      *
-     * @param customerId the id of the customers to be updated
+     * @param customerId the id of the customer to be updated
      * @param password   the new password to be set
-     * @throws CustomerNotFoundException if the customers does not exist
+     * @throws CustomerNotFoundException if the customer does not exist
      * @throws PasswordMismatchException if the password does not match
      */
     public void updatePassword(Long customerId, String password) {
@@ -54,17 +56,17 @@ public class AccountPasswordService {
     }
 
     /**
-     * It updates the password of the logged customers
+     * It updates the password of the logged customer
      *
      * @param request the request body that contains the current password and the new password
-     * @throws CustomerNotFoundException if the customers does not exist
+     * @throws CustomerNotFoundException if the customer does not exist
      * @throws PasswordMismatchException if the password does not match
      */
     public void updatePassword(CustomerPasswordUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext
         final Customer loggedCustomer = AuthHelper.getLoggedCustomer();
 
-        // Before making any changes we check that the password sent by the customers matches the one in the entity
+        // Before making any changes we check that the password sent by the customer matches the one in the entity
         AuthHelper.validatePassword(loggedCustomer, request.currentPassword());
 
         // update the password

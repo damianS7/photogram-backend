@@ -1,5 +1,6 @@
-package com.damian.photogram.accounts.token;
+package com.damian.photogram.domain.account.repository;
 
+import com.damian.photogram.domain.account.model.AccountToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

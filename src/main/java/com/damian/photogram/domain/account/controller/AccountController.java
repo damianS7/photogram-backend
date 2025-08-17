@@ -1,12 +1,15 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.controller;
 
-import com.damian.photogram.accounts.account.http.AccountActivationResendRequest;
-import com.damian.photogram.common.utils.ApiResponse;
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.dto.CustomerDTOMapper;
-import com.damian.photogram.customers.dto.CustomerWithProfileDTO;
-import com.damian.photogram.customers.http.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.core.utils.ApiResponse;
+import com.damian.photogram.domain.account.dto.request.AccountActivationResendRequest;
+import com.damian.photogram.domain.account.service.AccountActivationService;
+import com.damian.photogram.domain.account.service.AccountPasswordService;
+import com.damian.photogram.domain.account.service.AccountRegistrationService;
+import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
+import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
+import com.damian.photogram.domain.customer.dto.response.CustomerWithProfileDto;
+import com.damian.photogram.domain.customer.mapper.CustomerDtoMapper;
+import com.damian.photogram.domain.customer.model.Customer;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,14 +41,14 @@ public class AccountController {
             CustomerRegistrationRequest request
     ) {
         Customer registeredCustomer = accountRegistrationService.register(request);
-        CustomerWithProfileDTO dto = CustomerDTOMapper.toCustomerWithProfileDTO(registeredCustomer);
+        CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(registeredCustomer);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(dto);
     }
 
-    // endpoint to modify customers password
+    // endpoint to modify customer password
     @PatchMapping("/auth/customers/me/password")
     public ResponseEntity<?> updateLoggedCustomerPassword(
             @Validated @RequestBody
@@ -71,7 +74,7 @@ public class AccountController {
                 .body(ApiResponse.success("Account has been activated."));
     }
 
-    // endpoint for accounts to request resending activation
+    // endpoint for account to request resending activation
     @PostMapping("/auth/accounts/resend-activation")
     public ResponseEntity<?> resendActivation(
             @Validated @RequestBody

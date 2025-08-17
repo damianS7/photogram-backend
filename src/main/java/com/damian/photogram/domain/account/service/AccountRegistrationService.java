@@ -1,8 +1,8 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.service;
 
-import com.damian.photogram.customers.Customer;
-import com.damian.photogram.customers.CustomerService;
-import com.damian.photogram.customers.http.request.CustomerRegistrationRequest;
+import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.service.CustomerService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,13 +19,13 @@ public class AccountRegistrationService {
     }
 
     /**
-     * Register a new customers.
+     * Register a new customer.
      *
-     * @param request Contains the fields needed for the customers creation
-     * @return The customers created
+     * @param request Contains the fields needed for the customer creation
+     * @return The customer created
      */
     public Customer register(CustomerRegistrationRequest request) {
-        // It uses the customers service to create a new customers
+        // It uses the customer service to create a new customer
         Customer registeredCustomer = customerService.createCustomer(request);
 
         // Create a new authentication token for the customer

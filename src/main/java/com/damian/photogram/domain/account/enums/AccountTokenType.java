@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.token;
+package com.damian.photogram.domain.account.enums;
 
 public enum AccountTokenType {
     ACCOUNT_VERIFICATION,

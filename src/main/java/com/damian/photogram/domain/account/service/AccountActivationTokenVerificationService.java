@@ -1,10 +1,10 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.service;
 
-import com.damian.photogram.accounts.account.exception.AccountActivationTokenExpiredException;
-import com.damian.photogram.accounts.account.exception.AccountActivationTokenNotFoundException;
-import com.damian.photogram.accounts.token.AccountToken;
-import com.damian.photogram.accounts.token.AccountTokenRepository;
-import com.damian.photogram.common.exception.Exceptions;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.account.exception.AccountActivationTokenExpiredException;
+import com.damian.photogram.domain.account.exception.AccountActivationTokenNotFoundException;
+import com.damian.photogram.domain.account.model.AccountToken;
+import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

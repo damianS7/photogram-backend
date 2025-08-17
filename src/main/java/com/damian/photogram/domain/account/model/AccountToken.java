@@ -1,6 +1,7 @@
-package com.damian.photogram.accounts.token;
+package com.damian.photogram.domain.account.model;
 
-import com.damian.photogram.customers.Customer;
+import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.customer.model.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;

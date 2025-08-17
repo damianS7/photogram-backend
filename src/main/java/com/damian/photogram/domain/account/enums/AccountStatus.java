@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.enums;
 
 public enum AccountStatus {
     PENDING_VERIFICATION,

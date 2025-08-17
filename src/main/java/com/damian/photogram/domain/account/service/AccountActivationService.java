@@ -1,13 +1,15 @@
-package com.damian.photogram.accounts.account;
+package com.damian.photogram.domain.account.service;
 
-import com.damian.photogram.accounts.account.exception.AccountActivationException;
-import com.damian.photogram.accounts.account.exception.AccountNotFoundException;
-import com.damian.photogram.accounts.token.AccountToken;
-import com.damian.photogram.accounts.token.AccountTokenRepository;
-import com.damian.photogram.accounts.token.AccountTokenType;
-import com.damian.photogram.common.exception.Exceptions;
-import com.damian.photogram.customers.CustomerRepository;
-import com.damian.photogram.mail.EmailSenderService;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.service.EmailSenderService;
+import com.damian.photogram.domain.account.enums.AccountStatus;
+import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.account.exception.AccountActivationException;
+import com.damian.photogram.domain.account.exception.AccountNotFoundException;
+import com.damian.photogram.domain.account.model.Account;
+import com.damian.photogram.domain.account.model.AccountToken;
+import com.damian.photogram.domain.account.repository.AccountRepository;
+import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,6 @@ import java.util.UUID;
 @Service
 public class AccountActivationService {
     private final Environment env;
-    private final CustomerRepository customerRepository;
     private final AccountTokenRepository accountTokenRepository;
     private final AccountRepository accountRepository;
     private final EmailSenderService emailSenderService;
@@ -26,14 +27,12 @@ public class AccountActivationService {
 
     public AccountActivationService(
             Environment env,
-            CustomerRepository customerRepository,
             AccountTokenRepository accountTokenRepository,
             AccountRepository accountRepository,
             EmailSenderService emailSenderService,
             AccountActivationTokenVerificationService accountActivationTokenVerificationService
     ) {
         this.env = env;
-        this.customerRepository = customerRepository;
         this.accountTokenRepository = accountTokenRepository;
         this.accountRepository = accountRepository;
         this.emailSenderService = emailSenderService;
@@ -61,7 +60,7 @@ public class AccountActivationService {
         accountToken.setUsed(true);
         accountTokenRepository.save(accountToken);
 
-        // update accounts status to active
+        // update account status to active
         accountCustomer.setAccountStatus(
                 AccountStatus.ACTIVE
         );
@@ -72,7 +71,7 @@ public class AccountActivationService {
         emailSenderService.send(
                 accountCustomer.getCustomer().getEmail(),
                 "Welcome to photogram!",
-                "Your accounts has been activated successfully."
+                "Your account has been activated successfully."
         );
     }
 
@@ -83,7 +82,7 @@ public class AccountActivationService {
                 () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND_BY_EMAIL)
         );
 
-        // only accounts pending for verification can request the email
+        // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
             throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
@@ -110,11 +109,11 @@ public class AccountActivationService {
     public void sendAccountActivationTokenEmail(String email, String token) {
 
         String url = env.getProperty("app.frontend.url");
-        String activationLink = url + "/auth/activate-account/" + token;
+        String activationLink = url + "/security/activate-account/" + token;
         // Send email to confirm registration
         emailSenderService.send(
                 email,
-                "Photogram accounts activation link.",
+                "Photogram account activation link.",
                 "Please click on the link below to confirm your registration: \n\n" + activationLink
         );
     }

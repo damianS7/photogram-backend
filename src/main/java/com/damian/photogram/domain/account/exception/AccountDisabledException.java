@@ -1,6 +1,6 @@
-package com.damian.photogram.accounts.account.exception;
+package com.damian.photogram.domain.account.exception;
 
-import com.damian.photogram.accounts.auth.exception.AuthenticationException;
+import com.damian.photogram.app.auth.exception.AuthenticationException;
 
 public class AccountDisabledException extends AuthenticationException {
     public AccountDisabledException(String message) {
