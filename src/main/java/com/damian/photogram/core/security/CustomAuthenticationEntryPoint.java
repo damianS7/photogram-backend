@@ -1,4 +1,4 @@
-package com.damian.photogram.accounts.auth;
+package com.damian.photogram.core.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

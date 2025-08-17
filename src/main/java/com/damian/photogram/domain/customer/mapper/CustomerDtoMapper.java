@@ -28,14 +28,14 @@ public class CustomerDtoMapper {
                 customer.getId(),
                 customer.getEmail(),
                 customer.getRole(),
-                ProfileDtoMapper.toProfileDTO(customer.getProfile()),
+                ProfileDtoMapper.toProfileDto(customer.getProfile()),
                 customer.getCreatedAt(),
                 customer.getUpdatedAt()
         );
     }
 
     public static CustomerWithAllDataDto toCustomerWithAllDataDto(Customer customer) {
-        ProfileDto profileDTO = Optional.of(ProfileDtoMapper.toProfileDTO(customer.getProfile()))
+        ProfileDto profileDTO = Optional.of(ProfileDtoMapper.toProfileDto(customer.getProfile()))
                                         .orElseThrow(() -> new ProfileNotFoundException(
                                                 Exceptions.PROFILE.NOT_FOUND));
 
