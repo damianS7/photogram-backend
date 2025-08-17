@@ -11,9 +11,7 @@ import com.damian.photogram.domain.customer.model.Follow;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.FollowRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FollowIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -52,11 +51,8 @@ public class FollowIntegrationTest {
     private Customer customer;
     private String token;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        followRepository.deleteAll();
-        customerRepository.deleteAll();
-
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
         customer.setEmail("customer@test.com");
@@ -69,6 +65,12 @@ public class FollowIntegrationTest {
         customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
 
         customerRepository.save(customer);
+    }
+
+    @AfterAll
+    void tearDown() {
+        followRepository.deleteAll();
+        customerRepository.deleteAll();
     }
 
     void loginWithCustomer(Customer customer) throws Exception {

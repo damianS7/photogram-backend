@@ -15,10 +15,7 @@ import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,12 +57,15 @@ public class CommentIntegrationTest {
     private Customer customer;
     private String token;
 
-    @BeforeAll
-    void setUp() {
+    @AfterAll
+    void tearDown() {
         commentRepository.deleteAll();
         postRepository.deleteAll();
         customerRepository.deleteAll();
+    }
 
+    @BeforeAll
+    void setUp() {
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
         customer.setEmail("customer@test.com");

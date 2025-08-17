@@ -2,24 +2,24 @@ package com.damian.photogram.domain.account;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
-import com.damian.photogram.core.utils.JwtUtil;
+import com.damian.photogram.domain.account.enums.AccountStatus;
+import com.damian.photogram.domain.account.repository.AccountRepository;
+import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
 import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -32,9 +32,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AccountIntegrationTest {
     private final String email = "customer@test.com";
     private final String rawPassword = "123456";
@@ -49,20 +49,26 @@ public class AccountIntegrationTest {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private AccountRepository accountRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private AccountTokenRepository accountTokenRepository;
+
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private Customer customer;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
         customer = new Customer();
         customer.setRole(CustomerRole.ADMIN);
         customer.setEmail(this.email);
         customer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
         customer.getProfile().setPhone("123 123 123");
@@ -71,6 +77,14 @@ public class AccountIntegrationTest {
         customer.getProfile().setImageFilename("no photoPath");
 
         customerRepository.save(customer);
+    }
+
+    @AfterAll
+    void tearDown() {
+        profileRepository.deleteAll();
+        accountTokenRepository.deleteAll();
+        accountRepository.deleteAll();
+        customerRepository.deleteAll();
     }
 
     String loginWithCustomer(Customer customer) throws Exception {
@@ -82,7 +96,7 @@ public class AccountIntegrationTest {
         String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/v1/security/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .content(jsonRequest))
                                   .andReturn();
@@ -115,7 +129,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/security/register")
+                       .post("/api/v1/auth/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -148,7 +162,7 @@ public class AccountIntegrationTest {
         String json = objectMapper.writeValueAsString(request);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/security/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(json))
                .andDo(print())
@@ -176,7 +190,7 @@ public class AccountIntegrationTest {
         String json = objectMapper.writeValueAsString(request);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/security/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(json))
                .andDo(print())
@@ -205,7 +219,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/security/register")
+                       .post("/api/v1/auth/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -233,7 +247,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/security/register")
+                       .post("/api/v1/auth/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -248,6 +262,7 @@ public class AccountIntegrationTest {
     void shouldUpdatePassword() throws Exception {
         // given
         String token = loginWithCustomer(customer);
+
         CustomerPasswordUpdateRequest updatePasswordRequest = new CustomerPasswordUpdateRequest(
                 "123456",
                 "12345678$Xa"
@@ -255,7 +270,7 @@ public class AccountIntegrationTest {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/security/customer/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -275,7 +290,7 @@ public class AccountIntegrationTest {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/security/customer/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -295,7 +310,7 @@ public class AccountIntegrationTest {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/security/customer/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -318,7 +333,7 @@ public class AccountIntegrationTest {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/security/customer/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))

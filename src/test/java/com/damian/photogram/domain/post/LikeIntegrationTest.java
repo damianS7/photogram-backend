@@ -14,10 +14,7 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,10 +56,15 @@ public class LikeIntegrationTest {
     private Customer customer;
     private String token;
 
+    @AfterAll
+    void tearDown() {
+        likeRepository.deleteAll();
+        postRepository.deleteAll();
+        customerRepository.deleteAll();
+    }
+
     @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
-
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
         customer.setEmail("customer@test.com");

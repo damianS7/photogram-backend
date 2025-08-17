@@ -10,9 +10,7 @@ import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +20,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -37,9 +34,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ProfileIntegrationTest {
     private final String rawPassword = "123456";
 
@@ -60,10 +57,8 @@ public class ProfileIntegrationTest {
     private Customer customerAdmin;
     private String token;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() throws Exception {
-        customerRepository.deleteAll();
-
         customerA = new Customer();
         customerA.setEmail("customerA@test.com");
         customerA.setRole(CustomerRole.CUSTOMER);
@@ -88,6 +83,11 @@ public class ProfileIntegrationTest {
         customerAdmin.setEmail("admin@test.com");
         customerAdmin.setRole(CustomerRole.ADMIN);
         customerRepository.save(customerAdmin);
+    }
+
+    @AfterAll
+    void tearDown() {
+        customerRepository.deleteAll();
     }
 
     void loginWithCustomer(Customer customer) throws Exception {
