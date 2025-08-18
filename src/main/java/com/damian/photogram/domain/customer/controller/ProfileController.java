@@ -1,13 +1,18 @@
 package com.damian.photogram.domain.customer.controller;
 
+import com.damian.photogram.core.service.ImageCacheService;
+import com.damian.photogram.core.service.ImageHelper;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.dto.response.ProfileDto;
 import com.damian.photogram.domain.customer.mapper.ProfileDtoMapper;
 import com.damian.photogram.domain.customer.model.Profile;
+import com.damian.photogram.domain.customer.service.ProfileImageService;
 import com.damian.photogram.domain.customer.service.ProfileImageUploaderService;
 import com.damian.photogram.domain.customer.service.ProfileService;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -22,14 +27,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileController {
     private final ProfileService profileService;
     private final ProfileImageUploaderService profileImageUploaderService;
+    private final ImageCacheService imageCacheService;
+    private final ProfileImageService profileImageService;
 
     @Autowired
     public ProfileController(
             ProfileService profileService,
-            ProfileImageUploaderService profileImageUploaderService
+            ProfileImageUploaderService profileImageUploaderService,
+            ImageCacheService imageCacheService,
+            ProfileImageService profileImageService
     ) {
         this.profileService = profileService;
         this.profileImageUploaderService = profileImageUploaderService;
+        this.imageCacheService = imageCacheService;
+        this.profileImageService = profileImageService;
     }
 
     @GetMapping("/customers/me/profile")
@@ -70,13 +81,13 @@ public class ProfileController {
     }
 
     // endpoint to get the logged customer profile photo
-    @GetMapping("/customers/profile/photo/{filename:.+}")
+    @GetMapping("/customers/{customerId}/profile/photo")
     public ResponseEntity<?> getProfilePhoto(
-            @PathVariable @NotBlank
-            String filename
+            @PathVariable @NotNull @Positive
+            Long customerId
     ) {
-        Resource resource = profileImageUploaderService.getImage(filename);
-        String contentType = profileImageUploaderService.getContentType(resource);
+        Resource resource = profileImageService.getProfileImage(customerId);
+        String contentType = ImageHelper.getContentType(resource);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -92,7 +103,7 @@ public class ProfileController {
             @RequestParam("file") MultipartFile file
     ) {
         Resource resource = profileImageUploaderService.uploadImage(currentPassword, file);
-        String contentType = profileImageUploaderService.getContentType(resource);
+        String contentType = ImageHelper.getContentType(resource);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

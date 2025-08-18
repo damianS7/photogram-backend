@@ -1,10 +1,12 @@
 package com.damian.photogram.domain.post.controller;
 
+import com.damian.photogram.core.service.ImageHelper;
 import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.mapper.PostDtoMapper;
 import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.post.service.PostImageService;
 import com.damian.photogram.domain.post.service.PostImageUploaderService;
 import com.damian.photogram.domain.post.service.PostService;
 import jakarta.validation.constraints.NotNull;
@@ -26,11 +28,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class PostController {
     private final PostService postService;
+    private final PostImageService postImageService;
     private final PostImageUploaderService postImageUploaderService;
 
     @Autowired
-    public PostController(PostService postService, PostImageUploaderService postImageUploaderService) {
+    public PostController(
+            PostService postService,
+            PostImageService postImageService,
+            PostImageUploaderService postImageUploaderService
+    ) {
         this.postService = postService;
+        this.postImageService = postImageService;
         this.postImageUploaderService = postImageUploaderService;
     }
 
@@ -84,9 +92,8 @@ public class PostController {
             Long postId
     ) {
         // FIXME imageService.getImage('post', filename)
-        Resource resource = postImageUploaderService.getPostImage(postId);
-        String contentType = postImageUploaderService.getContentType(resource);
-
+        Resource resource = postImageService.getPostImage(postId);
+        String contentType = ImageHelper.getContentType(resource);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.parseMediaType(contentType))
