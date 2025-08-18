@@ -1,6 +1,16 @@
-package com.damian.photogram.common.exception;
+package com.damian.photogram.core.exception;
 
+// FIXME code cleanup
 public class Exceptions {
+    public static class IMAGE {
+        public static final String NOT_FOUND = "Image not found.";
+        public static final String INVALID_PATH = "Image path not found.";
+        public static final String FILE_SIZE_LIMIT = "Image is too large.";
+        public static final String ONLY_IMAGES_ALLOWED = "Only images are allowed.";
+        public static final String EMPTY_FILE = "File is empty.";
+        public static final String UPLOAD_FAILED = "Image upload failed.";
+    }
+
     public static class ACCOUNT {
         public static final String NOT_ADMIN = "You are not an admin.";
         public static final String BAD_CREDENTIALS = "Bad credentials.";
@@ -21,8 +31,10 @@ public class Exceptions {
     }
 
     public static class POSTS {
-        public static final String ACCESS_FORBIDDEN = "You cannot access this post.";
+        public static final String FILE_SIZE_LIMIT = "Post image is too large.";
+        public static final String NOT_AUTHOR = "You cannot access this post.";
         public static final String NOT_FOUND = "Post not found.";
+        public static final String ALREADY_LIKED = "Post already liked.";
     }
 
     public static class LIKES {
@@ -46,8 +58,8 @@ public class Exceptions {
     }
 
     public static class SETTINGS {
-        public static final String NOT_FOUND = "Group not found.";
-        public static final String NOT_OWNER = "You are not the owner of this settings.";
+        public static final String NOT_FOUND = "Setting not found.";
+        public static final String NOT_OWNER = "You are not the owner of this setting.";
     }
 
     public static class PROFILE {
