@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
 
     private final String RAW_PASSWORD = "123456";
@@ -150,6 +150,4 @@ public class AuthenticationServiceTest {
         // Then
         assertEquals(Exceptions.ACCOUNT.SUSPENDED, exception.getMessage());
     }
-
-    // TODO shouldValidateToken
 }

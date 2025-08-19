@@ -222,5 +222,28 @@ public class AuthenticationIntegrationTest {
                .andExpect(jsonPath("$.message").value(containsString("Validation error")));
     }
 
-    // TODO shouldNotLoginWhenAccountIsNotActivated
+    @Test
+    @DisplayName("Should not login when account is not activated")
+    void shouldNotLoginWhenAccountIsNotActivated() throws Exception {
+        // Given
+        customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
+        customerRepository.save(customer);
+
+        AuthenticationRequest request = new AuthenticationRequest(
+                email, rawPassword
+        );
+
+        // request to json
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .post("/api/v1/auth/login")
+                       .contentType(MediaType.APPLICATION_JSON)
+                       .content(jsonRequest))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
 }
