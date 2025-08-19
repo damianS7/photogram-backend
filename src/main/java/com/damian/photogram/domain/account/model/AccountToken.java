@@ -5,6 +5,7 @@ import com.damian.photogram.domain.customer.model.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "customer_auth_tokens")
@@ -40,6 +41,8 @@ public class AccountToken {
     public AccountToken(Customer customer) {
         this();
         this.customer = customer;
+        this.createdAt = Instant.now();
+        this.expiresAt = Instant.now().plus(1, ChronoUnit.DAYS);
     }
 
     public Customer getCustomer() {

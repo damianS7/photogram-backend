@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 
 @Service
-public class AccountActivationTokenVerificationService {
+public class AccountTokenVerificationService {
     private final AccountTokenRepository accountTokenRepository;
 
-    public AccountActivationTokenVerificationService(
+    public AccountTokenVerificationService(
             AccountTokenRepository accountTokenRepository
     ) {
         this.accountTokenRepository = accountTokenRepository;

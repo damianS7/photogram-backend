@@ -12,8 +12,6 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FIXME add comments relation?
-
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer author;

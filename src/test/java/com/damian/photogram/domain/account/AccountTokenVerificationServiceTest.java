@@ -5,7 +5,7 @@ import com.damian.photogram.domain.account.exception.AccountActivationTokenNotFo
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
-import com.damian.photogram.domain.account.service.AccountActivationTokenVerificationService;
+import com.damian.photogram.domain.account.service.AccountTokenVerificationService;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.service.CustomerService;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
-public class AccountActivationTokenVerificationServiceTest {
+public class AccountTokenVerificationServiceTest {
 
     private final String RAW_PASSWORD = "123456";
 
@@ -43,7 +43,7 @@ public class AccountActivationTokenVerificationServiceTest {
     private AccountRepository accountRepository;
 
     @InjectMocks
-    private AccountActivationTokenVerificationService accountActivationTokenVerificationService;
+    private AccountTokenVerificationService accountTokenVerificationService;
 
     @Mock
     private CustomerService customerService;
@@ -92,7 +92,7 @@ public class AccountActivationTokenVerificationServiceTest {
 
         // when
         when(accountTokenRepository.findByToken(accountToken.getToken())).thenReturn(Optional.of(accountToken));
-        AccountToken result = accountActivationTokenVerificationService.verify(accountToken.getToken());
+        AccountToken result = accountTokenVerificationService.verify(accountToken.getToken());
 
         // then
         verify(accountTokenRepository, times(1)).findByToken(accountToken.getToken());
@@ -107,14 +107,13 @@ public class AccountActivationTokenVerificationServiceTest {
         when(accountTokenRepository.findByToken(anyString())).thenReturn(Optional.empty());
         assertThrows(
                 AccountActivationTokenNotFoundException.class,
-                () -> accountActivationTokenVerificationService.verify(anyString())
+                () -> accountTokenVerificationService.verify(anyString())
         );
 
         // then
         verify(accountTokenRepository, times(1)).findByToken(anyString());
     }
 
-    // shouldNotVerifyAccountWhenTokenIsExpired
     @Test
     @DisplayName("Should not verify token when is expired")
     void shouldNotVerifyAccountWhenTokenIsExpired() {
@@ -136,7 +135,7 @@ public class AccountActivationTokenVerificationServiceTest {
         when(accountTokenRepository.findByToken(anyString())).thenReturn(Optional.of(accountToken));
         assertThrows(
                 AccountActivationTokenExpiredException.class,
-                () -> accountActivationTokenVerificationService.verify(anyString())
+                () -> accountTokenVerificationService.verify(anyString())
         );
 
         // then

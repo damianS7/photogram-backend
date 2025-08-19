@@ -23,26 +23,26 @@ public class AccountActivationService {
     private final AccountTokenRepository accountTokenRepository;
     private final AccountRepository accountRepository;
     private final EmailSenderService emailSenderService;
-    private final AccountActivationTokenVerificationService accountActivationTokenVerificationService;
+    private final AccountTokenVerificationService accountTokenVerificationService;
 
     public AccountActivationService(
             Environment env,
             AccountTokenRepository accountTokenRepository,
             AccountRepository accountRepository,
             EmailSenderService emailSenderService,
-            AccountActivationTokenVerificationService accountActivationTokenVerificationService
+            AccountTokenVerificationService accountTokenVerificationService
     ) {
         this.env = env;
         this.accountTokenRepository = accountTokenRepository;
         this.accountRepository = accountRepository;
         this.emailSenderService = emailSenderService;
-        this.accountActivationTokenVerificationService = accountActivationTokenVerificationService;
+        this.accountTokenVerificationService = accountTokenVerificationService;
     }
 
     // Activate an account using the token
     public void activate(String token) {
         // check the token is valid and not expired.
-        AccountToken accountToken = accountActivationTokenVerificationService.verify(token);
+        AccountToken accountToken = accountTokenVerificationService.verify(token);
 
         // find the customer associated with the token
         Account accountCustomer = accountRepository
@@ -109,7 +109,7 @@ public class AccountActivationService {
     public void sendAccountActivationTokenEmail(String email, String token) {
 
         String url = env.getProperty("app.frontend.url");
-        String activationLink = url + "/security/activate-account/" + token;
+        String activationLink = url + "/auth/accounts/activate/" + token;
         // Send email to confirm registration
         emailSenderService.send(
                 email,

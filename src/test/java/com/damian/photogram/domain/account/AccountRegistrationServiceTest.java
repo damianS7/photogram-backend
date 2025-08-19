@@ -1,7 +1,5 @@
 package com.damian.photogram.domain.account;
 
-import com.damian.photogram.domain.account.repository.AccountRepository;
-import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
 import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
@@ -30,12 +28,6 @@ import static org.mockito.Mockito.*;
 public class AccountRegistrationServiceTest {
 
     private final String RAW_PASSWORD = "123456";
-
-    @Mock
-    private AccountTokenRepository accountTokenRepository;
-
-    @Mock
-    private AccountRepository accountRepository;
 
     @Mock
     private CustomerRepository customerRepository;
