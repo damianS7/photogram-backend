@@ -115,7 +115,7 @@ public class ProfileImageServiceTest {
         // cleanup
         Files.deleteIfExists(filePath);
     }
-
+    
     @Test
     @DisplayName("Should upload profile image")
     void shouldUploadProfileImage() throws IOException {

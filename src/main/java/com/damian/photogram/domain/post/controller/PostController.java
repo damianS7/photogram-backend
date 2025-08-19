@@ -87,7 +87,6 @@ public class PostController {
             @PathVariable @Positive
             Long postId
     ) {
-        // FIXME imageService.getImage('post', filename)
         Resource resource = postImageService.getImage(postId);
         String contentType = ImageHelper.getContentType(resource);
         return ResponseEntity

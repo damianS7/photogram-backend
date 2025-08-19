@@ -1,6 +1,7 @@
 package com.damian.photogram.core.service;
 
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.exception.ImageNotFoundException;
 import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -82,5 +83,14 @@ public class ImageUploaderService {
     public String uploadImage(MultipartFile file, String folder) {
         String filename = UUID.randomUUID().toString();
         return this.uploadImage(file, folder, filename);
+    }
+
+    // delete image from server
+    public void deleteImage(String path, String filename) {
+        try {
+            Files.deleteIfExists(Path.of(path + filename));
+        } catch (IOException e) {
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
+        }
     }
 }

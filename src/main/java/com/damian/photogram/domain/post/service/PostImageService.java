@@ -1,7 +1,6 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageNotFoundException;
 import com.damian.photogram.core.service.ImageCacheService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.utils.AuthHelper;
@@ -14,10 +13,6 @@ import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @Service
 public class PostImageService {
@@ -72,16 +67,5 @@ public class PostImageService {
                 PostHelper.getPostsImageUploadPath(post.getAuthor().getId()),
                 post.getPhotoFilename()
         );
-    }
-
-    // TODO test this
-    // delete image from server
-    public void deleteImage(Long customerId, String filename) {
-        String path = PostHelper.getPostsImageUploadPath(customerId);
-        try {
-            Files.deleteIfExists(Path.of(path + filename));
-        } catch (IOException e) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
-        }
     }
 }

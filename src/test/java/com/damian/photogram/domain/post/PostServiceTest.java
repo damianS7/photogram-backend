@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.post;
 
+import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -41,6 +42,9 @@ public class PostServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private ImageUploaderService imageUploaderService;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
