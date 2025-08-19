@@ -12,10 +12,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FIXME change to author/writer
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private Customer customer;
+    private Customer author;
 
     @OneToOne
     @JoinColumn(name = "post_id", referencedColumnName = "id")
@@ -38,7 +37,7 @@ public class Comment {
 
     public Comment(Customer postCustomer) {
         this();
-        this.customer = postCustomer;
+        this.author = postCustomer;
     }
 
     public Long getId() {
@@ -61,18 +60,18 @@ public class Comment {
     public String toString() {
         return "Comment {" +
                " id=" + id +
-               ", customerId=" + customer.getId() +
+               ", authorCustomerId=" + author.getId() +
                ", comment=" + comment +
                ", createdAt=" + createdAt +
                "}";
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Customer getAuthor() {
+        return author;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setAuthor(Customer author) {
+        this.author = author;
     }
 
     public String getComment() {

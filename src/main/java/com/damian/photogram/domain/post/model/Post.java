@@ -14,10 +14,9 @@ public class Post {
 
     // FIXME add comments relation?
 
-    // FIXME rename to author?
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private Customer customer;
+    private Customer author;
 
     @Column
     private String photoFilename;
@@ -32,9 +31,9 @@ public class Post {
         this.createdAt = Instant.now();
     }
 
-    public Post(Customer postCustomer) {
+    public Post(Customer author) {
         this();
-        this.customer = postCustomer;
+        this.author = author;
     }
 
     public Long getId() {
@@ -57,17 +56,17 @@ public class Post {
     public String toString() {
         return "Post {" +
                "id=" + id +
-               "followedCustomerId=" + customer.getId() +
+               "authorCustomerId=" + author.getId() +
                ", createdAt=" + createdAt +
                "}";
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Customer getAuthor() {
+        return author;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setAuthor(Customer author) {
+        this.author = author;
     }
 
     public String getPhotoFilename() {

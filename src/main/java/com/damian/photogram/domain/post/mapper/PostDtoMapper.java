@@ -12,7 +12,7 @@ public class PostDtoMapper {
     public static PostDto toPostDtoPaginated(Post post) {
         return new PostDto(
                 post.getId(),
-                post.getCustomer().getId(),
+                post.getAuthor().getId(),
                 post.getDescription(),
                 post.getPhotoFilename(),
                 //                generatePhotoUrl(post.getPhotoFilename()),
