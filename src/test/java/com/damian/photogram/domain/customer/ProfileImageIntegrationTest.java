@@ -1,0 +1,105 @@
+package com.damian.photogram.domain.customer;
+
+import com.damian.photogram.app.auth.dto.AuthenticationRequest;
+import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.domain.account.enums.AccountStatus;
+import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerRole;
+import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.time.LocalDate;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ProfileImageIntegrationTest {
+    private final String rawPassword = "123456";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private Customer customerA;
+    private Customer customerB;
+    private Customer customerAdmin;
+    private String token;
+
+    @BeforeAll
+    void setUp() throws Exception {
+        customerA = new Customer();
+        customerA.setEmail("customerA@test.com");
+        customerA.setRole(CustomerRole.CUSTOMER);
+        customerA.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customerA.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerA.getProfile().setFirstName("John");
+        customerA.getProfile().setLastName("Wick");
+        customerA.getProfile().setGender(CustomerGender.MALE);
+        customerA.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
+        customerA.getProfile().setImageFilename("image.jpg");
+        customerRepository.save(customerA);
+        customerB = new Customer();
+        customerB.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customerB.setEmail("customerB@test.com");
+        customerB.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+
+        customerRepository.save(customerB);
+
+        customerAdmin = new Customer();
+        customerAdmin.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customerAdmin.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerAdmin.setEmail("admin@test.com");
+        customerAdmin.setRole(CustomerRole.ADMIN);
+        customerRepository.save(customerAdmin);
+    }
+
+    @AfterAll
+    void tearDown() {
+        customerRepository.deleteAll();
+    }
+
+    void loginWithCustomer(Customer customer) throws Exception {
+        // given
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest(
+                customer.getEmail(), "123456"
+        );
+
+        String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
+
+        // when
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content(jsonRequest))
+                                  .andReturn();
+
+        AuthenticationResponse response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                AuthenticationResponse.class
+        );
+
+        token = response.token();
+    }
+
+
+}
