@@ -148,7 +148,7 @@ public class CommentIntegrationTest {
                 .containsExactly(
                         comment1.getId(),
                         post.getId(),
-                        comment1.getCustomer().getProfile().getUsername(),
+                        comment1.getAuthor().getProfile().getUsername(),
                         comment1.getComment(),
                         comment1.getCreatedAt().toString()
                 );

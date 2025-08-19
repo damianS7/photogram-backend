@@ -77,7 +77,7 @@ public class FeedServiceTest {
         when(profileRepository.findByUsername(loggedCustomer.getUsername()))
                 .thenReturn(Optional.of(loggedCustomer.getProfile()));
 
-        when(postRepository.countByCustomerId(anyLong()))
+        when(postRepository.countByAuthorId(anyLong()))
                 .thenReturn(0L);
 
         when(followRepository.countFollowsFromCustomer(anyLong()))

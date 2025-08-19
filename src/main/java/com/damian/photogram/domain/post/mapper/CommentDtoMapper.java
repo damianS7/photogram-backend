@@ -12,7 +12,7 @@ public class CommentDtoMapper {
         return new CommentDto(
                 comment.getId(),
                 comment.getPost().getId(),
-                comment.getCustomer().getProfile().getUsername(),
+                comment.getAuthor().getProfile().getUsername(),
                 comment.getComment(),
                 comment.getCreatedAt().toString()
         );

@@ -76,7 +76,7 @@ public class LikeServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         Like like = new Like(post, loggedCustomer);
 
@@ -130,7 +130,7 @@ public class LikeServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
@@ -157,7 +157,7 @@ public class LikeServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         Like like = new Like(post, loggedCustomer);
 
@@ -188,7 +188,7 @@ public class LikeServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(false);
@@ -213,7 +213,7 @@ public class LikeServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(true);

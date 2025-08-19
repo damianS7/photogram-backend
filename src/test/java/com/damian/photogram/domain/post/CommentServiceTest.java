@@ -81,7 +81,7 @@ public class CommentServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -121,7 +121,7 @@ public class CommentServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -155,7 +155,7 @@ public class CommentServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -191,7 +191,7 @@ public class CommentServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -224,7 +224,7 @@ public class CommentServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
 
         CommentCreateRequest request = new CommentCreateRequest(
