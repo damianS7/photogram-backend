@@ -135,14 +135,14 @@ public class PostIntegrationTest {
                 .isNotNull()
                 .extracting(
                         PostDto::id,
-                        PostDto::customerId,
+                        PostDto::authorId,
                         PostDto::description,
                         PostDto::photoFilename,
                         PostDto::createdAt
                 )
                 .containsExactly(
                         postsDto[0].id(),
-                        postsDto[0].customerId(),
+                        postsDto[0].authorId(),
                         postsDto[0].description(),
                         postsDto[0].photoFilename(),
                         postsDto[0].createdAt()
@@ -185,14 +185,14 @@ public class PostIntegrationTest {
                 .isNotNull()
                 .extracting(
                         PostDto::id,
-                        PostDto::customerId,
+                        PostDto::authorId,
                         PostDto::description,
                         PostDto::photoFilename,
                         PostDto::createdAt
                 )
                 .containsExactly(
                         postDto.id(),
-                        postDto.customerId(),
+                        postDto.authorId(),
                         postDto.description(),
                         postDto.photoFilename(),
                         postDto.createdAt()
