@@ -80,7 +80,7 @@ public class PostServiceTest {
         post.setId(1L);
         post.setPhotoFilename("dfsdfksdfsdf.jpg");
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         PostCreateRequest request = new PostCreateRequest(
                 post.getPhotoFilename(),
@@ -116,7 +116,7 @@ public class PostServiceTest {
         post.setId(1L);
         post.setPhotoFilename("dfsdfksdfsdf.jpg");
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         PostCreateRequest request = new PostCreateRequest(
                 post.getPhotoFilename(),
@@ -147,7 +147,7 @@ public class PostServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
@@ -171,7 +171,7 @@ public class PostServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
-        post.setCustomer(loggedCustomer);
+        post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.empty());

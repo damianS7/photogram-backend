@@ -73,7 +73,7 @@ public class ProfileController {
     }
 
     // endpoint to get the logged customer profile photo
-    @GetMapping("/customers/{customerId}/profile/photo")
+    @GetMapping("/customers/{authorId}/profile/photo")
     public ResponseEntity<?> getProfilePhoto(
             @PathVariable @NotNull @Positive
             Long customerId

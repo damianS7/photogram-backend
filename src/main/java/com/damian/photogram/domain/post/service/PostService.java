@@ -24,15 +24,18 @@ public class PostService {
     private final PostRepository postRepository;
     private final CustomerRepository customerRepository;
     private final ProfileRepository profileRepository;
+    private final PostImageService postImageService;
 
     public PostService(
             PostRepository postRepository,
             CustomerRepository customerRepository,
-            ProfileRepository profileRepository
+            ProfileRepository profileRepository,
+            PostImageService postImageService
     ) {
         this.postRepository = postRepository;
         this.customerRepository = customerRepository;
         this.profileRepository = profileRepository;
+        this.postImageService = postImageService;
     }
 
     public Page<Post> getPostsByUsername(String username, Pageable pageable) {
@@ -78,5 +81,6 @@ public class PostService {
         }
 
         postRepository.deleteById(id);
+        postImageService.deleteImage(post.getAuthor().getId(), post.getPhotoFilename());
     }
 }
