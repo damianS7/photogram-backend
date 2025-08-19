@@ -8,6 +8,7 @@ import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.setting.dto.SettingDto;
+import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
@@ -83,7 +83,6 @@ public class SettingIntegrationTest {
         String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
 
         // when
-        // FIXME bad endpoint?
         MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .content(jsonRequest))
@@ -130,5 +129,39 @@ public class SettingIntegrationTest {
         assertEquals(2, settings.length);
     }
 
-    // TODO updateSetting
+    @Test
+    @DisplayName("Should update customer settings")
+    void shouldUpdateSettings() throws Exception {
+        // given
+        loginWithCustomer(customer);
+
+        Setting setting1 = new Setting(customer, "lang", "en");
+        settingRepository.save(setting1);
+
+        SettingUpdateRequest request = new SettingUpdateRequest(
+                "es"
+        );
+
+        // when
+        MvcResult result = mockMvc
+                .perform(
+                        put("/api/v1/settings/{id}", setting1.getId())
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // then
+        SettingDto settings = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                SettingDto.class
+        );
+
+        // then
+        assertThat(settings).isNotNull();
+        assertThat(settings).extracting("value").isEqualTo(request.value());
+    }
 }
