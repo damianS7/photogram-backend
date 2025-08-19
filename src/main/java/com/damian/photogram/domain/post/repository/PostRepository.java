@@ -11,13 +11,13 @@ import java.util.Set;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Set<Post> findAllByCustomerId(Long customerId);
+    Set<Post> findAllByAuthorId(Long authorId);
 
-    @Query("SELECT p FROM Post p WHERE p.customer.profile.username = :username")
+    @Query("SELECT p FROM Post p WHERE p.author.profile.username = :username")
     Page<Post> findAllByUsername(String username, Pageable pageable);
 
-    // count the number of post for a specific customer
-    @Query("SELECT COUNT(p) FROM Post p WHERE p.customer.id = :customerId")
-    Long countByCustomerId(Long customerId);
+    // count the number of post for a specific author
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.author.id = :authorId")
+    Long countByAuthorId(Long authorId);
 }
 

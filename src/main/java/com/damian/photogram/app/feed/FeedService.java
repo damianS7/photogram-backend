@@ -34,7 +34,7 @@ public class FeedService {
         return new FeedDto(
                 profile.getOwner().getId(),
                 username,
-                postRepository.countByCustomerId(profile.getOwner().getId()),
+                postRepository.countByAuthorId(profile.getOwner().getId()),
                 followRepository.countFollowsFromCustomer(profile.getOwner().getId()),
                 followRepository.countFollowersFromCustomer(profile.getOwner().getId()),
                 profile.getImageFilename(),

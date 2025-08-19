@@ -81,6 +81,6 @@ public class CommentService {
 
     public boolean isAuthor(Customer customer, Comment comment) {
         // check if the customer is the author of the post.
-        return customer.getId().equals(comment.getCustomer().getId());
+        return customer.getId().equals(comment.getAuthor().getId());
     }
 }

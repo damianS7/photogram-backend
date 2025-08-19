@@ -7,7 +7,6 @@ import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.mapper.PostDtoMapper;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.service.PostImageService;
-import com.damian.photogram.domain.post.service.PostImageUploaderService;
 import com.damian.photogram.domain.post.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -29,17 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
     private final PostService postService;
     private final PostImageService postImageService;
-    private final PostImageUploaderService postImageUploaderService;
 
     @Autowired
     public PostController(
             PostService postService,
-            PostImageService postImageService,
-            PostImageUploaderService postImageUploaderService
+            PostImageService postImageService
     ) {
         this.postService = postService;
         this.postImageService = postImageService;
-        this.postImageUploaderService = postImageUploaderService;
     }
 
     // endpoint to fetch all post from specific customer
@@ -92,7 +88,7 @@ public class PostController {
             Long postId
     ) {
         // FIXME imageService.getImage('post', filename)
-        Resource resource = postImageService.getPostImage(postId);
+        Resource resource = postImageService.getImage(postId);
         String contentType = ImageHelper.getContentType(resource);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -106,7 +102,7 @@ public class PostController {
             // username ...
             @RequestParam("file") MultipartFile file
     ) {
-        String filename = postImageUploaderService.uploadImage(file);
+        String filename = postImageService.uploadImage(file);
         ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(filename);
 
         return ResponseEntity
