@@ -88,7 +88,7 @@ public class ProfileService {
     }
 
     // check if the username given exists
-    public void checkUsername(String username) {
+    public void usernameExists(String username) {
         profileRepository
                 .findByUsername(username)
                 .orElseThrow(
