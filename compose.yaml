@@ -23,14 +23,23 @@ services:
     env_file: .env
     depends_on:
       - database
+      - mailpit
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/postgres
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
     ports:
       - "8090:8090"
+  mailpit:
+    container_name: photogram-mailpit
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
 
 volumes:
   pgdata:
