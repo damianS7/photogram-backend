@@ -2,9 +2,18 @@ package com.damian.photogram.core.exception;
 
 // FIXME code cleanup
 public class Exceptions {
+    public static class COMMON {
+        public static final String ACCESS_FORBIDDEN = "You cannot access this resource.";
+        public static final String INVALID_PATH = "Invalid path.";
+        public static final String FILE_SIZE_LIMIT = "File is too large.";
+        public static final String ONLY_IMAGES_ALLOWED = "Only images are allowed.";
+        public static final String EMPTY_FILE = "File is empty.";
+        public static final String UPLOAD_FAILED = "Upload failed.";
+    }
+
     public static class IMAGE {
         public static final String NOT_FOUND = "Image not found.";
-        public static final String INVALID_PATH = "Image path not found.";
+        public static final String INVALID_PATH = "Invalid path.";
         public static final String FILE_SIZE_LIMIT = "Image is too large.";
         public static final String ONLY_IMAGES_ALLOWED = "Only images are allowed.";
         public static final String EMPTY_FILE = "File is empty.";
@@ -17,7 +26,7 @@ public class Exceptions {
         public static final String EMAIL_NOT_VERIFIED = "Email is not verified.";
         public static final String SUSPENDED = "Account is suspended.";
         public static final String NOT_FOUND = "Account not found.";
-        public static final String NOT_FOUND_BY_EMAIL = "Account not found. Invalid email.";
+        public static final String NOT_FOUND_BY_EMAIL = "Account not found. Invalid email address.";
     }
 
     public static class ACCOUNT_ACTIVATION {
@@ -32,19 +41,17 @@ public class Exceptions {
 
     public static class POSTS {
         public static final String FILE_SIZE_LIMIT = "Post image is too large.";
-        public static final String NOT_AUTHOR = "You cannot access this post.";
+        public static final String NOT_AUTHOR = "You are not the author of this post.";
         public static final String NOT_FOUND = "Post not found.";
         public static final String ALREADY_LIKED = "Post already liked.";
     }
 
     public static class LIKES {
-        public static final String ACCESS_FORBIDDEN = "You cannot access this like.";
         public static final String NOT_FOUND = "Like not found.";
     }
 
     public static class FOLLOW {
         public static final String ALREADY_EXISTS = "Follower already exists.";
-        public static final String ACCESS_FORBIDDEN = "You cannot access this follow.";
         public static final String SELF_FOLLOW = "You cannot follow yourself.";
         public static final String NOT_FOUND = "Follower not found.";
         public static final String MAX_FOLLOWERS = "You have reached the maximum number of followers.";
@@ -52,7 +59,6 @@ public class Exceptions {
 
 
     public static class CUSTOMER {
-        public static final String DISABLED = "Customer is disabled.";
         public static final String EMAIL_TAKEN = "Email is already taken.";
         public static final String NOT_FOUND = "Customer not found.";
     }

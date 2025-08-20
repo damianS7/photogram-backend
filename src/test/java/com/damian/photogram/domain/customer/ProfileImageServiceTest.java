@@ -5,8 +5,10 @@ import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageInvalidException;
 import com.damian.photogram.core.service.ImageCacheService;
+import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.customer.service.ProfileImageService;
 import com.damian.photogram.domain.customer.service.ProfileService;
@@ -36,6 +38,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -48,8 +51,10 @@ public class ProfileImageServiceTest {
     private ProfileRepository profileRepository;
 
     @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Mock
+    private ImageUploaderService imageUploaderService;
 
     @Mock
     private ProfileService profileService;
@@ -130,7 +135,18 @@ public class ProfileImageServiceTest {
                 new byte[5]
         );
 
+        String filename = "avatar.jpg";
+        Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
+        Files.createDirectories(directoryPath); // ensure path exists
+        Path filePath = directoryPath.resolve(filename);
+        Files.write(filePath, givenFile.getBytes()); // create dummy file
+        Resource r = new UrlResource(filePath.toUri());
+
         // when
+        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(
+                filename);
+        when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
+        when(imageCacheService.getImage(anyString(), anyString())).thenReturn(r);
         Resource result = profileImageService.uploadImage(
                 RAW_PASSWORD, givenFile
         );
@@ -181,7 +197,7 @@ public class ProfileImageServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.PROFILE.IMAGE.ONLY_IMAGES_ALLOWED, exception.getMessage());
+        assertEquals(Exceptions.IMAGE.ONLY_IMAGES_ALLOWED, exception.getMessage());
     }
 
     @Test

@@ -9,9 +9,7 @@ import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthorizationIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -77,6 +76,11 @@ public class AuthorizationIntegrationTest {
         admin.setRole(CustomerRole.ADMIN);
 
         customerRepository.save(admin);
+    }
+
+    @AfterAll
+    void tearDown() {
+        customerRepository.deleteAll();
     }
 
     String loginWithCustomer(Customer customer) throws Exception {
