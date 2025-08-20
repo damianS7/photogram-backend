@@ -1,7 +1,6 @@
 package com.damian.photogram.core.service;
 
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageNotFoundException;
+import com.damian.photogram.core.exception.*;
 import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,23 +24,16 @@ public class ImageUploaderService {
 
     // validations for file uploaded photos
     public void validateImageOrElseThrow(MultipartFile file) {
-        // TODO create exceptions
         if (file.isEmpty()) {
-            throw new ProfileAuthorizationException(
-                    Exceptions.IMAGE.EMPTY_FILE
-            );
+            throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY_FILE);
         }
 
         if (!file.getContentType().startsWith("image/")) {
-            throw new ProfileAuthorizationException(
-                    Exceptions.IMAGE.ONLY_IMAGES_ALLOWED
-            );
+            throw new ImageInvalidException(Exceptions.IMAGE.ONLY_IMAGES_ALLOWED);
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new ProfileAuthorizationException(
-                    Exceptions.IMAGE.FILE_SIZE_LIMIT
-            );
+            throw new ImageFileSizeExceededException(Exceptions.IMAGE.FILE_SIZE_LIMIT);
         }
     }
 
