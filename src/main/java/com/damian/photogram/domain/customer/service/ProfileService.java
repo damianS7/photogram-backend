@@ -4,8 +4,8 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
+import com.damian.photogram.domain.customer.exception.ProfileUpdateValidationException;
 import com.damian.photogram.domain.customer.helper.ProfileAuthorizationHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
@@ -75,7 +75,7 @@ public class ProfileService {
                 case "avatarFilename" -> profile.setImageFilename((String) value);
                 case "gender" -> profile.setGender(CustomerGender.valueOf((String) value));
                 case "birthdate" -> profile.setBirthdate(LocalDate.parse((String) value));
-                default -> throw new ProfileAuthorizationException(
+                default -> throw new ProfileUpdateValidationException(
                         Exceptions.PROFILE.INVALID_FIELD
                 );
             }

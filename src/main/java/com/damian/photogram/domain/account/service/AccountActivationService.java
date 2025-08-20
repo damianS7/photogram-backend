@@ -4,7 +4,7 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
-import com.damian.photogram.domain.account.exception.AccountActivationException;
+import com.damian.photogram.domain.account.exception.AccountActivationNotPendingException;
 import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
@@ -53,7 +53,7 @@ public class AccountActivationService {
 
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountActivationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // mark the token as used
@@ -75,7 +75,7 @@ public class AccountActivationService {
         );
     }
 
-    // Send an activation email to the customer email address
+    // Send an activation email to the email address
     public void sendAccountActivationToken(String email) {
         // retrieve the customer by email
         Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
@@ -84,7 +84,7 @@ public class AccountActivationService {
 
         // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountActivationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // check if AccountToken exists orElse create a new one

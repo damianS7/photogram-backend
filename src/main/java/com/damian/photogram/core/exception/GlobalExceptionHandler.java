@@ -2,13 +2,14 @@ package com.damian.photogram.core.exception;
 
 import com.damian.photogram.app.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.app.auth.exception.AuthenticationException;
-import com.damian.photogram.app.auth.exception.AuthorizationException;
 import com.damian.photogram.app.auth.exception.JwtAuthenticationException;
 import com.damian.photogram.core.utils.ApiResponse;
-import com.damian.photogram.domain.account.exception.AccountDisabledException;
-import com.damian.photogram.domain.account.exception.AccountNotFoundException;
+import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.customer.exception.*;
-import com.damian.photogram.domain.post.exception.PostNotFoundException;
+import com.damian.photogram.domain.post.exception.*;
+import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
+import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,22 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import java.util.HashMap;
 import java.util.Map;
 
-// FIXME code cleanup and add new exceptions
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(
+            {
+                    ImageEmptyFileException.class,
+                    ProfileUpdateValidationException.class
+            }
+    )
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<?>> handleBadRequest(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors().forEach(error -> {
@@ -41,11 +52,12 @@ public class GlobalExceptionHandler {
             {
                     AuthenticationException.class,
                     JwtAuthenticationException.class,
+                    ExpiredJwtException.class,
                     AuthenticationBadCredentialsException.class,
-                    AccountDisabledException.class
+                    AccountDisabledException.class,
             }
     )
-    public ResponseEntity<ApiResponse<String>> handleUnauthorizedException(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<String>> handleUnauthorized(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED));
     }
@@ -57,12 +69,16 @@ public class GlobalExceptionHandler {
                     CustomerNotFoundException.class,
                     ProfileNotFoundException.class,
                     ProfilePhotoNotFoundException.class,
+                    CommentNotFoundException.class,
+                    LikeNotFoundException.class,
                     FollowNotFoundException.class,
+                    SettingNotFoundException.class,
                     PostNotFoundException.class,
-                    AccountNotFoundException.class
+                    AccountNotFoundException.class,
+                    AccountActivationTokenNotFoundException.class
             }
     )
-    public ResponseEntity<ApiResponse<String>> handleNotFoundException(ApplicationException ex) {
+    public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }
@@ -70,33 +86,70 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             {
                     CustomerEmailTakenException.class,
-                    FollowersLimitExceededException.class,
-                    MaxUploadSizeExceededException.class,
-                    FollowerAlreadyExistsException.class
-
+                    FollowAlreadyExistsException.class,
+                    PostAlreadyLikedException.class,
+                    AccountActivationNotPendingException.class
             }
     )
-    public ResponseEntity<ApiResponse<String>> handleConflitException(ApplicationException ex) {
+    // Handle conflict (409)
+    public ResponseEntity<ApiResponse<String>> handleConflit(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
     }
 
     @ExceptionHandler(
             {
-                    AuthorizationException.class,
-                    FollowerAuthorizationException.class,
-                    ProfileAuthorizationException.class,
-                    PasswordMismatchException.class
+                    PasswordMismatchException.class,
+                    FollowersLimitExceededException.class,
+                    FollowYourselfNotAllowedException.class,
+                    AccountActivationTokenMismatchException.class,
+                    PostNotAuthorException.class,
+                    ProfileNotOwnerException.class,
+                    SettingNotOwnerException.class
             }
     )
-    public ResponseEntity<ApiResponse<String>> handleAuthorizationException(ApplicationException ex) {
+    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
     @ExceptionHandler(
             {
+                    ImageFileSizeExceededException.class,
+                    PostImageFileSizeExceededException.class,
+                    MaxUploadSizeExceededException.class,
+            }
+    )
+    public ResponseEntity<ApiResponse<String>> handleTooLarge(ApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
+    }
+
+    @ExceptionHandler(
+            {
+                    ImageInvalidException.class,
+            }
+    )
+    public ResponseEntity<ApiResponse<String>> invalidType(ApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNSUPPORTED_MEDIA_TYPE));
+    }
+
+    @ExceptionHandler(
+            {
+                    AccountActivationTokenExpiredException.class,
+            }
+    )
+    public ResponseEntity<ApiResponse<String>> handleGone(ApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.GONE)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.GONE));
+    }
+
+
+    @ExceptionHandler(
+            {
                     ApplicationException.class,
+                    ImageFailedUploadException.class
                     //                    RuntimeException.class
             }
     )

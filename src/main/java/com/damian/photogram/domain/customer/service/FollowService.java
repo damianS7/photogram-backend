@@ -82,7 +82,7 @@ public class FollowService {
 
         // check followedCustomer is not already following the followerCustomer
         if (followRepository.isFollowing(followedCustomer.getId(), followerCustomer.getId())) {
-            throw new FollowerAlreadyExistsException(Exceptions.FOLLOW.ALREADY_EXISTS);
+            throw new FollowAlreadyExistsException(Exceptions.FOLLOW.ALREADY_EXISTS);
         }
 
         // check followerCustomer and followedCustomer are not the same customer

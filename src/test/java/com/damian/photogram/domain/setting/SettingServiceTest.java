@@ -2,8 +2,8 @@ package com.damian.photogram.domain.setting;
 
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
-import com.damian.photogram.domain.setting.exception.SettingAuthorizationException;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
+import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -165,7 +165,7 @@ public class SettingServiceTest {
         when(settingRepository.findById(setting.getId())).thenReturn(Optional.of(setting));
 
         assertThrows(
-                SettingAuthorizationException.class,
+                SettingNotOwnerException.class,
                 () -> settingService.updateSetting(setting.getId(), request)
         );
 

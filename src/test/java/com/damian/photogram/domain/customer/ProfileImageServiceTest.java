@@ -1,9 +1,11 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.exception.ImageEmptyFileException;
+import com.damian.photogram.core.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.exception.ImageInvalidException;
 import com.damian.photogram.core.service.ImageCacheService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.customer.service.ProfileImageService;
@@ -115,7 +117,7 @@ public class ProfileImageServiceTest {
         // cleanup
         Files.deleteIfExists(filePath);
     }
-    
+
     @Test
     @DisplayName("Should upload profile image")
     void shouldUploadProfileImage() throws IOException {
@@ -151,8 +153,8 @@ public class ProfileImageServiceTest {
         );
 
         // when
-        ProfileAuthorizationException exception = assertThrows(
-                ProfileAuthorizationException.class,
+        ImageEmptyFileException exception = assertThrows(
+                ImageEmptyFileException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
 
@@ -173,8 +175,8 @@ public class ProfileImageServiceTest {
         );
 
         // when
-        ProfileAuthorizationException exception = assertThrows(
-                ProfileAuthorizationException.class,
+        ImageInvalidException exception = assertThrows(
+                ImageInvalidException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
 
@@ -195,8 +197,8 @@ public class ProfileImageServiceTest {
         );
 
         // when
-        ProfileAuthorizationException exception = assertThrows(
-                ProfileAuthorizationException.class,
+        ImageFileSizeExceededException exception = assertThrows(
+                ImageFileSizeExceededException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
 

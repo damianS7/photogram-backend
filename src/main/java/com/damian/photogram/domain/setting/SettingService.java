@@ -5,8 +5,8 @@ import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
 import com.damian.photogram.domain.setting.dto.SettingsPatchRequest;
-import com.damian.photogram.domain.setting.exception.SettingAuthorizationException;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
+import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -38,7 +38,7 @@ public class SettingService {
 
         // check if the logged customer is the owner of the setting.
         if (!loggedCustomer.getId().equals(setting.getCustomer().getId())) {
-            throw new SettingAuthorizationException(Exceptions.SETTINGS.NOT_OWNER);
+            throw new SettingNotOwnerException(Exceptions.SETTINGS.NOT_OWNER);
         }
 
         setting.setSettingValue(request.value());

@@ -2,8 +2,8 @@ package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.customer.exception.FollowAlreadyExistsException;
 import com.damian.photogram.domain.customer.exception.FollowNotFoundException;
-import com.damian.photogram.domain.customer.exception.FollowerAlreadyExistsException;
 import com.damian.photogram.domain.customer.exception.FollowersLimitExceededException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Follow;
@@ -179,8 +179,8 @@ public class FollowServiceTest {
         // when
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.of(friend1));
         when(followRepository.isFollowing(anyLong(), anyLong())).thenReturn(true);
-        FollowerAlreadyExistsException exception = assertThrows(
-                FollowerAlreadyExistsException.class,
+        FollowAlreadyExistsException exception = assertThrows(
+                FollowAlreadyExistsException.class,
                 () -> followService.follow(friend1.getId())
         );
 

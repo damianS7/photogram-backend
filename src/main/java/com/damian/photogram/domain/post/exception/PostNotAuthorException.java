@@ -1,8 +1,8 @@
 package com.damian.photogram.domain.post.exception;
 
-import com.damian.photogram.app.auth.exception.AuthorizationException;
+import com.damian.photogram.core.exception.ApplicationException;
 
-public class PostNotAuthorException extends AuthorizationException {
+public class PostNotAuthorException extends ApplicationException {
     public PostNotAuthorException(String message) {
         super(message);
     }

@@ -3,7 +3,7 @@ package com.damian.photogram.domain.account;
 import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
-import com.damian.photogram.domain.account.exception.AccountActivationException;
+import com.damian.photogram.domain.account.exception.AccountActivationNotPendingException;
 import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
@@ -156,7 +156,7 @@ public class AccountActivationServiceTest {
         when(accountTokenVerificationService.verify(activationToken.getToken())).thenReturn(activationToken);
         when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
         assertThrows(
-                AccountActivationException.class,
+                AccountActivationNotPendingException.class,
                 () -> accountActivationService.activate(activationToken.getToken())
         );
     }
@@ -181,7 +181,7 @@ public class AccountActivationServiceTest {
         when(accountTokenVerificationService.verify(activationToken.getToken())).thenReturn(activationToken);
         when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
         assertThrows(
-                AccountActivationException.class,
+                AccountActivationNotPendingException.class,
                 () -> accountActivationService.activate(activationToken.getToken())
         );
     }

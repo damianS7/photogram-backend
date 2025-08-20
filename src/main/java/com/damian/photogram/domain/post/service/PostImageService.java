@@ -5,7 +5,7 @@ import com.damian.photogram.core.service.ImageCacheService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.post.exception.PostImageFileSizeException;
+import com.damian.photogram.domain.post.exception.PostImageFileSizeExceededException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.helper.PostHelper;
 import com.damian.photogram.domain.post.model.Post;
@@ -34,7 +34,7 @@ public class PostImageService {
     // validations for post images
     private void validateImageOrThrow(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new PostImageFileSizeException(
+            throw new PostImageFileSizeExceededException(
                     Exceptions.POSTS.FILE_SIZE_LIMIT
             );
         }

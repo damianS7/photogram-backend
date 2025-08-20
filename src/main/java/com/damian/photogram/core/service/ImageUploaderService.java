@@ -1,7 +1,6 @@
 package com.damian.photogram.core.service;
 
 import com.damian.photogram.core.exception.*;
-import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,7 +44,7 @@ public class ImageUploaderService {
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new ProfileAuthorizationException(
+            throw new ImageFailedUploadException(
                     Exceptions.IMAGE.UPLOAD_FAILED
             );
         }

@@ -4,8 +4,9 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.exception.ProfileAuthorizationException;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
+import com.damian.photogram.domain.customer.exception.ProfileNotOwnerException;
+import com.damian.photogram.domain.customer.exception.ProfileUpdateValidationException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
@@ -180,8 +181,8 @@ public class ProfileServiceTest {
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(givenProfile));
-        ProfileAuthorizationException exception = assertThrows(
-                ProfileAuthorizationException.class,
+        ProfileNotOwnerException exception = assertThrows(
+                ProfileNotOwnerException.class,
                 () -> profileService.updateProfile(givenRequest)
         );
 
@@ -205,8 +206,8 @@ public class ProfileServiceTest {
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(customer.getProfile()));
-        ProfileAuthorizationException exception = assertThrows(
-                ProfileAuthorizationException.class,
+        ProfileUpdateValidationException exception = assertThrows(
+                ProfileUpdateValidationException.class,
                 () -> profileService.updateProfile(givenRequest)
         );
 
