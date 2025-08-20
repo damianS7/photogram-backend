@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
-public class ImageCacheService {
+public class ImageStorageService {
     private final String ROOT_PATH = "uploads/images/";
 
     public Resource createResource(Path path) {
@@ -43,31 +43,4 @@ public class ImageCacheService {
 
         return resource;
     }
-
-    // endpoint to get the logged customer profile photo
-    //    @GetMapping("/customer/profile/photo1111/{filename:.+}")
-    //    public ResponseEntity<?> getCustomerProfilePhoto(
-    //            @PathVariable @NotBlank
-    //            String filename,
-    //            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch
-    //    ) throws IOException {
-    //        Resource resource = profileImageUploaderService.getImage(filename);
-    //        final byte[] content = resource.getInputStream().readAllBytes();
-    //        String eTag = "\"" + DigestUtils.md5DigestAsHex(content) + "\"";
-    //
-    //        if (eTag.equals(ifNoneMatch)) {
-    //            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(eTag).build();
-    //        }
-    //
-    //        String contentType = profileImageUploaderService.getContentType(resource);
-    //
-    //        return ResponseEntity
-    //                .status(HttpStatus.OK)
-    //                .eTag(eTag)
-    //                .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
-    //                .contentType(MediaType.parseMediaType(contentType))
-    //                .body(resource);
-    //    }
-
-
 }

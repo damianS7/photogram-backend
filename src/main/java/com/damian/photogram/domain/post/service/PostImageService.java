@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.service.ImageCacheService;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -18,16 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostImageService {
     private final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
     private final ImageUploaderService imageUploaderService;
-    private final ImageCacheService imageCacheService;
+    private final ImageStorageService imageStorageService;
     private final PostRepository postRepository;
 
     public PostImageService(
             ImageUploaderService imageUploaderService,
-            ImageCacheService imageCacheService,
+            ImageStorageService imageStorageService,
             PostRepository postRepository
     ) {
         this.imageUploaderService = imageUploaderService;
-        this.imageCacheService = imageCacheService;
+        this.imageStorageService = imageStorageService;
         this.postRepository = postRepository;
     }
 
@@ -63,7 +63,7 @@ public class PostImageService {
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        return imageCacheService.getImage(
+        return imageStorageService.getImage(
                 PostHelper.getPostsImageUploadPath(post.getAuthor().getId()),
                 post.getPhotoFilename()
         );

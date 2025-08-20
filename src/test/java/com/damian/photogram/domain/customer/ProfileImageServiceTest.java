@@ -4,7 +4,7 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageInvalidException;
-import com.damian.photogram.core.service.ImageCacheService;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -60,7 +60,7 @@ public class ProfileImageServiceTest {
     private ProfileService profileService;
 
     @Mock
-    private ImageCacheService imageCacheService;
+    private ImageStorageService imageStorageService;
 
     @InjectMocks
     private ProfileImageService profileImageService;
@@ -112,7 +112,7 @@ public class ProfileImageServiceTest {
 
         // when
         when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getProfile()));
-        when(imageCacheService.getImage(anyString(), anyString())).thenReturn(r);
+        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(r);
         Resource resource = profileImageService.getProfileImage(customer.getId());
 
         // then
@@ -146,7 +146,7 @@ public class ProfileImageServiceTest {
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(
                 filename);
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
-        when(imageCacheService.getImage(anyString(), anyString())).thenReturn(r);
+        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(r);
         Resource result = profileImageService.uploadImage(
                 RAW_PASSWORD, givenFile
         );

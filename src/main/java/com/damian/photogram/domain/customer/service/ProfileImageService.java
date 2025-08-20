@@ -4,7 +4,7 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageInvalidException;
-import com.damian.photogram.core.service.ImageCacheService;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
@@ -22,14 +22,14 @@ public class ProfileImageService {
     private final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
     private final ProfileRepository profileRepository;
     private final ImageUploaderService imageUploaderService;
-    private final ImageCacheService imageCacheService;
+    private final ImageStorageService imageStorageService;
 
     public ProfileImageService(
-            ImageCacheService imageCacheService,
+            ImageStorageService imageStorageService,
             ProfileRepository profileRepository,
             ImageUploaderService imageUploaderService
     ) {
-        this.imageCacheService = imageCacheService;
+        this.imageStorageService = imageStorageService;
         this.profileRepository = profileRepository;
         this.imageUploaderService = imageUploaderService;
     }
@@ -78,7 +78,7 @@ public class ProfileImageService {
         customerLogged.getProfile().setImageFilename(filename);
         profileRepository.save(customerLogged.getProfile());
 
-        return imageCacheService.getImage(
+        return imageStorageService.getImage(
                 ProfileHelper.getProfileImageUploadPath(customerLogged.getId()),
                 filename
         );
@@ -97,7 +97,7 @@ public class ProfileImageService {
             throw new ProfilePhotoNotFoundException(Exceptions.PROFILE.IMAGE.NOT_FOUND);
         }
 
-        return imageCacheService.getImage(
+        return imageStorageService.getImage(
                 ProfileHelper.getProfileImageUploadPath(customerId),
                 profile.getImageFilename()
         );
