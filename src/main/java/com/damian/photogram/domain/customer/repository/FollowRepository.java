@@ -1,19 +1,20 @@
 package com.damian.photogram.domain.customer.repository;
 
 import com.damian.photogram.domain.customer.model.Follow;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
-    Set<Follow> findAllByFollowedCustomer_Id(Long followedCustomerId);
+    Page<Follow> findAllByFollowedCustomer_Id(Long followedCustomerId, Pageable pageable);
 
-    Set<Follow> findAllByFollowerCustomer_Id(Long followerCustomerId);
+    Page<Follow> findAllByFollowerCustomer_Id(Long followerCustomerId, Pageable pageable);
 
     @Query("SELECT COUNT(c) > 0 FROM Follow c WHERE c.followedCustomer.id = :followedCustomerId AND c.followerCustomer.id = :followerCustomerId")
     boolean isFollowing(

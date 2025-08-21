@@ -2,6 +2,7 @@ package com.damian.photogram.domain.customer.mapper;
 
 import com.damian.photogram.domain.customer.dto.response.FollowDto;
 import com.damian.photogram.domain.customer.model.Follow;
+import org.springframework.data.domain.Page;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,11 +19,18 @@ public class FollowDtoMapper {
         );
     }
 
-    public static Set<FollowDto> toFolloDtoSet(Set<Follow> follows) {
+    public static Set<FollowDto> toFollowDtoSet(Set<Follow> follows) {
         return follows
                 .stream()
                 .map(
                         FollowDtoMapper::toFollowDto
                 ).collect(Collectors.toSet());
+    }
+
+    public static Page<FollowDto> toFollowDtoPaged(Page<Follow> follows) {
+        return follows
+                .map(
+                        FollowDtoMapper::toFollowDto
+                );
     }
 }

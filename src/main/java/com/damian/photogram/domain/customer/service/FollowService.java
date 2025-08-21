@@ -7,9 +7,9 @@ import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Follow;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.FollowRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 
 @Service
@@ -27,31 +27,32 @@ public class FollowService {
     }
 
     // get all the followers for the logged customer
-    public Set<Follow> getFollowers() {
+    public Page<Follow> getFollowers(Pageable pageable) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
-        return getFollowers(loggedCustomer.getId());
+        return getFollowers(loggedCustomer.getId(), pageable);
     }
 
     // get all the followers from a specific customer
-    public Set<Follow> getFollowers(Long customerId) {
+    public Page<Follow> getFollowers(Long customerId, Pageable pageable) {
 
+        // TODO why does not do existsById in getFollowed?
         // check if the customer exists
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND);
         }
 
-        return followRepository.findAllByFollowedCustomer_Id(customerId);
+        return followRepository.findAllByFollowedCustomer_Id(customerId, pageable);
     }
 
     // get all the following users by the logged customer
-    public Set<Follow> getFollowed() {
+    public Page<Follow> getFollowed(Pageable pageable) {
         Customer loggedCustomer = AuthHelper.getLoggedCustomer();
-        return getFollowed(loggedCustomer.getId());
+        return getFollowed(loggedCustomer.getId(), pageable);
     }
 
     // get all the following users from a specific customer
-    public Set<Follow> getFollowed(Long customerId) {
-        return followRepository.findAllByFollowerCustomer_Id(customerId);
+    public Page<Follow> getFollowed(Long customerId, Pageable pageable) {
+        return followRepository.findAllByFollowerCustomer_Id(customerId, pageable);
     }
 
     // get the Follow entity between the logged customer and the customer specified in the id.

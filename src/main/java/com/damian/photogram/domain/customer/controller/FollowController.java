@@ -7,11 +7,13 @@ import com.damian.photogram.domain.customer.service.FollowService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
 
 @RequestMapping("/api/v1")
 @RestController
@@ -39,9 +41,12 @@ public class FollowController {
 
     // endpoint to fetch all followers from logged customer
     @GetMapping("/customers/me/followers")
-    public ResponseEntity<?> getFollowers() {
-        Set<Follow> follows = followService.getFollowers();
-        Set<FollowDto> friendsDTO = FollowDtoMapper.toFolloDtoSet(follows);
+    public ResponseEntity<?> getFollowers(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Page<Follow> follows = followService.getFollowers(pageable);
+        Page<FollowDto> friendsDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -52,10 +57,12 @@ public class FollowController {
     @GetMapping("/customers/{customerId}/followers")
     public ResponseEntity<?> getCustomerFollowers(
             @PathVariable("customerId") @NotNull @Positive
-            Long customerId
+            Long customerId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        Set<Follow> follows = followService.getFollowers(customerId);
-        Set<FollowDto> followersDTO = FollowDtoMapper.toFolloDtoSet(follows);
+        Page<Follow> follows = followService.getFollowers(customerId, pageable);
+        Page<FollowDto> followersDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -66,10 +73,12 @@ public class FollowController {
     @GetMapping("/customers/{customerId}/following")
     public ResponseEntity<?> getCustomerFollowing(
             @PathVariable @NotNull @Positive
-            Long customerId
+            Long customerId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        Set<Follow> followed = followService.getFollowed(customerId);
-        Set<FollowDto> followedDTO = FollowDtoMapper.toFolloDtoSet(followed);
+        Page<Follow> followed = followService.getFollowed(customerId, pageable);
+        Page<FollowDto> followedDTO = FollowDtoMapper.toFollowDtoPaged(followed);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -19,6 +19,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,8 +70,8 @@ public class FollowServiceTest {
     }
 
     @Test
-    @DisplayName("Should get all follows")
-    void shouldGetAllFollows() {
+    @DisplayName("Should get followers paginated")
+    void shouldGetFollowersPaginated() {
         // given
         Customer loggedCustomer = new Customer(
                 1L, "customer@test.com",
@@ -88,16 +92,57 @@ public class FollowServiceTest {
                 new Follow(loggedCustomer, follow2)
         );
 
+        Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
+        Pageable pageable = PageRequest.of(0, 2);
+
         // when
         when(customerRepository.existsById(loggedCustomer.getId())).thenReturn(true);
-        when(followRepository.findAllByFollowedCustomer_Id(loggedCustomer.getId()))
-                .thenReturn(followList);
-        Set<Follow> result = followService.getFollowers();
+        when(followRepository.findAllByFollowedCustomer_Id(loggedCustomer.getId(), pageable))
+                .thenReturn(followPage);
+        Page<Follow> result = followService.getFollowers(pageable);
 
         // then
         assertNotNull(result);
-        assertEquals(2, result.size());
-        verify(followRepository, times(1)).findAllByFollowedCustomer_Id(loggedCustomer.getId());
+        assertEquals(2, result.getSize());
+        verify(followRepository, times(1)).findAllByFollowedCustomer_Id(loggedCustomer.getId(), pageable);
+    }
+
+    @Test
+    @DisplayName("Should get followings paginated")
+    void shouldGetFollowingsPaginated() {
+        // given
+        Customer loggedCustomer = new Customer(
+                1L, "customer@test.com",
+                passwordEncoder.encode("password")
+        );
+        setUpContext(loggedCustomer);
+
+        Customer follow1 = new Customer(
+                2L, "customer1@test.com", passwordEncoder.encode("password")
+        );
+
+        Customer follow2 = new Customer(
+                3L, "customer2@test.com", passwordEncoder.encode("password")
+        );
+
+        Set<Follow> followList = Set.of(
+                new Follow(follow1, loggedCustomer),
+                new Follow(follow2, loggedCustomer)
+        );
+
+        Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
+        Pageable pageable = PageRequest.of(0, 2);
+
+        // when
+        //        when(customerRepository.existsById(loggedCustomer.getId())).thenReturn(true);
+        when(followRepository.findAllByFollowerCustomer_Id(loggedCustomer.getId(), pageable))
+                .thenReturn(followPage);
+        Page<Follow> result = followService.getFollowed(pageable);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getSize());
+        verify(followRepository, times(1)).findAllByFollowerCustomer_Id(loggedCustomer.getId(), pageable);
     }
 
     @Test
