@@ -21,15 +21,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,6 +71,46 @@ public class CommentServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
+    }
+
+    @Test
+    @DisplayName("Should get comments paginated")
+    void shouldGetCommentsPaginated() {
+        // given
+        Customer loggedCustomer = new Customer(
+                1L, "customer@test.com",
+                passwordEncoder.encode("password")
+        );
+        //        setUpContext(loggedCustomer);
+
+        Post post = new Post();
+        post.setId(1L);
+        post.setDescription("Hello world");
+        post.setAuthor(loggedCustomer);
+
+        Comment comment1 = new Comment(loggedCustomer, post);
+        comment1.setComment("comment 1");
+
+        Comment comment2 = new Comment(loggedCustomer, post);
+        comment1.setComment("comment 2");
+
+        Set<Comment> commentList = Set.of(
+                comment1, comment2
+        );
+
+        Page<Comment> commentPage = new PageImpl<>(commentList.stream().toList());
+        Pageable pageable = PageRequest.of(0, 2);
+
+        // when
+        when(postRepository.existsById(post.getId())).thenReturn(true);
+        when(commentRepository.findAllByPostId(post.getId(), pageable))
+                .thenReturn(commentPage);
+        Page<Comment> result = commentService.getCommentsPageByPostId(post.getId(), pageable);
+
+        // then
+        assertNotNull(result);
+        assertEquals(commentList.size(), result.getSize());
+        verify(commentRepository, times(1)).findAllByPostId(post.getId(), pageable);
     }
 
     @Test
