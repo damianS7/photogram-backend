@@ -21,8 +21,8 @@ public class WebSecurityConfig {
     private final AuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Value("${app.frontend.domain}")
-    private String domain;
+    @Value("${app.frontend.host}")
+    private String host;
 
     @Value("${app.frontend.port}")
     private String port;
@@ -62,7 +62,7 @@ public class WebSecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://" + domain + ":" + port);
+        config.addAllowedOrigin("http://" + host + ":" + port);
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);

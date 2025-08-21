@@ -108,7 +108,9 @@ public class AccountActivationService {
 
     public void sendAccountActivationTokenEmail(String email, String token) {
 
-        String url = env.getProperty("app.frontend.url");
+        String host = env.getProperty("app.frontend.host");
+        String port = env.getProperty("app.frontend.port");
+        String url = String.format("http://%s:%s", host, port);
         String activationLink = url + "/auth/accounts/activate/" + token;
         // Send email to confirm registration
         emailSenderService.send(

@@ -1,12 +1,7 @@
-app:
-  frontend:
-    domain: "photogram.local"
-    port: 8080
-    url: "http://photogram.local:8080"
 spring:
   mail:
-    host: ${SPRING_MAIL_HOST:mailpit}
-    port: ${SPRING_MAIL_PORT:1025}
+    host: ${MAIL_HOST:mailpit}
+    port: ${MAIL_PORT:1025}
     username:
     password:
     properties:
