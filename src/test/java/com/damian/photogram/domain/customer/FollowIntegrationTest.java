@@ -10,6 +10,7 @@ import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Follow;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.FollowRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,10 +122,11 @@ public class FollowIntegrationTest {
                 .andReturn();
 
         // then
-        FollowDto[] followDto = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                FollowDto[].class
-        );
+        String json = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(json);
+        JsonNode contentNode = root.get("content");
+
+        FollowDto[] followDto = objectMapper.treeToValue(contentNode, FollowDto[].class);
 
         // then
         assertThat(followDto).isNotNull();
