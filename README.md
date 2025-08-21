@@ -4,7 +4,7 @@ Just a simplified Instagram clone using Spring Boot and Vue.js
 
 ---
 
-## 🚀 Technologies
+## Technologies
 
 - **Java 21**
 - **Spring Boot**
@@ -22,7 +22,7 @@ Before starting the application, make sure to configure your environment
 
 ### Environment Variables
 
-Config `application-prod.yml` and set following variables
+Config `application.yml` and set following variables
 
 - `app.frontend.host` where your frontend will run such as localhost, photogram.local ...
 - `app.frontend.port` port where frontend will run.
@@ -62,11 +62,15 @@ Run the Docker containers:
 docker-compose up --build
 ```
 
-You can just deploy it with Makefile using the following commands:
+Or you can just deploy it with Makefile using the following command:
 
 ```bash
 make deploy
 ```
+
+This will build the database, mail and application containers.
+
+## 🚀 Using the application
 
 After containers are running, you can access the application at
 
