@@ -58,7 +58,7 @@ CREATE TABLE public.customer_auth (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
 	password_hash varchar(60) NOT NULL,
-	account_status public."account_status_type" DEFAULT 'ENABLED'::account_status_type NOT NULL,
+	account_status public."account_status_type" DEFAULT 'PENDING_VERIFICATION'::account_status_type NOT NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT auth_pkey PRIMARY KEY (id),
 	CONSTRAINT auth_customer_id_key UNIQUE (customer_id),
@@ -135,5 +135,5 @@ CREATE TABLE public.customer_settings (
     setting_value varchar(255) NOT NULL,
 	CONSTRAINT settings_pkey PRIMARY KEY (id),
     CONSTRAINT settings_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
-    CONSTRAINT unique_customer_setting UNIQUE (customer_id, key)
+    CONSTRAINT unique_customer_setting UNIQUE (customer_id, setting_key)
 );
