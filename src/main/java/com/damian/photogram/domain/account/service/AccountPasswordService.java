@@ -2,12 +2,21 @@ package com.damian.photogram.domain.account.service;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
+import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
+import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +26,28 @@ import java.time.Instant;
 public class AccountPasswordService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AccountRepository accountRepository;
+    private final EmailSenderService emailSenderService;
+    private final CustomerRepository customerRepository;
+    private final AccountTokenVerificationService accountTokenVerificationService;
+    private final AccountTokenRepository accountTokenRepository;
+    private final Environment env;
 
     public AccountPasswordService(
             BCryptPasswordEncoder bCryptPasswordEncoder,
-            AccountRepository accountRepository
+            AccountRepository accountRepository,
+            EmailSenderService emailSenderService,
+            CustomerRepository customerRepository,
+            AccountTokenVerificationService accountTokenVerificationService,
+            AccountTokenRepository accountTokenRepository,
+            Environment env
     ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.accountRepository = accountRepository;
+        this.emailSenderService = emailSenderService;
+        this.customerRepository = customerRepository;
+        this.accountTokenVerificationService = accountTokenVerificationService;
+        this.accountTokenRepository = accountTokenRepository;
+        this.env = env;
     }
 
     /**
@@ -73,4 +97,51 @@ public class AccountPasswordService {
         this.updatePassword(loggedCustomer.getId(), request.newPassword());
     }
 
+    // Updates the customer password using a reset password link
+    public void updatePassword(String token, AccountPasswordResetSetRequest request) {
+        // find the customer we need to change its password
+        final Customer customer = customerRepository.findByEmail(request.email()).orElseThrow(
+                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
+        );
+
+        // verify the token ...
+        final AccountToken accountToken = accountTokenVerificationService.verify(token);
+
+        // update the password
+        this.updatePassword(customer.getId(), request.password());
+
+        accountToken.setUsed(true);
+        accountTokenRepository.save(accountToken);
+    }
+
+    // reset the password of a customer using their email
+    public void resetPassword(AccountPasswordResetRequest request) {
+        Account account = accountRepository
+                .findByCustomer_Email(request.email())
+                .orElseThrow(
+                        () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND)
+                );
+
+        // generate the token for password reset
+        AccountToken token = new AccountToken(account.getCustomer());
+        token.setToken(token.generateToken());
+        token.setType(AccountTokenType.RESET_PASSWORD);
+        accountTokenRepository.save(token);
+
+        // send the email with the link to reset the password
+        sendResetPasswordEmail(account.getCustomer().getEmail(), token.getToken());
+    }
+
+    public void sendResetPasswordEmail(String toEmail, String token) {
+        String host = env.getProperty("app.frontend.host");
+        String port = env.getProperty("app.frontend.port");
+        String url = String.format("http://%s:%s", host, port);
+        String link = url + "/auth/accounts/reset-password/" + token;
+
+        emailSenderService.send(
+                toEmail,
+                "Photogram password reset.",
+                "Reset your password following this url: " + link
+        );
+    }
 }

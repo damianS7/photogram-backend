@@ -6,9 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 /**
  * TODO
  */
-public record AccountPasswordResetRequest(
+public record AccountPasswordResetSetRequest(
         @NotBlank(message = "Email must not be blank")
         @Email(message = "Email must be a well-formed email address.")
-        String email
+        String email,
+
+        @NotBlank(message = "Password must not be blank")
+        String password
 ) {
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Entity
 @Table(name = "customer_auth_tokens")
@@ -36,13 +37,14 @@ public class AccountToken {
 
     public AccountToken() {
         this.used = false;
+        this.token = generateToken();
+        this.createdAt = Instant.now();
+        this.expiresAt = Instant.now().plus(1, ChronoUnit.DAYS);
     }
 
     public AccountToken(Customer customer) {
         this();
         this.customer = customer;
-        this.createdAt = Instant.now();
-        this.expiresAt = Instant.now().plus(1, ChronoUnit.DAYS);
     }
 
     public Customer getCustomer() {
@@ -103,5 +105,9 @@ public class AccountToken {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }

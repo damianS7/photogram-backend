@@ -2,6 +2,8 @@ package com.damian.photogram.domain.account.controller;
 
 import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.dto.request.AccountActivationResendRequest;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
 import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
@@ -87,4 +89,31 @@ public class AccountController {
                 .body(ApiResponse.success("Activation email sent successfully. Please check your inbox."));
     }
 
+    // endpoint to request for a reset password
+    @PostMapping("/auth/accounts/reset-password")
+    public ResponseEntity<?> resetPasswordRequest(
+            @Validated @RequestBody
+            AccountPasswordResetRequest request
+    ) {
+        accountPasswordService.resetPassword(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("Reset password email sent successfully. Please check your inbox."));
+    }
+
+    // endpoint to set a new password using token
+    @PostMapping("/auth/accounts/reset-password/{token:.+}")
+    public ResponseEntity<?> resetPassword(
+            @PathVariable @NotBlank
+            String token,
+            @Validated @RequestBody
+            AccountPasswordResetSetRequest request
+    ) {
+        accountPasswordService.updatePassword(token, request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("Password reset successfully."));
+    }
 }
