@@ -9,16 +9,14 @@ import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,13 +26,12 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthenticationIntegrationTest {
     private final String email = "customer@test.com";
     private final String rawPassword = "123456";
@@ -44,6 +41,9 @@ public class AuthenticationIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ProfileRepository profileRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -56,9 +56,8 @@ public class AuthenticationIntegrationTest {
 
     private Customer customer;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
         customer = new Customer();
         customer.setRole(CustomerRole.ADMIN);
         customer.setEmail(this.email);
@@ -74,32 +73,19 @@ public class AuthenticationIntegrationTest {
         customerRepository.save(customer);
     }
 
-    String loginWithCustomer(Customer customer) throws Exception {
-        // given
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                customer.getEmail(), "123456"
-        );
-
-        String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
-
-        // when
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
-                                          .contentType(MediaType.APPLICATION_JSON)
-                                          .content(jsonRequest))
-                                  .andReturn();
-
-        AuthenticationResponse response = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                AuthenticationResponse.class
-        );
-
-        return response.token();
+    @AfterAll
+    void tearDown() {
+        profileRepository.deleteAll();
+        customerRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Should login when valid credentials")
     void shouldLoginWhenValidCredentials() throws Exception {
         // given
+        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerRepository.save(customer);
+
         AuthenticationRequest request = new AuthenticationRequest(
                 this.email, this.rawPassword
         );

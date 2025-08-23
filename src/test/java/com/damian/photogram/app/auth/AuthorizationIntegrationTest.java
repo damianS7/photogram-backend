@@ -1,7 +1,5 @@
 package com.damian.photogram.app.auth;
 
-import com.damian.photogram.app.auth.dto.AuthenticationRequest;
-import com.damian.photogram.app.auth.dto.AuthenticationResponse;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
@@ -17,9 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -28,11 +24,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -56,9 +50,8 @@ public class AuthorizationIntegrationTest {
     private Customer customer;
     private Customer admin;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
         customer = new Customer();
         customer.setEmail("customer@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode(rawPassword));
@@ -82,28 +75,6 @@ public class AuthorizationIntegrationTest {
     @AfterAll
     void tearDown() {
         customerRepository.deleteAll();
-    }
-
-    String loginWithCustomer(Customer customer) throws Exception {
-        // given
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                customer.getEmail(), this.rawPassword
-        );
-
-        String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
-
-        // when
-        MvcResult result = mockMvc.perform(post("/api/v1/security/login")
-                                          .contentType(MediaType.APPLICATION_JSON)
-                                          .content(jsonRequest))
-                                  .andReturn();
-
-        AuthenticationResponse response = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                AuthenticationResponse.class
-        );
-
-        return response.token();
     }
 
     @Test
