@@ -1,8 +1,6 @@
 package com.damian.photogram.core.exception;
 
-import com.damian.photogram.app.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.app.auth.exception.AuthenticationException;
-import com.damian.photogram.app.auth.exception.JwtAuthenticationException;
 import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.customer.exception.*;
@@ -13,6 +11,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,10 +50,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             {
                     AuthenticationException.class,
-                    JwtAuthenticationException.class,
                     ExpiredJwtException.class,
-                    AuthenticationBadCredentialsException.class,
-                    AccountDisabledException.class,
+                    BadCredentialsException.class,
+                    AccountSuspendedException.class,
+                    AccountNotVerifiedException.class,
             }
     )
     public ResponseEntity<ApiResponse<String>> handleUnauthorized(RuntimeException ex) {
