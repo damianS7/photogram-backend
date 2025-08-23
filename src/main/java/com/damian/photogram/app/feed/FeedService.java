@@ -27,13 +27,13 @@ public class FeedService {
     }
 
     public FeedDto getUserFeed(String username) {
-        Profile profile = profileRepository.findByUsername(username).orElseThrow(
+        final Profile profile = profileRepository.findByUsername(username).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
 
         return new FeedDto(
                 profile.getOwner().getId(),
-                username,
+                profile.getUsername(),
                 postRepository.countByAuthorId(profile.getOwner().getId()),
                 followRepository.countFollowsFromCustomer(profile.getOwner().getId()),
                 followRepository.countFollowersFromCustomer(profile.getOwner().getId()),

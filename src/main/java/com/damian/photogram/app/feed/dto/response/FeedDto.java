@@ -8,6 +8,5 @@ public record FeedDto(
         Long followers,
         String profileImageFilename,
         String aboutMe
-        // FIXME add posts???
 ) {
 }

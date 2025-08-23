@@ -30,13 +30,11 @@ public class FeedServiceTest {
     @Mock
     private ProfileRepository profileRepository;
 
-
     @Mock
     private PostRepository postRepository;
 
     @Mock
     private FollowRepository followRepository;
-
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
@@ -71,7 +69,6 @@ public class FeedServiceTest {
                 passwordEncoder.encode("password")
         );
         loggedCustomer.getProfile().setUsername("customer7777");
-        //        setUpContext(loggedCustomer);
 
         // when
         when(profileRepository.findByUsername(loggedCustomer.getUsername()))

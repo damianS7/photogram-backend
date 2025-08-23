@@ -48,8 +48,6 @@ public class FeedIntegrationTest {
 
     @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
-
         customer = new Customer();
         customer.setRole(CustomerRole.CUSTOMER);
         customer.setEmail("customer@test.com");
