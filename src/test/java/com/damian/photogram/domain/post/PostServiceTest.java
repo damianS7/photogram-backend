@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.post;
 
-import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -8,7 +8,6 @@ import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
 import com.damian.photogram.domain.post.exception.PostNotAuthorException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Post;
-import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.post.service.PostService;
 import org.junit.jupiter.api.AfterEach;
@@ -41,10 +40,7 @@ public class PostServiceTest {
     private CustomerRepository customerRepository;
 
     @Mock
-    private CommentRepository commentRepository;
-
-    @Mock
-    private ImageUploaderService imageUploaderService;
+    private ImageStorageService imageStorageService;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
@@ -151,10 +147,12 @@ public class PostServiceTest {
         Post post = new Post();
         post.setId(1L);
         post.setDescription("Hello world");
+        post.setPhotoFilename("image.jpg");
         post.setAuthor(loggedCustomer);
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        doNothing().when(imageStorageService).deleteImage(anyString(), anyString());
         postService.deletePost(post.getId());
 
         // then

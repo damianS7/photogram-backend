@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -25,18 +25,18 @@ public class PostService {
     private final PostRepository postRepository;
     private final CustomerRepository customerRepository;
     private final ProfileRepository profileRepository;
-    private final ImageUploaderService imageUploaderService;
+    private final ImageStorageService imageStorageService;
 
     public PostService(
             PostRepository postRepository,
             CustomerRepository customerRepository,
             ProfileRepository profileRepository,
-            ImageUploaderService imageUploaderService
+            ImageStorageService imageStorageService
     ) {
         this.postRepository = postRepository;
         this.customerRepository = customerRepository;
         this.profileRepository = profileRepository;
-        this.imageUploaderService = imageUploaderService;
+        this.imageStorageService = imageStorageService;
     }
 
     public Page<Post> getPostsByUsername(String username, Pageable pageable) {
@@ -83,6 +83,6 @@ public class PostService {
 
         postRepository.deleteById(id);
         String path = PostHelper.getPostsImageUploadPath(post.getAuthor().getId());
-        imageUploaderService.deleteImage(path, post.getPhotoFilename());
+        imageStorageService.deleteImage(path, post.getPhotoFilename());
     }
 }
