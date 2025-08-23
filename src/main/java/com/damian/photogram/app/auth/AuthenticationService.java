@@ -56,8 +56,7 @@ public class AuthenticationService {
 
         // Get the authenticated user
         final Customer customer = (Customer) auth.getPrincipal();
-
-        HashMap<String, Object> claims = new HashMap<>();
+        final HashMap<String, Object> claims = new HashMap<>();
         claims.put("email", customer.getEmail());
         claims.put("role", customer.getRole());
 

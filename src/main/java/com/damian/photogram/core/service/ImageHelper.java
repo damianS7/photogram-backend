@@ -9,7 +9,7 @@ public class ImageHelper {
 
     public static String getContentType(Resource resource) {
 
-        String contentType = null;
+        String contentType;
         try {
             contentType = Files.probeContentType(resource.getFile().toPath());
         } catch (IOException e) {
