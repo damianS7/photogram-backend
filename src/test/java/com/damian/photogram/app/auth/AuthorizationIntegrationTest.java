@@ -2,6 +2,7 @@ package com.damian.photogram.app.auth;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
@@ -137,7 +138,7 @@ public class AuthorizationIntegrationTest {
                        .content(jsonRequest))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value("Token expired"))
+               .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN_EXPIRED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 }

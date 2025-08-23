@@ -11,6 +11,10 @@ public class Exceptions {
         public static final String UPLOAD_FAILED = "Upload failed.";
     }
 
+    public static class JWT {
+        public static final String TOKEN_EXPIRED = "Token has expired.";
+    }
+
     public static class IMAGE {
         public static final String NOT_FOUND = "Image not found.";
         public static final String INVALID_PATH = "Invalid path.";
