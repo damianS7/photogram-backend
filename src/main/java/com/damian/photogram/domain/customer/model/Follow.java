@@ -11,11 +11,11 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followed_customer_id", referencedColumnName = "id")
     private Customer followedCustomer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_customer_id", referencedColumnName = "id")
     private Customer followerCustomer;
 
