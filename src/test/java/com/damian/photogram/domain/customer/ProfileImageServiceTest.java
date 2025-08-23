@@ -3,7 +3,7 @@ package com.damian.photogram.domain.customer;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageInvalidException;
+import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
@@ -169,13 +169,13 @@ public class ProfileImageServiceTest {
         );
 
         // when
-        ImageEmptyFileException exception = assertThrows(
+        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenThrow(
+                ImageEmptyFileException.class
+        );
+        assertThrows(
                 ImageEmptyFileException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
-
-        // then
-        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
     }
 
     @Test
@@ -191,13 +191,15 @@ public class ProfileImageServiceTest {
         );
 
         // when
-        ImageInvalidException exception = assertThrows(
-                ImageInvalidException.class,
+        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenThrow(
+                ImageTypeNotAllowedException.class
+        );
+
+        ImageTypeNotAllowedException exception = assertThrows(
+                ImageTypeNotAllowedException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
 
-        // then
-        assertEquals(Exceptions.IMAGE.ONLY_IMAGES_ALLOWED, exception.getMessage());
     }
 
     @Test

@@ -1,9 +1,7 @@
 package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageInvalidException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.utils.AuthHelper;
@@ -36,18 +34,6 @@ public class ProfileImageService {
 
     // validations for file uploaded photos
     private void validatePhotoOrElseThrow(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new ImageEmptyFileException(
-                    Exceptions.IMAGE.EMPTY_FILE
-            );
-        }
-
-        if (!file.getContentType().startsWith("image/")) {
-            throw new ImageInvalidException(
-                    Exceptions.IMAGE.ONLY_IMAGES_ALLOWED
-            );
-        }
-
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new ImageFileSizeExceededException(
                     Exceptions.PROFILE.IMAGE.FILE_SIZE_LIMIT
