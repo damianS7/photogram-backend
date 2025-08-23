@@ -10,7 +10,7 @@ public class Setting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
 
@@ -42,6 +42,7 @@ public class Setting {
     public String toString() {
         return "Setting {" +
                "id=" + id +
+               "customerId=" + getCustomer().getId() +
                "settingKey=" + getSettingKey() +
                "settingValue=" + getSettingValue() +
                "}";
