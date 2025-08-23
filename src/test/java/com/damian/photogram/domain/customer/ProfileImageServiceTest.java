@@ -175,7 +175,7 @@ public class ProfileImageServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.PROFILE.IMAGE.EMPTY_FILE, exception.getMessage());
+        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
     }
 
     @Test
