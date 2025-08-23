@@ -2,6 +2,7 @@ package com.damian.photogram.core.security;
 
 
 import com.damian.photogram.app.auth.exception.JwtAuthenticationException;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.service.CustomerDetailsService;
 import com.damian.photogram.core.utils.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -77,7 +78,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // If the token has expired, then we need to send back a 401
             // Unauthorized response.
-            authenticationEntryPoint.commence(request, response, new JwtAuthenticationException("Token expired"));
+            authenticationEntryPoint.commence(
+                    request, response, new JwtAuthenticationException(
+                            Exceptions.JWT.TOKEN_EXPIRED
+                    )
+            );
             return;
         }
 
