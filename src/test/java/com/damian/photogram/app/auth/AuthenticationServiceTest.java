@@ -2,11 +2,11 @@ package com.damian.photogram.app.auth;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
-import com.damian.photogram.app.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.account.exception.AccountDisabledException;
+import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
+import com.damian.photogram.domain.account.exception.AccountSuspendedException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,10 +111,10 @@ public class AuthenticationServiceTest {
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
 
         // when
-        when(authenticationManager.authenticate(any())).thenThrow(AuthenticationBadCredentialsException.class);
+        when(authenticationManager.authenticate(any())).thenThrow(BadCredentialsException.class);
 
-        AuthenticationBadCredentialsException exception = assertThrows(
-                AuthenticationBadCredentialsException.class,
+        BadCredentialsException exception = assertThrows(
+                BadCredentialsException.class,
                 () -> authenticationService.login(request)
         );
 
@@ -122,8 +123,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("should not login when account is disabled")
-    void shouldNotLoginWhenAccountIsDisabled() {
+    @DisplayName("should not login when account is suspended")
+    void shouldNotLoginWhenAccountIsSuspended() {
         // given
         Authentication authentication = mock(Authentication.class);
         String token = "jwt-token";
@@ -142,12 +143,42 @@ public class AuthenticationServiceTest {
         when(jwtUtil.generateToken(anyMap(), anyString())).thenReturn(token);
         when(authentication.getPrincipal()).thenReturn(customer);
 
-        AccountDisabledException exception = assertThrows(
-                AccountDisabledException.class,
+        AccountSuspendedException exception = assertThrows(
+                AccountSuspendedException.class,
                 () -> authenticationService.login(request)
         );
 
         // Then
         assertEquals(Exceptions.ACCOUNT.SUSPENDED, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("should not login when account is not verified")
+    void shouldNotLoginWhenAccountIsNotVerified() {
+        // given
+        Authentication authentication = mock(Authentication.class);
+        String token = "jwt-token";
+
+        Customer customer = new Customer(
+                1L,
+                "alice@gmail.com",
+                "123456"
+        );
+        customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
+
+        AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
+
+        // when
+        when(authenticationManager.authenticate(any())).thenReturn(authentication);
+        when(jwtUtil.generateToken(anyMap(), anyString())).thenReturn(token);
+        when(authentication.getPrincipal()).thenReturn(customer);
+
+        AccountNotVerifiedException exception = assertThrows(
+                AccountNotVerifiedException.class,
+                () -> authenticationService.login(request)
+        );
+
+        // Then
+        assertEquals(Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED, exception.getMessage());
     }
 }

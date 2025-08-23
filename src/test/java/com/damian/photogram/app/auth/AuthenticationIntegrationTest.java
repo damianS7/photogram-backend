@@ -151,7 +151,7 @@ public class AuthenticationIntegrationTest {
 
     @Test
     @DisplayName("Should not login when account is disabled")
-    void shouldNotLoginWhenAccountIsDisabled() throws Exception {
+    void shouldNotLoginWhenAccountIsSuspended() throws Exception {
         // given
         Customer givenCustomer = new Customer();
         givenCustomer.setEmail("disabled-customer@test.com");
@@ -224,7 +224,7 @@ public class AuthenticationIntegrationTest {
 
     @Test
     @DisplayName("Should not login when account is not activated")
-    void shouldNotLoginWhenAccountIsNotActivated() throws Exception {
+    void shouldNotLoginWhenAccountIsNotVerified() throws Exception {
         // Given
         customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
         customerRepository.save(customer);
