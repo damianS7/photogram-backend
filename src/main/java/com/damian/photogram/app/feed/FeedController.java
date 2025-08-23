@@ -26,7 +26,7 @@ public class FeedController {
             @PathVariable @NotNull
             String username
     ) {
-        FeedDto feedDTO = feedService.getUserFeed(username);
+        final FeedDto feedDTO = feedService.getUserFeed(username);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
