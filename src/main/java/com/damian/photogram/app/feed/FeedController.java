@@ -1,6 +1,6 @@
 package com.damian.photogram.app.feed;
 
-import com.damian.photogram.app.feed.dto.FeedDto;
+import com.damian.photogram.app.feed.dto.response.FeedDto;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

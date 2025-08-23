@@ -1,6 +1,6 @@
 package com.damian.photogram.app.feed;
 
-import com.damian.photogram.app.feed.dto.FeedDto;
+import com.damian.photogram.app.feed.dto.response.FeedDto;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Profile;

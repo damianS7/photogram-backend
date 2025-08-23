@@ -2,7 +2,7 @@ package com.damian.photogram.app.feed;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
-import com.damian.photogram.app.feed.dto.FeedDto;
+import com.damian.photogram.app.feed.dto.response.FeedDto;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.CustomerRole;
