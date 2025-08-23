@@ -2,11 +2,11 @@ package com.damian.photogram.app.auth;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
-import com.damian.photogram.app.auth.exception.AuthenticationBadCredentialsException;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.account.exception.AccountDisabledException;
+import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
+import com.damian.photogram.domain.account.exception.AccountSuspendedException;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,8 +34,8 @@ public class AuthenticationService {
      *
      * @param request Contains the fields needed to login into the service
      * @return Contains the data (Customer, Profile) and the token
-     * @throws AuthenticationBadCredentialsException if credentials are invalid
-     * @throws AccountDisabledException              if the account is not enabled
+     * @throws BadCredentialsException     if credentials are invalid
+     * @throws AccountNotVerifiedException if the account is not verified
      */
     public AuthenticationResponse login(AuthenticationRequest request) {
         final String email = request.email();
@@ -49,7 +49,7 @@ public class AuthenticationService {
                             email, password)
             );
         } catch (BadCredentialsException e) {
-            throw new AuthenticationBadCredentialsException(
+            throw new BadCredentialsException(
                     Exceptions.ACCOUNT.BAD_CREDENTIALS
             );
         }
@@ -69,14 +69,14 @@ public class AuthenticationService {
 
         // check if the account is disabled
         if (customer.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
-            throw new AccountDisabledException(
+            throw new AccountSuspendedException(
                     Exceptions.ACCOUNT.SUSPENDED
             );
         }
 
         // check if the account is verified
-        if (!customer.getAccount().isEmailVerified()) {
-            throw new AccountDisabledException(
+        if (customer.getAccount().getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
+            throw new AccountNotVerifiedException(
                     Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED
             );
         }
