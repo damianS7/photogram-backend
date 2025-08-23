@@ -1,7 +1,6 @@
 package com.damian.photogram.core.config;
 
 import com.damian.photogram.core.service.CustomerDetailsService;
-import net.datafaker.Faker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,12 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class SecurityConfig {
-
-    @Bean
-    public Faker getFaker() {
-        return new Faker();
-    }
-
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
