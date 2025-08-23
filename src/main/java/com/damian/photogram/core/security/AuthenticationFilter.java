@@ -5,7 +5,6 @@ import com.damian.photogram.app.auth.exception.JwtAuthenticationException;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.service.CustomerDetailsService;
 import com.damian.photogram.core.utils.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * This class is a filter that handles the authentication of requests.
+ * It checks if the JWT is valid and if so, it sets the Authentication Object to the SecurityContext.
+ */
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
 
@@ -39,9 +43,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 
     /**
-     * Checks if the JWT is valid and if so, it sets the Authentication Object
-     * to the SecurityContext.
-     *
      * @param request     The request object.
      * @param response    The response object.
      * @param filterChain The filter chain.
@@ -73,15 +74,18 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         final String jwtToken = authHeader.substring(7);
 
         // Check if the token has expired.
-        try {
-            jwtUtil.isTokenExpired(jwtToken);
-        } catch (ExpiredJwtException e) {
-            // If the token has expired, then we need to send back a 401
-            // Unauthorized response.
+        if (!jwtUtil.isTokenValid(jwtToken)) {
+            // token is invalid. 401
             authenticationEntryPoint.commence(
-                    request, response, new JwtAuthenticationException(
-                            Exceptions.JWT.TOKEN_EXPIRED
-                    )
+                    request, response, new JwtAuthenticationException(Exceptions.JWT.INVALID_TOKEN)
+            );
+            return;
+        }
+
+        if (jwtUtil.isTokenExpired(jwtToken)) {
+            // If the token has expired, then we need to send back a 401.
+            authenticationEntryPoint.commence(
+                    request, response, new JwtAuthenticationException(Exceptions.JWT.TOKEN_EXPIRED)
             );
             return;
         }
@@ -89,31 +93,35 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         // Extract the email from the JWT.
         final String email = jwtUtil.extractEmail(jwtToken);
 
-        // If the email is not null and there is no Authentication object
-        // currently in the SecurityContext, then we can go ahead and
-        // authenticate the user.
+        // If the email found in token is not null and there is no Authentication object
+        // in the SecurityContext, then we can go ahead and authenticate the user.
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Load the customer details from the database.
-            CustomerDetails customerDetails = customerDetailsService.loadCustomerByEmail(email);
-
-            // If the token is valid, then we can go ahead and
-            // authenticate the user.
-            if (jwtUtil.isTokenValid(jwtToken, customerDetails)) {
-                // Create an Authentication object.
-                var authToken = new UsernamePasswordAuthenticationToken(
-                        customerDetails,
-                        null,
-                        customerDetails.getAuthorities()
+            CustomerDetails customerDetails;
+            try {
+                // Load the customer details from the database.
+                customerDetails = customerDetailsService.loadCustomerByEmail(email);
+            } catch (UsernameNotFoundException e) {
+                // In case no such user exists by this email, then we sent 401
+                authenticationEntryPoint.commence(
+                        request, response, new JwtAuthenticationException(Exceptions.JWT.INVALID_EMAIL)
                 );
-
-                // Add some extra details to the Authentication object.
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-
-                // Finally, set the Authentication object in the SecurityContext.
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                return;
             }
+
+            // Create an Authentication object.
+            var authToken = new UsernamePasswordAuthenticationToken(
+                    customerDetails,
+                    null,
+                    customerDetails.getAuthorities()
+            );
+
+            // Add some extra details to the Authentication object.
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
+            // Finally, set the Authentication object in the SecurityContext.
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         // Continue the filter chain.

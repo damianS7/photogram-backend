@@ -78,6 +78,24 @@ public class AuthorizationIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should have access when token is valid")
+    void shouldHaveAccessWhenTokenIsValid() throws Exception {
+        // given
+        final String token = jwtUtil.generateToken(
+                customer.getEmail(),
+                new Date(System.currentTimeMillis() + 1000 * 60 * 60)
+        );
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .get("/api/v1/customers/me/profile")
+                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(200))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
     @DisplayName("Should not have access when token has expired")
     void shouldNotHaveAccessWhenTokenHasExpired() throws Exception {
         // given
@@ -110,6 +128,57 @@ public class AuthorizationIntegrationTest {
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
                .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN_EXPIRED))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("Should not have access when token is invalid")
+    void shouldNotHaveAccessWhenTokenIsInvalid() throws Exception {
+        // given
+        final String invalidToken = "bad-token";
+
+        // given
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("firstName", "alice");
+        fields.put("lastName", "white");
+        fields.put("phone", "999 999 999");
+        fields.put("birthdate", LocalDate.of(1989, 1, 1));
+        fields.put("gender", CustomerGender.FEMALE);
+
+        ProfileUpdateRequest request = new ProfileUpdateRequest(
+                this.rawPassword,
+                fields
+        );
+
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .put("/api/v1/profiles/" + customer.getProfile().getId())
+                       .contentType(MediaType.APPLICATION_JSON)
+                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
+                       .content(jsonRequest))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(jsonPath("$.message").value(Exceptions.JWT.INVALID_TOKEN))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("Should not have access when token email not exists")
+    void shouldNotHaveAccessWhenTokenEmailNotExists() throws Exception {
+        // given
+        final String token = jwtUtil.generateToken(
+                "fake-email@demo.com",
+                new Date(System.currentTimeMillis() + 1000 * 60 * 60)
+        );
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .get("/api/v1/customers/me/profile")
+                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(401))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 }
