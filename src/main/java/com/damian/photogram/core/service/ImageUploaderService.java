@@ -10,12 +10,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.UUID;
 
+/**
+ * Service class for handling image uploads to the server.
+ */
 @Service
 public class ImageUploaderService {
     private final String IMAGE_PATH = "uploads/images/";
     private final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    private final String[] ALLOWED_IMAGE_TYPE = {"image/jpg", "image/jpeg", "image/webp"};
 
     public ImageUploaderService(
     ) {
@@ -27,8 +32,13 @@ public class ImageUploaderService {
             throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY_FILE);
         }
 
-        if (!file.getContentType().startsWith("image/")) {
-            throw new ImageInvalidException(Exceptions.IMAGE.ONLY_IMAGES_ALLOWED);
+        String contentType = file.getContentType();
+        boolean imageTypeAllowed = Arrays
+                .stream(ALLOWED_IMAGE_TYPE)
+                .anyMatch(ct -> ct.equalsIgnoreCase(contentType));
+
+        if (!imageTypeAllowed) {
+            throw new ImageTypeNotAllowedException(Exceptions.IMAGE.TYPE_NOT_ALLOWED);
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
@@ -59,8 +69,10 @@ public class ImageUploaderService {
         // TODO compress or convert to webp image before uploading to server
 
         final String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        if (!filename.endsWith(extension)) {
+            filename += "." + extension;
+        }
 
-        filename += "." + extension;
 
         // saving file
         this.storeFile(file, folder, filename);
@@ -74,14 +86,5 @@ public class ImageUploaderService {
     public String uploadImage(MultipartFile file, String folder) {
         String filename = UUID.randomUUID().toString();
         return this.uploadImage(file, folder, filename);
-    }
-
-    // delete image from server
-    public void deleteImage(String path, String filename) {
-        try {
-            Files.deleteIfExists(Path.of(path + filename));
-        } catch (IOException e) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
-        }
     }
 }
