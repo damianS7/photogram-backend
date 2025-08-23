@@ -1,3 +1,7 @@
+app:
+  frontend:
+    host: "localhost"
+    port: 8080
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5440/postgres

@@ -1,7 +1,3 @@
-app:
-  frontend:
-    host: "localhost"
-    port: 8080
 spring:
   profiles:
     active: dev
