@@ -6,15 +6,21 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Service class for handling image storage and retrieval.
+ */
 @Service
 public class ImageStorageService {
     private final String ROOT_PATH = "uploads/images/";
 
+    // creates a Resource from the given path
     public Resource createResource(Path path) {
         Resource resource;
         try {
@@ -26,7 +32,7 @@ public class ImageStorageService {
         return resource;
     }
 
-    //     returns the profile photo as Resource
+    // returns the image as Resource
     public Resource getImage(String folderPath, String filename) {
         Path filePath;
         try {
@@ -42,5 +48,15 @@ public class ImageStorageService {
         }
 
         return resource;
+    }
+
+    // delete image from server
+    public void deleteImage(String folder, String filename) {
+        try {
+            Path pathToFile = Path.of(ROOT_PATH + folder + "/" + filename);
+            Files.deleteIfExists(pathToFile);
+        } catch (IOException e) {
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
+        }
     }
 }
