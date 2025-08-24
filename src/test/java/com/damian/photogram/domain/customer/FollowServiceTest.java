@@ -73,11 +73,11 @@ public class FollowServiceTest {
     @DisplayName("Should get followers paginated")
     void shouldGetFollowersPaginated() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer follow1 = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
@@ -88,34 +88,34 @@ public class FollowServiceTest {
         );
 
         Set<Follow> followList = Set.of(
-                new Follow(loggedCustomer, follow1),
-                new Follow(loggedCustomer, follow2)
+                Follow.create().setFollowedCustomer(currentCustomer).setFollowerCustomer(follow1),
+                Follow.create().setFollowedCustomer(currentCustomer).setFollowerCustomer(follow2)
         );
 
         Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
         Pageable pageable = PageRequest.of(0, 2);
 
         // when
-        when(customerRepository.existsById(loggedCustomer.getId())).thenReturn(true);
-        when(followRepository.findAllByFollowedCustomer_Id(loggedCustomer.getId(), pageable))
+        when(customerRepository.existsById(currentCustomer.getId())).thenReturn(true);
+        when(followRepository.findAllByFollowedCustomer_Id(currentCustomer.getId(), pageable))
                 .thenReturn(followPage);
         Page<Follow> result = followService.getFollowers(pageable);
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getSize());
-        verify(followRepository, times(1)).findAllByFollowedCustomer_Id(loggedCustomer.getId(), pageable);
+        verify(followRepository, times(1)).findAllByFollowedCustomer_Id(currentCustomer.getId(), pageable);
     }
 
     @Test
     @DisplayName("Should get followings paginated")
     void shouldGetFollowingsPaginated() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer follow1 = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
@@ -126,41 +126,41 @@ public class FollowServiceTest {
         );
 
         Set<Follow> followList = Set.of(
-                new Follow(follow1, loggedCustomer),
-                new Follow(follow2, loggedCustomer)
+                new Follow(follow1, currentCustomer),
+                new Follow(follow2, currentCustomer)
         );
 
         Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
         Pageable pageable = PageRequest.of(0, 2);
 
         // when
-        //        when(customerRepository.existsById(loggedCustomer.getId())).thenReturn(true);
-        when(followRepository.findAllByFollowerCustomer_Id(loggedCustomer.getId(), pageable))
+        when(customerRepository.existsById(currentCustomer.getId())).thenReturn(true);
+        when(followRepository.findAllByFollowerCustomer_Id(currentCustomer.getId(), pageable))
                 .thenReturn(followPage);
         Page<Follow> result = followService.getFollowed(pageable);
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getSize());
-        verify(followRepository, times(1)).findAllByFollowerCustomer_Id(loggedCustomer.getId(), pageable);
+        verify(followRepository, times(1)).findAllByFollowerCustomer_Id(currentCustomer.getId(), pageable);
     }
 
     @Test
     @DisplayName("Should add a follow")
     void shouldFollow() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L,
                 "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer friendCustomer = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follow givenFollow = new Follow(loggedCustomer, friendCustomer);
+        Follow givenFollow = new Follow(currentCustomer, friendCustomer);
 
         // when
         when(customerRepository.findById(friendCustomer.getId())).thenReturn(Optional.of(friendCustomer));
@@ -210,12 +210,12 @@ public class FollowServiceTest {
     @DisplayName("Should not add a follow when already exists")
     void shouldNotFollowWhenAlreadyExists() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L,
                 "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer friend1 = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
@@ -237,12 +237,12 @@ public class FollowServiceTest {
     @DisplayName("Should not add a follow when customer not found")
     void shouldNotFollowWhenCustomerNotFound() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L,
                 "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer friend1 = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
@@ -263,25 +263,26 @@ public class FollowServiceTest {
     @DisplayName("Should unfollow")
     void shouldUnfollow() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Customer customerToFollow = new Customer(
+        Customer followedCustomer = new Customer(
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follow givenFollow = new Follow(loggedCustomer, customerToFollow);
+        Follow givenFollow = new Follow(followedCustomer, currentCustomer);
         givenFollow.setId(1L);
 
         // when
-        when(followRepository.findFollowRelationshipBetweenCustomers(givenFollow.getId(), loggedCustomer.getId()))
+        when(customerRepository.existsById(followedCustomer.getId())).thenReturn(true);
+        when(followRepository.findFollowRelationshipBetweenCustomers(followedCustomer.getId(), currentCustomer.getId()))
                 .thenReturn(Optional.of(givenFollow));
         doNothing().when(followRepository).deleteById(givenFollow.getId());
 
-        followService.unfollow(givenFollow.getId());
+        followService.unfollow(followedCustomer.getId());
 
         // then
         verify(followRepository, times(1)).deleteById(givenFollow.getId());
@@ -291,17 +292,22 @@ public class FollowServiceTest {
     @DisplayName("Should not delete a follow when not found")
     void shouldNotUnfollowWhenNotFound() {
         // given
-        Customer loggedCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
-        setUpContext(loggedCustomer);
+        Customer currentCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
+        setUpContext(currentCustomer);
+
+        Customer followedCustomer = new Customer(
+                2L, "customer1@test.com", passwordEncoder.encode("password")
+        );
 
         // when
+        when(customerRepository.existsById(followedCustomer.getId())).thenReturn(true);
         when(followRepository.findFollowRelationshipBetweenCustomers(
                 anyLong(),
                 anyLong()
         )).thenReturn(Optional.empty());
         FollowNotFoundException exception = assertThrows(
                 FollowNotFoundException.class,
-                () -> followService.unfollow(0L)
+                () -> followService.unfollow(followedCustomer.getId())
         );
 
         // then

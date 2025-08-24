@@ -136,24 +136,21 @@ public class ProfileImageServiceTest {
         );
 
         String filename = "avatar.jpg";
-        Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
-        Files.createDirectories(directoryPath); // ensure path exists
-        Path filePath = directoryPath.resolve(filename);
-        Files.write(filePath, givenFile.getBytes()); // create dummy file
-        Resource r = new UrlResource(filePath.toUri());
+        //        Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
+        //        Files.createDirectories(directoryPath); // ensure path exists
+        //        Path filePath = directoryPath.resolve(filename);
+        //        Files.write(filePath, givenFile.getBytes()); // create dummy file
 
         // when
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(
                 filename);
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
-        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(r);
-        Resource result = profileImageService.uploadImage(
+        String result = profileImageService.uploadImage(
                 RAW_PASSWORD, givenFile
         );
 
         // then
         assertNotNull(result);
-        assertEquals(result.getFile().length(), givenFile.getSize());
     }
 
     @Test
