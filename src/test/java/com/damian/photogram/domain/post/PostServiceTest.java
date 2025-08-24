@@ -1,10 +1,9 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
+import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.exception.PostNotAuthorException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Post;
@@ -70,17 +69,16 @@ public class PostServiceTest {
     @DisplayName("Should create a post")
     void shouldCreatePost() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setPhotoFilename("dfsdfksdfsdf.jpg");
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         PostCreateRequest request = new PostCreateRequest(
                 post.getPhotoFilename(),
@@ -88,7 +86,6 @@ public class PostServiceTest {
         );
 
         // when
-        when(customerRepository.findById(loggedCustomer.getId())).thenReturn(Optional.of(loggedCustomer));
         when(postRepository.save(any(Post.class))).thenReturn(post);
 
         Post result = postService.createPost(request);
@@ -98,57 +95,23 @@ public class PostServiceTest {
                 .isNotNull()
                 .extracting("photoFilename", "description")
                 .containsExactly(request.photoFilename(), request.description());
-        verify(customerRepository, times(1)).findById(loggedCustomer.getId());
         verify(postRepository, times(1)).save(any(Post.class));
-    }
-
-    @Test
-    @DisplayName("Should create a post when customer not found")
-    void shouldNotCreatePostWhenCustomerNotFound() {
-        // given
-        Customer loggedCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
-        setUpContext(loggedCustomer);
-
-        Post post = new Post();
-        post.setId(1L);
-        post.setPhotoFilename("dfsdfksdfsdf.jpg");
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
-
-        PostCreateRequest request = new PostCreateRequest(
-                post.getPhotoFilename(),
-                post.getDescription()
-        );
-
-        // when
-        when(customerRepository.findById(loggedCustomer.getId())).thenReturn(Optional.empty());
-
-        // then
-        assertThrows(
-                CustomerNotFoundException.class,
-                () -> postService.createPost(request)
-        );
-        verify(customerRepository, times(1)).findById(loggedCustomer.getId());
     }
 
     @Test
     @DisplayName("Should delete a post")
     void shouldDeletePost() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setPhotoFilename("image.jpg");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
@@ -164,16 +127,16 @@ public class PostServiceTest {
     @DisplayName("Should not delete a post when not exists")
     void shouldNotDeletePostWhenNotExists() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.empty());
@@ -190,21 +153,21 @@ public class PostServiceTest {
     @DisplayName("Should not delete a comment when logged customer is not author")
     void shouldNotDeletePostWhenNotAuthor() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer author = new Customer(
                 2L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
 
-        Post post = new Post(author);
-        post.setId(1L);
-        post.setDescription("Hello world");
-
+        Post post = Post.create(author)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));

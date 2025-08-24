@@ -7,7 +7,7 @@ import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
+import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.CommentRepository;
@@ -35,6 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostIntegrationTest {
+    private final String RAW_PASSWORD = "123456";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -65,18 +67,19 @@ public class PostIntegrationTest {
 
     @BeforeAll
     void setUp() {
-        customer = new Customer();
-        customer.setRole(CustomerRole.CUSTOMER);
-        customer.setEmail("customer@test.com");
-        customer.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customer = Customer.create()
+                           .setMail("customer@test.com")
+                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(CustomerRole.CUSTOMER)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setUsername("John")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("avatar.jpg")
+                           );
         customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
-
-        customer.getProfile().setUsername("John");
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-
         customerRepository.save(customer);
     }
 
