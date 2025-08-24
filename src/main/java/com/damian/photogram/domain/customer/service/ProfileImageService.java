@@ -32,8 +32,13 @@ public class ProfileImageService {
         this.imageUploaderService = imageUploaderService;
     }
 
-    // validations for file uploaded photos
-    private void validatePhotoOrElseThrow(MultipartFile file) {
+    /**
+     * Run validations for the uploaded image
+     *
+     * @param file the uploaded image
+     * @throws ImageFileSizeExceededException if the image size exceeds the limit
+     */
+    private void validateImageOrElseThrow(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new ImageFileSizeExceededException(
                     Exceptions.PROFILE.IMAGE.FILE_SIZE_LIMIT
@@ -43,37 +48,45 @@ public class ProfileImageService {
 
     /**
      * It uploads an image and set it as customer profile photo
+     *
+     * @param currentPassword the password of the current customer user
+     * @param file            the uploaded image
+     * @return the uploaded image resource
+     * @throws ImageFileSizeExceededException if the image size exceeds the limit
      */
-    public Resource uploadImage(String currentPassword, MultipartFile file) {
-        final Customer customerLogged = AuthHelper.getLoggedCustomer();
+    public String uploadImage(String currentPassword, MultipartFile file) {
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // validate password
-        AuthHelper.validatePassword(customerLogged, currentPassword);
+        AuthHelper.validatePassword(currentCustomer, currentPassword);
 
         // run file validations
-        this.validatePhotoOrElseThrow(file);
+        this.validateImageOrElseThrow(file);
 
-        // saving file
+        // Save the uploaded file and return the stored filename
         String filename = imageUploaderService.uploadImage(
                 file,
-                ProfileHelper.getProfileImageUploadPath(customerLogged.getId()),
+                ProfileHelper.getProfileImageUploadPath(currentCustomer.getId()),
                 "avatar"
         );
 
         // update profile photo in db
-        customerLogged.getProfile().setImageFilename(filename);
-        profileRepository.save(customerLogged.getProfile());
+        currentCustomer.getProfile().setImageFilename(filename);
+        profileRepository.save(currentCustomer.getProfile());
 
-        return imageStorageService.getImage(
-                ProfileHelper.getProfileImageUploadPath(customerLogged.getId()),
-                filename
-        );
+        return filename;
     }
 
     /**
      * It gets the customer profile photo
+     *
+     * @param customerId the id of the customer to get the photo for
+     * @return the customer profile photo resource
+     * @throws ProfileNotFoundException      if the customer profile does not exist
+     * @throws ProfilePhotoNotFoundException if the customer profile photo does not exist in the db
      */
     public Resource getProfileImage(Long customerId) {
+        // find the customer profile
         Profile profile = profileRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
         );
@@ -83,9 +96,21 @@ public class ProfileImageService {
             throw new ProfilePhotoNotFoundException(Exceptions.PROFILE.IMAGE.NOT_FOUND);
         }
 
+        // return the image as resource
         return imageStorageService.getImage(
                 ProfileHelper.getProfileImageUploadPath(customerId),
                 profile.getImageFilename()
         );
+    }
+
+    /**
+     * It gets the current customer profile photo
+     *
+     * @return the current customer profile photo resource
+     */
+    public Resource getProfileImage() {
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
+
+        return this.getProfileImage(currentCustomer.getId());
     }
 }

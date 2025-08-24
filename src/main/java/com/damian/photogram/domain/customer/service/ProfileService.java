@@ -26,10 +26,23 @@ public class ProfileService {
     }
 
     /**
-     * returns a profile
+     * Get the profile for the current customer
+     *
+     * @return Profile the profile
+     * @throws ProfileNotFoundException if the profile is not found
+     */
+    public Profile getProfile() {
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
+
+        return this.getProfile(currentCustomer.getId());
+    }
+
+    /**
+     * Get a profile by id
      *
      * @param profileId the profile id
      * @return Profile the profile
+     * @throws ProfileNotFoundException if the profile is not found
      */
     public Profile getProfile(Long profileId) {
         return profileRepository
@@ -39,31 +52,45 @@ public class ProfileService {
                 );
     }
 
-    // it updates the logged customer profile
+    /**
+     * It updates the current customer profile
+     *
+     * @param request the request containing the updated profile information
+     * @return Profile the updated profile
+     */
     public Profile updateProfile(ProfileUpdateRequest request) {
-        final Customer customerLogged = AuthHelper.getLoggedCustomer();
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        return this.updateProfile(customerLogged.getProfile().getId(), request);
+        return this.updateProfile(currentCustomer.getProfile().getId(), request);
     }
 
-    // it updates a profile by id
+    /**
+     * It updates the customer profile by id
+     *
+     * @param profileId the id of the profile to be updated
+     * @param request   the request containing the updated profile information
+     * @return Profile the updated profile
+     * @throws ProfileNotFoundException if the profile is not found
+     */
     public Profile updateProfile(Long profileId, ProfileUpdateRequest request) {
-        // We get the profile we want to modify
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
+
+        // find the profile we want to modify
         Profile profile = profileRepository
                 .findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(
                         Exceptions.PROFILE.NOT_FOUND));
 
-        final Customer customerLogged = AuthHelper.getLoggedCustomer();
 
         // if the logged user is not admin
-        if (!AuthHelper.isAdmin(customerLogged)) {
+        if (!AuthHelper.isAdmin(currentCustomer)) {
             // we make sure that this profile belongs to the customer logged
             ProfileAuthorizationHelper
-                    .authorize(customerLogged, profile)
+                    .authorize(currentCustomer, profile)
                     .checkOwner();
 
-            AuthHelper.validatePassword(customerLogged, request.currentPassword());
+            // we validate the password before updating the profile
+            AuthHelper.validatePassword(currentCustomer, request.currentPassword());
         }
 
         // we iterate over the fields (if any)
@@ -84,10 +111,16 @@ public class ProfileService {
         // we change the updateAt timestamp field
         profile.setUpdatedAt(Instant.now());
 
+        // we save the updated profile to the database
         return profileRepository.save(profile);
     }
 
-    // check if the username given exists
+    /**
+     * Check if the username given exists
+     *
+     * @param username the username to check
+     * @throws ProfileUpdateValidationException if the username is
+     */
     public void usernameExists(String username) {
         profileRepository
                 .findByUsername(username)
