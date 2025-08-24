@@ -66,22 +66,21 @@ public class LikeServiceTest {
     @DisplayName("Should like a post")
     void shouldLike() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setDescription("Hello world");
 
-        Like like = new Like(post, loggedCustomer);
+        Like like = Like.create(post, currentCustomer);
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        when(likeRepository.isPostLikedByCustomer(post.getId(), loggedCustomer.getId())).thenReturn(false);
+        when(likeRepository.isPostLikedByCustomer(post.getId(), currentCustomer.getId())).thenReturn(false);
         when(likeRepository.save(any(Like.class))).thenReturn(like);
         Like result = likeService.like(post.getId());
 
@@ -96,11 +95,11 @@ public class LikeServiceTest {
     @DisplayName("Should not like when post not found")
     void shouldNotLikeWhenPostNotFound() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Post post = new Post();
         post.setId(1L);
@@ -120,20 +119,19 @@ public class LikeServiceTest {
     @DisplayName("Should not like when post already liked")
     void shouldNotLikeWhenPostWhenPostAlreadyLiked() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        when(likeRepository.isPostLikedByCustomer(post.getId(), loggedCustomer.getId())).thenReturn(true);
+        when(likeRepository.isPostLikedByCustomer(post.getId(), currentCustomer.getId())).thenReturn(true);
 
         // then
         assertThrows(
@@ -147,24 +145,23 @@ public class LikeServiceTest {
     @DisplayName("Should unlike a post")
     void shouldUnlike() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setDescription("Hello world");
 
-        Like like = new Like(post, loggedCustomer);
+        Like like = Like.create(post, currentCustomer);
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(true);
         when(likeRepository.findByPostIdAndCustomerId(
                 post.getId(),
-                loggedCustomer.getId()
+                currentCustomer.getId()
         )).thenReturn(Optional.of(like));
 
         likeService.unlike(post.getId());
@@ -178,16 +175,15 @@ public class LikeServiceTest {
     @DisplayName("Should not unlike when post not found")
     void shouldNotUnlikeWhenPostNotFound() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(false);
@@ -203,22 +199,21 @@ public class LikeServiceTest {
     @DisplayName("Should not unlike when post not liked")
     void shouldNotUnlikeWhenPostNotLiked() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setDescription("Hello world");
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(true);
         when(likeRepository.findByPostIdAndCustomerId(
                 post.getId(),
-                loggedCustomer.getId()
+                currentCustomer.getId()
         )).thenReturn(Optional.empty());
 
         // then

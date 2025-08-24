@@ -33,20 +33,30 @@ public class Like {
         this.customer = customer;
     }
 
+    public static Like create() {
+        return new Like();
+    }
+
+    public static Like create(Post post, Customer customer) {
+        return new Like(post, customer);
+    }
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Like setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public Like setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     @Override
@@ -63,15 +73,17 @@ public class Like {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public Like setCustomer(Customer customer) {
         this.customer = customer;
+        return this;
     }
 
     public Post getPost() {
         return post;
     }
 
-    public void setPost(Post post) {
+    public Like setPost(Post post) {
         this.post = post;
+        return this;
     }
 }

@@ -72,22 +72,22 @@ public class CommentServiceTest {
     @DisplayName("Should get comments paginated")
     void shouldGetCommentsPaginated() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        //        setUpContext(loggedCustomer);
+        //        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
-        Comment comment1 = new Comment(loggedCustomer, post);
-        comment1.setComment("comment 1");
+        Comment comment1 = Comment.create(currentCustomer, post)
+                                  .setComment("comment 1");
 
-        Comment comment2 = new Comment(loggedCustomer, post);
-        comment1.setComment("comment 2");
+        Comment comment2 = Comment.create(currentCustomer, post)
+                                  .setComment("comment 2");
 
         Set<Comment> commentList = Set.of(
                 comment1, comment2
@@ -100,7 +100,7 @@ public class CommentServiceTest {
         when(postRepository.existsById(post.getId())).thenReturn(true);
         when(commentRepository.findAllByPostId(post.getId(), pageable))
                 .thenReturn(commentPage);
-        Page<Comment> result = commentService.getCommentsPagedByPostId(post.getId(), pageable);
+        Page<Comment> result = commentService.getPostComments(post.getId(), pageable);
 
         // then
         assertNotNull(result);
@@ -112,24 +112,23 @@ public class CommentServiceTest {
     @DisplayName("Should comment in a post")
     void shouldComment() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
-
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
                 "Hello :)"
         );
 
-        Comment comment = new Comment(loggedCustomer, post);
-        comment.setComment(request.comment());
+        Comment comment = Comment.create(currentCustomer, post)
+                                 .setComment(request.comment());
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
@@ -150,24 +149,20 @@ public class CommentServiceTest {
     @DisplayName("Should not comment when post not exists")
     void shouldNotCommentWhenPostNotExists() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
-
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
                 "Hello :)"
         );
-
-        Comment comment = new Comment(loggedCustomer, post);
-        comment.setComment(request.comment());
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.empty());
@@ -184,25 +179,24 @@ public class CommentServiceTest {
     @DisplayName("Should delete a comment")
     void shouldDeleteComment() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
-
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
                 "Hello :)"
         );
 
-        Comment comment = new Comment(loggedCustomer, post);
-        comment.setId(5L);
-        comment.setComment(request.comment());
+        Comment comment = Comment.create(currentCustomer, post)
+                                 .setId(5L)
+                                 .setComment(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
@@ -217,25 +211,25 @@ public class CommentServiceTest {
     @DisplayName("Should not delete a comment when not exists")
     void shouldNotDeleteCommentWhenNotExists() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
 
         CommentCreateRequest request = new CommentCreateRequest(
                 "Hello :)"
         );
 
-        Comment comment = new Comment(loggedCustomer, post);
-        comment.setId(5L);
-        comment.setComment(request.comment());
+        Comment comment = Comment.create(currentCustomer, post)
+                                 .setId(5L)
+                                 .setComment(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.empty());
@@ -252,29 +246,30 @@ public class CommentServiceTest {
     @DisplayName("Should not delete a comment when logged customer is not author")
     void shouldNotDeleteCommentWhenNotAuthor() {
         // given
-        Customer loggedCustomer = new Customer(
+        Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
-        setUpContext(loggedCustomer);
+        setUpContext(currentCustomer);
 
         Customer author = new Customer(
                 2L, "customer@test.com",
                 passwordEncoder.encode("password")
         );
 
-        Post post = new Post(loggedCustomer);
-        post.setId(1L);
-        post.setDescription("Hello world");
+        Post post = Post.create(currentCustomer)
+                        .setId(1L)
+                        .setPhotoFilename("image.jpg")
+                        .setDescription("Hello world");
 
 
         CommentCreateRequest request = new CommentCreateRequest(
                 "Hello :)"
         );
 
-        Comment comment = new Comment(author, post);
-        comment.setId(5L);
-        comment.setComment(request.comment());
+        Comment comment = Comment.create(author, post)
+                                 .setId(5L)
+                                 .setComment(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
