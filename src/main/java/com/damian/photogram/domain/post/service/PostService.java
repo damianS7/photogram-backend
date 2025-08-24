@@ -5,7 +5,6 @@ import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
 import com.damian.photogram.domain.post.exception.PostNotAuthorException;
@@ -23,18 +22,15 @@ import java.time.Instant;
 @Service
 public class PostService {
     private final PostRepository postRepository;
-    private final CustomerRepository customerRepository;
     private final ProfileRepository profileRepository;
     private final ImageStorageService imageStorageService;
 
     public PostService(
             PostRepository postRepository,
-            CustomerRepository customerRepository,
             ProfileRepository profileRepository,
             ImageStorageService imageStorageService
     ) {
         this.postRepository = postRepository;
-        this.customerRepository = customerRepository;
         this.profileRepository = profileRepository;
         this.imageStorageService = imageStorageService;
     }
@@ -50,14 +46,9 @@ public class PostService {
 
     // add a new post for the logged customer
     public Post createPost(PostCreateRequest request) {
-        Customer loggedCustomer = AuthHelper.getLoggedCustomer();
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the customer we want to add as a post exists.
-        Customer customer = customerRepository.findById(loggedCustomer.getId()).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
-        );
-
-        Post post = new Post(customer);
+        Post post = new Post(currentCustomer);
         post.setPhotoFilename(request.photoFilename());
         post.setDescription(request.description());
         post.setCreatedAt(Instant.now());
@@ -69,7 +60,7 @@ public class PostService {
 
     // delete a post created by logged customer.
     public void deletePost(Long id) {
-        Customer loggedCustomer = AuthHelper.getLoggedCustomer();
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // check if the post exists
         Post post = postRepository.findById(id).orElseThrow(
@@ -77,7 +68,7 @@ public class PostService {
         );
 
         // check if the logged customer is the owner of the post.
-        if (!PostHelper.isAuthor(loggedCustomer, post)) {
+        if (!post.isAuthor(currentCustomer)) {
             throw new PostNotAuthorException(Exceptions.POSTS.NOT_AUTHOR);
         }
 
