@@ -34,20 +34,28 @@ public class Post {
         this.author = author;
     }
 
+    public static Post create(Customer author) {
+        Post post = new Post();
+        post.setAuthor(author);
+        return post;
+    }
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Post setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public Post setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     @Override
@@ -63,24 +71,27 @@ public class Post {
         return author;
     }
 
-    public void setAuthor(Customer author) {
+    public Post setAuthor(Customer author) {
         this.author = author;
+        return this;
     }
 
     public String getPhotoFilename() {
         return photoFilename;
     }
 
-    public void setPhotoFilename(String photoFilename) {
+    public Post setPhotoFilename(String photoFilename) {
         this.photoFilename = photoFilename;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public Post setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public boolean isAuthor(Customer customer) {
