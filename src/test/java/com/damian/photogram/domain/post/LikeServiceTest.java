@@ -1,7 +1,6 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
 import com.damian.photogram.domain.post.exception.PostAlreadyLikedException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
@@ -168,10 +167,10 @@ public class LikeServiceTest {
                 loggedCustomer.getId()
         )).thenReturn(Optional.of(like));
 
-        PostLikeDataDto result = likeService.unlike(post.getId());
+        likeService.unlike(post.getId());
 
         // then
-        assertThat(result).isNotNull().extracting("totalLikes").isEqualTo(0L);
+        //        assertThat(result).isNotNull().extracting("totalLikes").isEqualTo(0L);
         verify(likeRepository, times(1)).findByPostIdAndCustomerId(anyLong(), anyLong());
     }
 
