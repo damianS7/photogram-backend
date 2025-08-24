@@ -1,11 +1,9 @@
 package com.damian.photogram.domain.post;
 
-import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
+import com.damian.photogram.domain.post.exception.CommentNotAuthorException;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
-import com.damian.photogram.domain.post.exception.PostNotAuthorException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
@@ -42,9 +40,6 @@ public class CommentServiceTest {
 
     @Mock
     private PostRepository postRepository;
-
-    @Mock
-    private CustomerRepository customerRepository;
 
     @Mock
     private CommentRepository commentRepository;
@@ -105,7 +100,7 @@ public class CommentServiceTest {
         when(postRepository.existsById(post.getId())).thenReturn(true);
         when(commentRepository.findAllByPostId(post.getId(), pageable))
                 .thenReturn(commentPage);
-        Page<Comment> result = commentService.getCommentsPageByPostId(post.getId(), pageable);
+        Page<Comment> result = commentService.getCommentsPagedByPostId(post.getId(), pageable);
 
         // then
         assertNotNull(result);
@@ -137,7 +132,6 @@ public class CommentServiceTest {
         comment.setComment(request.comment());
 
         // when
-        when(customerRepository.findById(loggedCustomer.getId())).thenReturn(Optional.of(loggedCustomer));
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
@@ -148,43 +142,8 @@ public class CommentServiceTest {
                 .isNotNull()
                 .extracting("comment")
                 .isEqualTo(request.comment());
-        verify(customerRepository, times(1)).findById(loggedCustomer.getId());
         verify(postRepository, times(1)).findById(post.getId());
         verify(commentRepository, times(1)).save(any(Comment.class));
-    }
-
-    @Test
-    @DisplayName("Should not comment when customer not exists")
-    void shouldNotCommentWhenCustomerNotFound() {
-        // given
-        Customer loggedCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
-        setUpContext(loggedCustomer);
-
-        Post post = new Post();
-        post.setId(1L);
-        post.setDescription("Hello world");
-        post.setAuthor(loggedCustomer);
-
-
-        CommentCreateRequest request = new CommentCreateRequest(
-                "Hello :)"
-        );
-
-        Comment comment = new Comment(loggedCustomer, post);
-        comment.setComment(request.comment());
-
-        // when
-        when(customerRepository.findById(loggedCustomer.getId())).thenReturn(Optional.empty());
-
-        // then
-        assertThrows(
-                CustomerNotFoundException.class,
-                () -> commentService.addComment(post.getId(), request)
-        );
-        verify(customerRepository, times(1)).findById(loggedCustomer.getId());
     }
 
     @Test
@@ -211,7 +170,6 @@ public class CommentServiceTest {
         comment.setComment(request.comment());
 
         // when
-        when(customerRepository.findById(loggedCustomer.getId())).thenReturn(Optional.of(loggedCustomer));
         when(postRepository.findById(post.getId())).thenReturn(Optional.empty());
 
         // then
@@ -219,7 +177,6 @@ public class CommentServiceTest {
                 PostNotFoundException.class,
                 () -> commentService.addComment(post.getId(), request)
         );
-        verify(customerRepository, times(1)).findById(loggedCustomer.getId());
         verify(postRepository, times(1)).findById(post.getId());
     }
 
@@ -322,7 +279,7 @@ public class CommentServiceTest {
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         assertThrows(
-                PostNotAuthorException.class,
+                CommentNotAuthorException.class,
                 () -> commentService.deleteComment(comment.getId())
         );
 
