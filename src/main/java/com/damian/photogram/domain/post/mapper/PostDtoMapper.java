@@ -15,7 +15,6 @@ public class PostDtoMapper {
                 post.getAuthor().getId(),
                 post.getDescription(),
                 post.getPhotoFilename(),
-                //                generatePhotoUrl(post.getPhotoFilename()),
                 post.getCreatedAt().toString()
         );
     }

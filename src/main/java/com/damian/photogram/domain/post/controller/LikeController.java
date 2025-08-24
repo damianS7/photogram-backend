@@ -22,7 +22,7 @@ public class LikeController {
         this.likeService = likeService;
     }
 
-    // endpoint to check if logged customer already likes
+    // endpoint to fetch the like data for a specific post.
     @GetMapping("/posts/{postId}/likes")
     public ResponseEntity<?> getPostLikeData(
             @PathVariable @NotNull @Positive
@@ -35,7 +35,7 @@ public class LikeController {
                 .body(postLikeData);
     }
 
-    // endpoint to add a new like to a post for the logged customer
+    // endpoint to add a new like to a post
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<?> like(
             @PathVariable @NotNull @Positive
@@ -49,7 +49,7 @@ public class LikeController {
                 .body(likeDto);
     }
 
-    // endpoint to unlike(delete) a post for the logged customer.
+    // endpoint to unlike a post.
     @DeleteMapping("/posts/{postId}/unlike")
     public ResponseEntity<?> unlike(
             @PathVariable @NotNull @Positive
