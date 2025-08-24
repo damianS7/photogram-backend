@@ -89,4 +89,8 @@ public class Comment {
     public void setPost(Post post) {
         this.post = post;
     }
+
+    public boolean isAuthor(Customer customer) {
+        return this.author.getId().equals(customer.getId());
+    }
 }

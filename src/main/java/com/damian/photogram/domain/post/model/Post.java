@@ -82,4 +82,9 @@ public class Post {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public boolean isAuthor(Customer customer) {
+        // check if the customer is the author of the post.
+        return this.author.getId().equals(customer.getId());
+    }
 }
