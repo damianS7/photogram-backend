@@ -1,13 +1,14 @@
 package com.damian.photogram.domain.post.controller;
 
 import com.damian.photogram.core.service.ImageHelper;
+import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
-import com.damian.photogram.domain.post.dto.response.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.mapper.PostDtoMapper;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.service.PostImageService;
 import com.damian.photogram.domain.post.service.PostService;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class PostController {
     // endpoint to fetch all post from specific customer
     @GetMapping("/posts/{username}")
     public ResponseEntity<?> getPostsByUsername(
-            @PathVariable @NotNull
+            @PathVariable @NotBlank
             String username,
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
@@ -84,10 +85,10 @@ public class PostController {
                 .build();
     }
 
-    // endpoint to get a photo
+    // endpoint to get a post photo
     @GetMapping("/posts/{postId}/photo")
     public ResponseEntity<?> getPostPhoto(
-            @PathVariable @Positive
+            @PathVariable @NotNull @Positive
             Long postId
     ) {
         Resource resource = postImageService.getImage(postId);
