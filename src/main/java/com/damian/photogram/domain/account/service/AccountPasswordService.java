@@ -123,13 +123,13 @@ public class AccountPasswordService {
                 );
 
         // generate the token for password reset
-        AccountToken token = new AccountToken(account.getCustomer());
+        AccountToken token = new AccountToken(account.getOwner());
         token.setToken(token.generateToken());
         token.setType(AccountTokenType.RESET_PASSWORD);
         accountTokenRepository.save(token);
 
         // send the email with the link to reset the password
-        sendResetPasswordEmail(account.getCustomer().getEmail(), token.getToken());
+        sendResetPasswordEmail(account.getOwner().getEmail(), token.getToken());
     }
 
     public void sendResetPasswordEmail(String toEmail, String token) {

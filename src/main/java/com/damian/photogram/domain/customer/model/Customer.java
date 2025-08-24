@@ -63,8 +63,8 @@ public class Customer implements CustomerDetails {
     }
 
     public Customer setAccount(Account account) {
-        if (account.getCustomer() != this) {
-            account.setCustomer(this);
+        if (account.getOwner() != this) {
+            account.setOwner(this);
         }
         this.account = account;
         return this;
@@ -162,7 +162,7 @@ public class Customer implements CustomerDetails {
         if (this.profile == null) {
             this.profile = new Profile();
         }
-        
+
         profileInitializer.accept(this.profile);
         return this;
     }

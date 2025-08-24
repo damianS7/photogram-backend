@@ -69,7 +69,7 @@ public class AccountActivationService {
 
         // notify activation or welcome
         emailSenderService.send(
-                accountCustomer.getCustomer().getEmail(),
+                accountCustomer.getOwner().getEmail(),
                 "Welcome to photogram!",
                 "Your account has been activated successfully."
         );
@@ -88,12 +88,12 @@ public class AccountActivationService {
         }
 
         // check if AccountToken exists orElse create a new one
-        AccountToken accountToken = accountTokenRepository.findByCustomer_Id(account.getCustomer().getId()).orElseGet(
+        AccountToken accountToken = accountTokenRepository.findByCustomer_Id(account.getOwner().getId()).orElseGet(
                 AccountToken::new
         );
 
         // we set the accountToken data
-        accountToken.setCustomer(account.getCustomer());
+        accountToken.setCustomer(account.getOwner());
         accountToken.setType(AccountTokenType.ACCOUNT_VERIFICATION);
         accountToken.setToken(UUID.randomUUID().toString());
         accountToken.setCreatedAt(Instant.now());
