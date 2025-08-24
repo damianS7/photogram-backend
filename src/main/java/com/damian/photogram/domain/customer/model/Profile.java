@@ -52,20 +52,28 @@ public class Profile {
         this.customer = customer;
     }
 
+    public static Profile create(Customer owner) {
+        Profile profile = new Profile();
+        profile.setOwner(owner);
+        return profile;
+    }
+
     public Customer getOwner() {
         return this.customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public Profile setOwner(Customer customer) {
         this.customer = customer;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Profile setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Long getCustomerId() {
@@ -76,71 +84,80 @@ public class Profile {
         return this.gender;
     }
 
-    public void setGender(CustomerGender gender) {
+    public Profile setGender(CustomerGender gender) {
         this.gender = gender;
+        return this;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public Profile setFirstName(String firstName) {
         this.firstName = firstName;
+        return this;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public Profile setLastName(String lastName) {
         this.lastName = lastName;
+        return this;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public void setPhone(String phone) {
+    public Profile setPhone(String phone) {
         this.phone = phone;
+        return this;
     }
 
     public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(LocalDate birthdate) {
+    public Profile setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
+        return this;
     }
 
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public Profile setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+        return this;
     }
 
     public String getImageFilename() {
         return imageFilename;
     }
 
-    public void setImageFilename(String imageFilename) {
+    public Profile setImageFilename(String imageFilename) {
         this.imageFilename = imageFilename;
+        return this;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public Profile setUsername(String username) {
         this.username = username;
+        return this;
     }
 
     public String getAboutMe() {
         return aboutMe;
     }
 
-    public void setAboutMe(String aboutMe) {
+    public Profile setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
+        return this;
     }
 }

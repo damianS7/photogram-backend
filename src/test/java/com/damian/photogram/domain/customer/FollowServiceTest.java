@@ -53,11 +53,11 @@ public class FollowServiceTest {
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        customerRepository.deleteAll();
     }
 
     @AfterEach
     public void tearDown() {
+        customerRepository.deleteAll();
         SecurityContextHolder.clearContext();
     }
 

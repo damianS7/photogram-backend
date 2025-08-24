@@ -7,11 +7,11 @@ import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.customer.service.ProfileImageService;
-import com.damian.photogram.domain.customer.service.ProfileService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,9 +57,6 @@ public class ProfileImageServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private ProfileService profileService;
-
-    @Mock
     private ImageStorageService imageStorageService;
 
     @InjectMocks
@@ -71,17 +68,20 @@ public class ProfileImageServiceTest {
         passwordEncoder = new BCryptPasswordEncoder();
         profileRepository.deleteAll();
 
-        customer = new Customer();
-        customer.setId(2L);
-        customer.setEmail("customer@test.com");
-        customer.setPassword(passwordEncoder.encode(RAW_PASSWORD));
-        customer.getProfile().setId(5L);
-        customer.getProfile().setImageFilename("avatar.jpg");
-        customer.getProfile().setUsername("John");
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
+        customer = Customer.create()
+                           .setId(2L)
+                           .setMail("customer@test.com")
+                           .setPassword(passwordEncoder.encode(RAW_PASSWORD))
+                           .setRole(CustomerRole.CUSTOMER)
+                           .setProfile(profile -> profile
+                                   .setId(5L)
+                                   .setUsername("John")
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("avatar.jpg")
+                           );
     }
 
     @AfterEach

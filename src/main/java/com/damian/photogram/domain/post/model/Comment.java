@@ -40,27 +40,37 @@ public class Comment {
         this.author = postCustomer;
     }
 
+    public static Comment create(Customer author, Post post) {
+        Comment comment = new Comment();
+        comment.setPost(post);
+        comment.setAuthor(author);
+        return comment;
+    }
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Comment setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public Comment setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     @Override
     public String toString() {
         return "Comment {" +
                " id=" + id +
-               ", authorCustomerId=" + author.getId() +
+               ", postId=" + post.getId() +
+               ", authorId=" + author.getId() +
                ", comment=" + comment +
                ", createdAt=" + createdAt +
                "}";
@@ -70,24 +80,27 @@ public class Comment {
         return author;
     }
 
-    public void setAuthor(Customer author) {
+    public Comment setAuthor(Customer author) {
         this.author = author;
+        return this;
     }
 
     public String getComment() {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public Comment setComment(String comment) {
         this.comment = comment;
+        return this;
     }
 
     public Post getPost() {
         return post;
     }
 
-    public void setPost(Post post) {
+    public Comment setPost(Post post) {
         this.post = post;
+        return this;
     }
 
     public boolean isAuthor(Customer customer) {

@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 @Entity
 @Table(name = "customers")
@@ -53,31 +54,38 @@ public class Customer implements CustomerDetails {
         this(null, email, password);
     }
 
+    public static Customer create() {
+        return new Customer();
+    }
+
     public Account getAccount() {
         return this.account;
     }
 
-    public void setAccount(Account account) {
+    public Customer setAccount(Account account) {
         if (account.getCustomer() != this) {
             account.setCustomer(this);
         }
         this.account = account;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Customer setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public CustomerRole getRole() {
         return role;
     }
 
-    public void setRole(CustomerRole role) {
+    public Customer setRole(CustomerRole role) {
         this.role = role;
+        return this;
     }
 
     @Override
@@ -90,13 +98,19 @@ public class Customer implements CustomerDetails {
         this.email = email;
     }
 
+    public Customer setMail(String email) {
+        this.email = email;
+        return this;
+    }
+
     @Override
     public String getPassword() {
         return account.getPassword();
     }
 
-    public void setPassword(String password) {
+    public Customer setPassword(String password) {
         this.account.setPassword(password);
+        return this;
     }
 
     @Override
@@ -135,12 +149,22 @@ public class Customer implements CustomerDetails {
         return profile;
     }
 
-    public void setProfile(Profile profile) {
+    public Customer setProfile(Profile profile) {
         if (profile.getOwner() != this) {
-            profile.setCustomer(this);
+            profile.setOwner(this);
         }
 
         this.profile = profile;
+        return this;
+    }
+
+    public Customer setProfile(Consumer<Profile> profileInitializer) {
+        if (this.profile == null) {
+            this.profile = new Profile();
+        }
+        
+        profileInitializer.accept(this.profile);
+        return this;
     }
 
     public String getFullName() {
@@ -151,16 +175,20 @@ public class Customer implements CustomerDetails {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public Customer setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+        return this;
+
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public Customer setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+        return this;
+
     }
 
     @Override

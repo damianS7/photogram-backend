@@ -6,10 +6,12 @@ import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 
@@ -31,19 +33,25 @@ public class ProfileRepositoryTest {
     @BeforeEach
     void setUp() {
         faker = new Faker();
-        profileRepository.deleteAll();
 
-        customer = new Customer();
-        customer.setEmail("david@gmail.com");
-        customer.setPassword("123456");
-        customer.getProfile().setFirstName("david");
-        customer.getProfile().setLastName("white");
-        customer.getProfile().setPhone("123 123 123");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setImageFilename("/images/photoPath.jpg");
+        customer = Customer.create()
+                           .setMail("david@demo.com")
+                           .setPassword("123456")
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("avatar.jpg")
+                           );
 
         customerRepository.save(customer);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+        profileRepository.deleteAll();
     }
 
     @Test

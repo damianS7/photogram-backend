@@ -23,6 +23,7 @@ import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+// TODO review this
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -48,29 +49,33 @@ public class ProfileImageIntegrationTest {
 
     @BeforeAll
     void setUp() throws Exception {
-        customerA = new Customer();
-        customerA.setEmail("customerA@test.com");
-        customerA.setRole(CustomerRole.CUSTOMER);
-        customerA.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customerA = Customer.create()
+                            .setMail("customerA@test.com")
+                            .setPassword(bCryptPasswordEncoder.encode(this.rawPassword))
+                            .setRole(CustomerRole.CUSTOMER)
+                            .setProfile(profile -> profile
+                                    .setFirstName("John")
+                                    .setLastName("Wick")
+                                    .setGender(CustomerGender.MALE)
+                                    .setBirthdate(LocalDate.of(1989, 1, 1))
+                                    .setImageFilename("avatar.jpg")
+                            );
         customerA.getAccount().setAccountStatus(AccountStatus.ACTIVE);
-        customerA.getProfile().setFirstName("John");
-        customerA.getProfile().setLastName("Wick");
-        customerA.getProfile().setGender(CustomerGender.MALE);
-        customerA.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customerA.getProfile().setImageFilename("image.jpg");
         customerRepository.save(customerA);
-        customerB = new Customer();
-        customerB.setPassword(bCryptPasswordEncoder.encode("123456"));
-        customerB.setEmail("customerB@test.com");
-        customerB.getAccount().setAccountStatus(AccountStatus.ACTIVE);
 
+        customerB = Customer.create()
+                            .setMail("customerB@test.com")
+                            .setPassword(bCryptPasswordEncoder.encode(this.rawPassword)
+                            );
+        customerB.getAccount().setAccountStatus(AccountStatus.ACTIVE);
         customerRepository.save(customerB);
 
-        customerAdmin = new Customer();
-        customerAdmin.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customerAdmin = Customer.create()
+                                .setMail("admin@test.com")
+                                .setRole(CustomerRole.ADMIN)
+                                .setPassword(bCryptPasswordEncoder.encode(this.rawPassword)
+                                );
         customerAdmin.getAccount().setAccountStatus(AccountStatus.ACTIVE);
-        customerAdmin.setEmail("admin@test.com");
-        customerAdmin.setRole(CustomerRole.ADMIN);
         customerRepository.save(customerAdmin);
     }
 

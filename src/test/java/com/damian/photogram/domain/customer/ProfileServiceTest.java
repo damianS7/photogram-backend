@@ -44,8 +44,6 @@ public class ProfileServiceTest {
     @Mock
     private ProfileRepository profileRepository;
 
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -55,21 +53,23 @@ public class ProfileServiceTest {
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        profileRepository.deleteAll();
 
-        customer = new Customer();
-        customer.setId(2L);
-        customer.setEmail("customer@test.com");
-        customer.setPassword(passwordEncoder.encode(RAW_PASSWORD));
-        customer.getProfile().setId(5L);
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
+        customer = Customer.create()
+                           .setId(2L)
+                           .setMail("customer@test.com")
+                           .setPassword(passwordEncoder.encode(RAW_PASSWORD))
+                           .setProfile(profile -> profile
+                                   .setId(5L)
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                           );
     }
 
     @AfterEach
     public void tearDown() {
+        profileRepository.deleteAll();
         SecurityContextHolder.clearContext();
     }
 
@@ -177,7 +177,7 @@ public class ProfileServiceTest {
         );
 
         Profile givenProfile = new Profile();
-        givenProfile.setCustomer(new Customer(5L, "customer@test.com", "12345"));
+        givenProfile.setOwner(new Customer(5L, "customer@test.com", "12345"));
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(givenProfile));
