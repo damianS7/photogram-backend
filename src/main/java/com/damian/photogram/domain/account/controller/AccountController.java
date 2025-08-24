@@ -1,14 +1,10 @@
 package com.damian.photogram.domain.account.controller;
 
 import com.damian.photogram.core.utils.ApiResponse;
-import com.damian.photogram.domain.account.dto.request.AccountActivationResendRequest;
-import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
-import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.domain.account.dto.request.*;
 import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
-import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.dto.response.CustomerWithProfileDto;
 import com.damian.photogram.domain.customer.mapper.CustomerDtoMapper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -36,11 +32,11 @@ public class AccountController {
         this.accountActivationService = accountActivationService;
     }
 
-    // endpoint for registration
-    @PostMapping("/auth/register")
+    // endpoint for account registration
+    @PostMapping("/accounts/register")
     public ResponseEntity<?> register(
             @Validated @RequestBody
-            CustomerRegistrationRequest request
+            AccountRegistrationRequest request
     ) {
         Customer registeredCustomer = accountRegistrationService.register(request);
         CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(registeredCustomer);
@@ -51,10 +47,10 @@ public class AccountController {
     }
 
     // endpoint to modify customer password
-    @PatchMapping("/auth/customers/me/password")
+    @PatchMapping("/accounts/password")
     public ResponseEntity<?> updateLoggedCustomerPassword(
             @Validated @RequestBody
-            CustomerPasswordUpdateRequest request
+            AccountPasswordUpdateRequest request
     ) {
         accountPasswordService.updatePassword(request);
 
@@ -64,7 +60,7 @@ public class AccountController {
     }
 
     // endpoint to activate an account
-    @GetMapping("/auth/accounts/activate/{token:.+}")
+    @GetMapping("/accounts/activate/{token:.+}")
     public ResponseEntity<?> activate(
             @PathVariable @NotBlank
             String token
@@ -77,7 +73,7 @@ public class AccountController {
     }
 
     // endpoint for account to request resending activation
-    @PostMapping("/auth/accounts/resend-activation")
+    @PostMapping("/accounts/resend-activation")
     public ResponseEntity<?> resendActivation(
             @Validated @RequestBody
             AccountActivationResendRequest request
@@ -90,7 +86,7 @@ public class AccountController {
     }
 
     // endpoint to request for a reset password
-    @PostMapping("/auth/accounts/reset-password")
+    @PostMapping("/accounts/reset-password")
     public ResponseEntity<?> resetPasswordRequest(
             @Validated @RequestBody
             AccountPasswordResetRequest request
@@ -103,7 +99,7 @@ public class AccountController {
     }
 
     // endpoint to set a new password using token
-    @PostMapping("/auth/accounts/reset-password/{token:.+}")
+    @PostMapping("/accounts/reset-password/{token:.+}")
     public ResponseEntity<?> resetPassword(
             @PathVariable @NotBlank
             String token,

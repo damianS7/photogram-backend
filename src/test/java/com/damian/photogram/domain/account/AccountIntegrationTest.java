@@ -2,11 +2,11 @@ package com.damian.photogram.domain.account;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
+import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
-import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
-import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -113,7 +113,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should register customer when request is valid")
     void shouldRegisterCustomerWhenValidRequest() throws Exception {
         // given
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 "david@gmail.com",
                 "12345678X$",
                 "david",
@@ -129,7 +129,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/register")
+                       .post("/api/v1/accounts/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -147,7 +147,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should not register customer when missing fields")
     void shouldNotRegisterCustomerWhenMissingFields() throws Exception {
         // given
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 "david@test.com",
                 "123456",
                 "david",
@@ -162,7 +162,7 @@ public class AccountIntegrationTest {
         String json = objectMapper.writeValueAsString(request);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(json))
                .andDo(print())
@@ -175,7 +175,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should not register customer when email is not well-formed")
     void shouldNotRegisterCustomerWhenEmailIsNotWellFormed() throws Exception {
         // given
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 "badEmail",
                 "1234567899X$",
                 "david",
@@ -190,7 +190,7 @@ public class AccountIntegrationTest {
         String json = objectMapper.writeValueAsString(request);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(json))
                .andDo(print())
@@ -203,7 +203,7 @@ public class AccountIntegrationTest {
     @Test
     @DisplayName("Should not register customer when email is taken")
     void shouldNotRegisterCustomerWhenEmailIsTaken() throws Exception {
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 this.email,
                 "12345678X$",
                 "david",
@@ -219,7 +219,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/register")
+                       .post("/api/v1/accounts/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -231,7 +231,7 @@ public class AccountIntegrationTest {
     @Test
     @DisplayName("Should not register customer when password policy not satisfied")
     void shouldNotRegisterCustomerWhenPasswordPolicyNotSatisfied() throws Exception {
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 this.email,
                 "123456",
                 "david",
@@ -247,7 +247,7 @@ public class AccountIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/register")
+                       .post("/api/v1/accounts/register")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(json))
                .andDo(print())
@@ -263,14 +263,14 @@ public class AccountIntegrationTest {
         // given
         String token = loginWithCustomer(customer);
 
-        CustomerPasswordUpdateRequest updatePasswordRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "123456",
                 "12345678$Xa"
         );
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -283,14 +283,14 @@ public class AccountIntegrationTest {
     void shouldNotUpdatePasswordWhenPasswordMismatch() throws Exception {
         // given
         String token = loginWithCustomer(customer);
-        CustomerPasswordUpdateRequest updatePasswordRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 "12345678$Xa"
         );
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -303,14 +303,14 @@ public class AccountIntegrationTest {
     void shouldNotUpdatePasswordWhenPasswordPolicyNotSatisfied() throws Exception {
         // given
         String token = loginWithCustomer(customer);
-        CustomerPasswordUpdateRequest updatePasswordRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 "1234"
         );
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
@@ -326,14 +326,14 @@ public class AccountIntegrationTest {
     void shouldNotUpdatePasswordWhenPasswordIsNull() throws Exception {
         // given
         String token = loginWithCustomer(customer);
-        CustomerPasswordUpdateRequest updatePasswordRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 null
         );
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/auth/customers/me/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
