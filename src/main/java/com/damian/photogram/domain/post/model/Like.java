@@ -53,6 +53,8 @@ public class Like {
     public String toString() {
         return "Like {" +
                "id=" + id +
+               ", customerId=" + customer.getId() +
+               ", postId=" + post.getId() +
                ", createdAt=" + createdAt +
                "}";
     }
