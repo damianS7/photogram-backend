@@ -32,6 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SettingIntegrationTest {
+    private final String RAW_PASSWORD = "123456";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -52,19 +54,18 @@ public class SettingIntegrationTest {
 
     @BeforeAll
     void setUp() {
-        customerRepository.deleteAll();
-
-        customer = new Customer();
-        customer.setRole(CustomerRole.CUSTOMER);
-        customer.setEmail("customer@test.com");
-        customer.setPassword(bCryptPasswordEncoder.encode("123456"));
+        customer = Customer.create()
+                           .setMail("customerA@test.com")
+                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(CustomerRole.CUSTOMER)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("avatar.jpg")
+                           );
         customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
-
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-
         customerRepository.save(customer);
     }
 

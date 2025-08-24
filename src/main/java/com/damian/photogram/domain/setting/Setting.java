@@ -24,18 +24,27 @@ public class Setting {
 
     }
 
+    public Setting(Customer customer) {
+        this.customer = customer;
+    }
+
     public Setting(Customer customer, String settingKey, String settingValue) {
         this.customer = customer;
         this.settingKey = settingKey;
         this.settingValue = settingValue;
     }
 
+    public static Setting create(Customer owner) {
+        return new Setting(owner);
+    }
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Setting setId(Long id) {
         this.id = id;
+        return this;
     }
 
     @Override
@@ -52,23 +61,30 @@ public class Setting {
         return settingKey;
     }
 
-    public void setSettingKey(String key) {
+    public Setting setSettingKey(String key) {
         this.settingKey = key;
+        return this;
     }
 
     public String getSettingValue() {
         return settingValue;
     }
 
-    public void setSettingValue(String settingValue) {
+    public Setting setSettingValue(String settingValue) {
         this.settingValue = settingValue;
+        return this;
     }
 
     public Customer getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public Setting setCustomer(Customer customer) {
         this.customer = customer;
+        return this;
+    }
+
+    public boolean isOwner(Customer customer) {
+        return this.customer.getId().equals(customer.getId());
     }
 }

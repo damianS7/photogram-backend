@@ -23,13 +23,13 @@ public class SettingService {
 
     // get all the settings for the logged customer
     public Set<Setting> getSettings() {
-        Customer loggedCustomer = AuthHelper.getLoggedCustomer();
-        return settingRepository.findByCustomer_Id(loggedCustomer.getId());
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        return settingRepository.findByCustomer_Id(currentCustomer.getId());
     }
 
     // update only one setting
     public Setting updateSetting(Long id, SettingUpdateRequest request) {
-        Customer loggedCustomer = AuthHelper.getLoggedCustomer();
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // find the setting by id
         Setting setting = settingRepository.findById(id).orElseThrow(
@@ -37,7 +37,7 @@ public class SettingService {
         );
 
         // check if the logged customer is the owner of the setting.
-        if (!loggedCustomer.getId().equals(setting.getCustomer().getId())) {
+        if (!setting.isOwner(currentCustomer)) {
             throw new SettingNotOwnerException(Exceptions.SETTINGS.NOT_OWNER);
         }
 

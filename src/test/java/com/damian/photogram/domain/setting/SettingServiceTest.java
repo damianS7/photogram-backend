@@ -93,7 +93,9 @@ public class SettingServiceTest {
         );
         setUpContext(loggedCustomer);
 
-        Setting setting = new Setting(loggedCustomer, "key1", "value");
+        Setting setting = Setting.create(loggedCustomer)
+                                 .setSettingKey("key1")
+                                 .setSettingValue("value");
         setting.setId(3L);
 
         SettingUpdateRequest request = new SettingUpdateRequest("newValue");
@@ -122,8 +124,10 @@ public class SettingServiceTest {
         );
         setUpContext(loggedCustomer);
 
-        Setting setting = new Setting(loggedCustomer, "key", "value");
-        setting.setId(3L);
+        Setting setting = Setting.create(loggedCustomer)
+                                 .setId(3L)
+                                 .setSettingKey("key")
+                                 .setSettingValue("value");
 
         SettingUpdateRequest request = new SettingUpdateRequest("newValue");
 
@@ -153,11 +157,10 @@ public class SettingServiceTest {
                 5L, "customer@2test.com",
                 passwordEncoder.encode("password")
         );
-        Setting setting = new Setting();
-        setting.setCustomer(settingOwner);
-        setting.setSettingKey("key");
-        setting.setSettingValue("value");
-        setting.setId(3L);
+        Setting setting = Setting.create(settingOwner)
+                                 .setId(3L)
+                                 .setSettingKey("key")
+                                 .setSettingValue("value");
 
         SettingUpdateRequest request = new SettingUpdateRequest("newValue");
 
