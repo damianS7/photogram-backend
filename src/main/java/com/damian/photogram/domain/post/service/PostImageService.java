@@ -31,7 +31,12 @@ public class PostImageService {
         this.postRepository = postRepository;
     }
 
-    // validations for post images
+    /**
+     * Run specific validations for post images
+     *
+     * @param file MultipartFile
+     * @throws PostImageFileSizeExceededException if the file size exceeds
+     */
     private void validateImageOrThrow(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new PostImageFileSizeExceededException(
@@ -42,29 +47,39 @@ public class PostImageService {
 
     /**
      * It uploads an image for the post and returns the filename.
+     *
+     * @param image MultipartFile
+     * @return String
      */
-    public String uploadImage(MultipartFile file) {
-        final Customer customerLogged = AuthHelper.getLoggedCustomer();
+    public String uploadImage(MultipartFile image) {
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        // run file validations
-        this.validateImageOrThrow(file);
+        // run image validations
+        this.validateImageOrThrow(image);
 
-        // saving file
+        // saving image
         return imageUploaderService.uploadImage(
-                file,
-                PostHelper.getPostsImageUploadPath(customerLogged.getId())
+                image,
+                PostHelper.getPostsImagePath(currentCustomer.getId())
         );
     }
 
-    // returns the profile photo as Resource
+    /**
+     * Returns the post image as Resource from storage
+     *
+     * @param postId id of the post
+     * @return Resource
+     * @throws PostNotFoundException if the post does not exist
+     */
     public Resource getImage(Long postId) {
 
+        // find the post
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
         return imageStorageService.getImage(
-                PostHelper.getPostsImageUploadPath(post.getAuthor().getId()),
+                PostHelper.getPostsImagePath(post.getAuthor().getId()),
                 post.getPhotoFilename()
         );
     }
