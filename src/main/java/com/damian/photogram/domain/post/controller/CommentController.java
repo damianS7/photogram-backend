@@ -35,7 +35,7 @@ public class CommentController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Page<Comment> comments = commentService.getCommentsPageByPostId(postId, pageable);
+        Page<Comment> comments = commentService.getCommentsPagedByPostId(postId, pageable);
         Page<CommentDto> commentsDTO = CommentDtoMapper.map(comments);
 
         return ResponseEntity
