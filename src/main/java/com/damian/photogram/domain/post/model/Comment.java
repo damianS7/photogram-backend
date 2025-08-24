@@ -103,6 +103,7 @@ public class Comment {
         return this;
     }
 
+    // check if the given customer is the author of the comment
     public boolean isAuthor(Customer customer) {
         return this.author.getId().equals(customer.getId());
     }

@@ -27,15 +27,15 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // endpoint to fetch all post from specific customer
+    // endpoint to fetch (paginated) comments from specific post
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<?> getCommentsPageByPostId(
+    public ResponseEntity<?> getPostComments(
             @PathVariable @NotNull @Positive
             Long postId,
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Page<Comment> comments = commentService.getCommentsPagedByPostId(postId, pageable);
+        Page<Comment> comments = commentService.getPostComments(postId, pageable);
         Page<CommentDto> commentsDTO = CommentDtoMapper.map(comments);
 
         return ResponseEntity
@@ -43,7 +43,7 @@ public class CommentController {
                 .body(commentsDTO);
     }
 
-    // endpoint to add a new post for the logged customer
+    // endpoint to add a new comment for the given post
     @PostMapping("/posts/{postId}/comment")
     public ResponseEntity<?> addComment(
             @PathVariable @NotNull @Positive
@@ -59,7 +59,7 @@ public class CommentController {
                 .body(commentDto);
     }
 
-    // endpoint to delete a comments
+    // endpoint to delete a comment
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<?> deleteComment(
             @PathVariable @NotNull @Positive

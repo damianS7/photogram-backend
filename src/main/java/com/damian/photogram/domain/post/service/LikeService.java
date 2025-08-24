@@ -27,7 +27,13 @@ public class LikeService {
         this.postRepository = postRepository;
     }
 
-    // get the like entity for the current customer and the given post by id.
+    /**
+     * Get the like data for a specific post.
+     *
+     * @param postId The ID of the post to retrieve like data for.
+     * @return The like data for the specified post.
+     * @throws PostNotFoundException If the post does not exist.
+     */
     public PostLikeDataDto getPostLikeData(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
@@ -36,6 +42,7 @@ public class LikeService {
             throw new PostNotFoundException(Exceptions.POSTS.NOT_FOUND);
         }
 
+        // get the like data for the specified post
         return new PostLikeDataDto(
                 postId,
                 likeRepository.isPostLikedByCustomer(postId, currentCustomer.getId()),
@@ -43,7 +50,15 @@ public class LikeService {
         );
     }
 
-    // current customer will like the given post by id.
+    /**
+     * Like a post.
+     * The like will be assigned to the current customer.
+     *
+     * @param postId The ID of the post to like.
+     * @return The like object representing the like.
+     * @throws PostNotFoundException     If the post does not exist.
+     * @throws PostAlreadyLikedException If the post is already liked by the current customer.
+     */
     public Like like(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
@@ -63,7 +78,14 @@ public class LikeService {
         );
     }
 
-    // current customer will unlike the given post by id.
+    /**
+     * Unlike a post.
+     * The unlike will be assigned to the current customer.
+     *
+     * @param postId The ID of the post to unlike.
+     * @throws PostNotFoundException If the post does not exist.
+     * @throws LikeNotFoundException If the post like does not exist.
+     */
     public void unlike(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 

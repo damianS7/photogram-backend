@@ -18,9 +18,15 @@ import java.nio.file.Paths;
  */
 @Service
 public class ImageStorageService {
-    private final String ROOT_PATH = "uploads/images/";
+    private final String UPLOAD_IMAGE_PATH = "uploads/images/";
 
-    // creates a Resource from the given path
+    /**
+     * Creates a Resource from the given path.
+     * Path must be a valid path to an existing file.
+     *
+     * @param path the path of the image
+     * @return Resource object representing the image
+     */
     public Resource createResource(Path path) {
         Resource resource;
         try {
@@ -32,11 +38,17 @@ public class ImageStorageService {
         return resource;
     }
 
-    // returns the image as Resource
+    /**
+     * Returns a resource for the given folder and filename.
+     *
+     * @param folderPath path where image is stored
+     * @param filename   name of the image
+     * @return Resource object representing the image
+     */
     public Resource getImage(String folderPath, String filename) {
         Path filePath;
         try {
-            filePath = Paths.get(ROOT_PATH + folderPath).resolve(filename).normalize();
+            filePath = Paths.get(UPLOAD_IMAGE_PATH + folderPath).resolve(filename).normalize();
         } catch (InvalidPathException exception) {
             throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH);
         }
@@ -50,10 +62,16 @@ public class ImageStorageService {
         return resource;
     }
 
-    // delete image from server
+
+    /**
+     * Delete an image from server storage
+     *
+     * @param folder   folder where the image is
+     * @param filename name of the image
+     */
     public void deleteImage(String folder, String filename) {
         try {
-            Path pathToFile = Path.of(ROOT_PATH + folder + "/" + filename);
+            Path pathToFile = Path.of(UPLOAD_IMAGE_PATH + folder + "/" + filename);
             Files.deleteIfExists(pathToFile);
         } catch (IOException e) {
             throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);

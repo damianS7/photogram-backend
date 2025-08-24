@@ -29,8 +29,14 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    // get comments by post id
-    public Page<Comment> getCommentsPagedByPostId(Long postId, Pageable pageable) {
+    /**
+     * Get comments from a post
+     *
+     * @param postId   the ID of the post
+     * @param pageable the pagination parameters
+     * @return a page of comments
+     */
+    public Page<Comment> getPostComments(Long postId, Pageable pageable) {
         // check if the post exists
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException(Exceptions.POSTS.NOT_FOUND);
@@ -39,35 +45,52 @@ public class CommentService {
         return commentRepository.findAllByPostId(postId, pageable);
     }
 
-    // add a new comment
+    /**
+     * Add a new comment to the post
+     *
+     * @param postId  the ID of the post
+     * @param request the comment details
+     * @return the created comment
+     * @throws PostNotFoundException if the post does not exist
+     */
     public Comment addComment(Long postId, CommentCreateRequest request) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the post exists
+        // find the post
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        Comment comment = new Comment(currentCustomer, post);
-        comment.setComment(request.comment());
+        // create the comment
+        Comment comment = Comment.create(currentCustomer, post)
+                                 .setComment(request.comment());
 
+        // save the created comment
         return commentRepository.save(comment);
     }
 
-    // delete a comment given the id. Logged customer must be the owner of the comment.
+    /**
+     * Delete a comment given the id.
+     * Customer must be the owner of the comment.
+     *
+     * @param id the id of the comment to delete
+     * @throws CommentNotFoundException  if the comment does not exist
+     * @throws CommentNotAuthorException if the customer is not the author of the comment
+     */
     public void deleteComment(Long id) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        // check if the comment exists
+        // find the comment
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new CommentNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
-        // check if the logged customer is the author of the post.
+        // check if the customer is the author of the comment.
         if (!comment.isAuthor(currentCustomer)) {
             throw new CommentNotAuthorException(Exceptions.COMMENT.NOT_AUTHOR);
         }
 
+        // delete the comment
         commentRepository.deleteById(id);
     }
 }

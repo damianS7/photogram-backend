@@ -94,8 +94,8 @@ public class Post {
         return this;
     }
 
+    // check if the customer is the author of the post.
     public boolean isAuthor(Customer customer) {
-        // check if the customer is the author of the post.
         return this.author.getId().equals(customer.getId());
     }
 }
