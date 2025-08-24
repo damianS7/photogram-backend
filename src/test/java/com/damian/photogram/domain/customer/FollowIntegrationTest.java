@@ -117,7 +117,7 @@ public class FollowIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        get("/api/v1/customers/me/followers")
+                        get("/api/v1/customers/followers")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())

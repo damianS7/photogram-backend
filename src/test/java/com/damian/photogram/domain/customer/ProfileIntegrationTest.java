@@ -125,7 +125,7 @@ public class ProfileIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        get("/api/v1/customers/me/profile")
+                        get("/api/v1/customers/profile")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
@@ -167,7 +167,7 @@ public class ProfileIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        patch("/api/v1/customers/me/profile")
+                        patch("/api/v1/customers/profile")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .content(jsonRequest))
@@ -239,7 +239,7 @@ public class ProfileIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        multipart("/api/v1/customers/me/profile/photo")
+                        multipart("/api/v1/customers/profile/photo")
                                 .file(file)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.rawPassword)

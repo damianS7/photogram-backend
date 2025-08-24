@@ -1,7 +1,6 @@
 package com.damian.photogram.domain.customer.controller;
 
 import com.damian.photogram.core.service.ImageHelper;
-import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.dto.response.ProfileDto;
 import com.damian.photogram.domain.customer.mapper.ProfileDtoMapper;
@@ -38,11 +37,10 @@ public class ProfileController {
         this.profileImageService = profileImageService;
     }
 
-    @GetMapping("/customers/me/profile")
+    // endpoint to get the current customer's profile
+    @GetMapping("/customers/profile")
     public ResponseEntity<?> getCustomerProfile() {
-        long profileId = AuthHelper.getLoggedCustomer().getProfile().getId();
-
-        Profile profile = profileService.getProfile(profileId);
+        Profile profile = profileService.getProfile();
         ProfileDto profileDTO = ProfileDtoMapper.toProfileDto(profile);
 
         return ResponseEntity
@@ -50,6 +48,7 @@ public class ProfileController {
                 .body(profileDTO);
     }
 
+    // endpoint to check if a username exists
     @GetMapping("/customers/profile/username/{username}/exists")
     public ResponseEntity<?> usernameExists(
             @PathVariable @NotBlank
@@ -62,7 +61,7 @@ public class ProfileController {
     }
 
     // endpoint to modify the logged customer profile
-    @PatchMapping("/customers/me/profile")
+    @PatchMapping("/customers/profile")
     public ResponseEntity<?> updateProfile(
             @Validated @RequestBody
             ProfileUpdateRequest request
@@ -91,14 +90,15 @@ public class ProfileController {
                 .body(resource);
     }
 
-    // endpoint to upload profile photo
-    @PostMapping("/customers/me/profile/photo")
+    // endpoint for the current customer to upload his profile photo
+    @PostMapping("/customers/profile/photo")
     public ResponseEntity<?> uploadProfilePhoto(
             @RequestParam("currentPassword") @NotBlank
             String currentPassword,
             @RequestParam("file") MultipartFile file
     ) {
-        Resource resource = profileImageService.uploadImage(currentPassword, file);
+        profileImageService.uploadImage(currentPassword, file);
+        Resource resource = profileImageService.getProfileImage();
         String contentType = ImageHelper.getContentType(resource);
 
         return ResponseEntity

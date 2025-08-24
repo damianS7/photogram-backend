@@ -25,7 +25,7 @@ public class FollowController {
         this.followService = followService;
     }
 
-    // endpoint to check if logged customer already follows
+    // endpoint to check if current customer follows another customer (customerId)
     @GetMapping("/customers/{customerId}/follow")
     public ResponseEntity<?> getFollow(
             @PathVariable @NotNull @Positive
@@ -39,9 +39,9 @@ public class FollowController {
                 .body(followDto);
     }
 
-    // endpoint to fetch all followers from logged customer
-    @GetMapping("/customers/me/followers")
-    public ResponseEntity<?> getFollowers(
+    // endpoint to fetch all followers from current customer
+    @GetMapping("/customers/followers")
+    public ResponseEntity<?> getCurrentCustomerFollowers(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
@@ -53,7 +53,7 @@ public class FollowController {
                 .body(friendsDTO);
     }
 
-    // endpoint to fetch all followers from specific customer
+    // endpoint to fetch all followers from specific customer by its customerId.
     @GetMapping("/customers/{customerId}/followers")
     public ResponseEntity<?> getCustomerFollowers(
             @PathVariable("customerId") @NotNull @Positive
@@ -69,7 +69,7 @@ public class FollowController {
                 .body(followersDTO);
     }
 
-    // endpoint to fetch all following from logged customer
+    // endpoint to fetch all customers following current customer
     @GetMapping("/customers/{customerId}/following")
     public ResponseEntity<?> getCustomerFollowing(
             @PathVariable @NotNull @Positive
@@ -85,7 +85,7 @@ public class FollowController {
                 .body(followedDTO);
     }
 
-    // endpoint to add a new follow for the logged customer
+    // endpoint for the current customer to follow another customer given its customerId.
     @PostMapping("/customers/{customerId}/follow")
     public ResponseEntity<?> follow(
             @PathVariable @NotNull @Positive
@@ -99,7 +99,7 @@ public class FollowController {
                 .body(followDto);
     }
 
-    // endpoint to delete a follow from the logged customer follow list.
+    // endpoint for the current customer to unfollow another customer given its customerId.
     @DeleteMapping("/customers/{customerId}/unfollow")
     public ResponseEntity<?> unfollow(
             @PathVariable @NotNull @Positive

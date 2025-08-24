@@ -22,8 +22,8 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    // endpoint to receive logged customer
-    @GetMapping("/customers/me")
+    // endpoint to receive current customer data
+    @GetMapping("/customers")
     public ResponseEntity<CustomerWithProfileDto> getCustomerData() {
         Customer customer = customerService.getCustomer();
         CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(customer);
@@ -33,8 +33,8 @@ public class CustomerController {
                 .body(dto);
     }
 
-    // endpoint to modify logged customer email
-    @PatchMapping("/customers/me/email")
+    // endpoint to modify current customer email
+    @PatchMapping("/customers/email")
     public ResponseEntity<CustomerDto> updateEmail(
             @Validated @RequestBody
             CustomerEmailUpdateRequest request

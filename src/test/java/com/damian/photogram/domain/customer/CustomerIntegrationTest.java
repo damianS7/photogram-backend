@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CustomerIntegrationTest {
     private final String RAW_PASSWORD = "123456";
-    
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -102,7 +102,7 @@ public class CustomerIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        get("/api/v1/customers/me")
+                        get("/api/v1/customers")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -134,7 +134,7 @@ public class CustomerIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        patch("/api/v1/customers/me/email")
+                        patch("/api/v1/customers/email")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(givenRequest)))
