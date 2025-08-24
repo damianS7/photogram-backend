@@ -47,20 +47,26 @@ public class AccountToken {
         this.customer = customer;
     }
 
+    public static AccountToken create() {
+        return new AccountToken();
+    }
+
     public Customer getCustomer() {
         return this.customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public AccountToken setCustomer(Customer customer) {
         this.customer = customer;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public AccountToken setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Long getCustomerId() {
@@ -71,40 +77,45 @@ public class AccountToken {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public AccountToken setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     public Instant getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(Instant expiresAt) {
+    public AccountToken setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
+        return this;
     }
 
     public boolean isUsed() {
         return used;
     }
 
-    public void setUsed(boolean used) {
+    public AccountToken setUsed(boolean used) {
         this.used = used;
+        return this;
     }
 
     public AccountTokenType getType() {
         return type;
     }
 
-    public void setType(AccountTokenType type) {
+    public AccountToken setType(AccountTokenType type) {
         this.type = type;
+        return this;
     }
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public AccountToken setToken(String token) {
         this.token = token;
+        return this;
     }
 
     public String generateToken() {

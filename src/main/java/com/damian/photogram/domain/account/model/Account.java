@@ -36,20 +36,26 @@ public class Account {
         this.customer = customer;
     }
 
-    public Customer getCustomer() {
+    public static Account create() {
+        return new Account();
+    }
+
+    public Customer getOwner() {
         return this.customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public Account setOwner(Customer customer) {
         this.customer = customer;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Account setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Long getCustomerId() {
@@ -60,8 +66,9 @@ public class Account {
         return passwordHash;
     }
 
-    public void setPassword(String password) {
+    public Account setPassword(String password) {
         this.passwordHash = password;
+        return this;
     }
 
     public boolean isEmailVerified() {
@@ -72,15 +79,17 @@ public class Account {
         return this.accountStatus;
     }
 
-    public void setAccountStatus(AccountStatus accountStatus) {
+    public Account setAccountStatus(AccountStatus accountStatus) {
         this.accountStatus = accountStatus;
+        return this;
     }
 
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public Account setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+        return this;
     }
 }
