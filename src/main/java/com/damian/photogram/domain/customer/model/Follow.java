@@ -32,6 +32,10 @@ public class Follow {
         this.followerCustomer = followerCustomer;
     }
 
+    public static Follow create() {
+        return new Follow();
+    }
+
     public Long getId() {
         return id;
     }
@@ -62,15 +66,17 @@ public class Follow {
         return followedCustomer;
     }
 
-    public void setFollowedCustomer(Customer followedCustomer) {
+    public Follow setFollowedCustomer(Customer followedCustomer) {
         this.followedCustomer = followedCustomer;
+        return this;
     }
 
     public Customer getFollowerCustomer() {
         return followerCustomer;
     }
 
-    public void setFollowerCustomer(Customer followerCustomer) {
+    public Follow setFollowerCustomer(Customer followerCustomer) {
         this.followerCustomer = followerCustomer;
+        return this;
     }
 }
