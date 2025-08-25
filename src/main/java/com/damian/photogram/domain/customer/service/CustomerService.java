@@ -3,8 +3,8 @@ package com.damian.photogram.domain.customer.service;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
-import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -36,7 +36,7 @@ public class CustomerService {
      * @return the customer created
      * @throws CustomerEmailTakenException if another user has the email
      */
-    public Customer createCustomer(CustomerRegistrationRequest request) {
+    public Customer createCustomer(AccountRegistrationRequest request) {
 
         // check if the email is already taken
         if (emailExist(request.email())) {

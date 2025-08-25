@@ -2,8 +2,8 @@ package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
-import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
@@ -133,7 +133,7 @@ public class CustomerServiceTest {
     void shouldCreateCustomer() {
         // given
         final String passwordHash = "¢5554ml;f;lsd";
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 "david@gmail.com",
                 "123456",
                 "david",
@@ -164,7 +164,7 @@ public class CustomerServiceTest {
     @DisplayName("Should not create any customer when email is taken")
     void shouldNotCreateCustomerWhenEmailIsTaken() {
         // given
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        AccountRegistrationRequest request = new AccountRegistrationRequest(
                 "david@gmail.com",
                 "123456",
                 "david",
