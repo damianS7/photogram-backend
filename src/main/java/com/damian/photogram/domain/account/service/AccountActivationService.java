@@ -10,6 +10,7 @@ import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
+import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,14 @@ public class AccountActivationService {
         this.accountTokenVerificationService = accountTokenVerificationService;
     }
 
-    // Activate an account using the token
-    public void activate(String token) {
+    /**
+     * Activate an account using the token
+     *
+     * @param token the token to activate the account.
+     * @throws AccountNotFoundException             when the account cannot be found.
+     * @throws AccountActivationNotPendingException when the account is not pending for activation.
+     */
+    public Account activate(String token) {
         // check the token is valid and not expired.
         AccountToken accountToken = accountTokenVerificationService.verify(token);
 
@@ -65,18 +72,31 @@ public class AccountActivationService {
                 AccountStatus.ACTIVE
         );
 
-        accountRepository.save(accountCustomer);
+        return accountRepository.save(accountCustomer);
+    }
 
-        // notify activation or welcome
+    /**
+     * It sends a welcome message to the customer email address after activation.
+     *
+     * @param customer The customer to send a welcome message to.
+     */
+    public void sendAccountActivatedEmail(Customer customer) {
         emailSenderService.send(
-                accountCustomer.getOwner().getEmail(),
+                customer.getEmail(),
                 "Welcome to photogram!",
                 "Your account has been activated successfully."
         );
     }
 
-    // Send an activation email to the email address
-    public void sendAccountActivationToken(String email) {
+    /**
+     * Generate an activation token to the customer associated to the customer email address.
+     *
+     * @param email The email address of the customer.
+     * @return An AccountToken object containing the activation token.
+     * @throws AccountNotFoundException             If the customer is not found.
+     * @throws AccountActivationNotPendingException If the account activation is not pending.
+     */
+    public AccountToken createAccountActivationToken(String email) {
         // retrieve the customer by email
         Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
                 () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND_BY_EMAIL)
@@ -88,30 +108,38 @@ public class AccountActivationService {
         }
 
         // check if AccountToken exists orElse create a new one
-        AccountToken accountToken = accountTokenRepository.findByCustomer_Id(account.getOwner().getId()).orElseGet(
-                AccountToken::new
-        );
+        AccountToken accountToken = accountTokenRepository
+                .findByCustomer_Id(account.getOwner().getId())
+                .orElseGet(
+                        AccountToken::new
+                );
 
         // we set the accountToken data
-        accountToken.setCustomer(account.getOwner());
-        accountToken.setType(AccountTokenType.ACCOUNT_VERIFICATION);
-        accountToken.setToken(UUID.randomUUID().toString());
-        accountToken.setCreatedAt(Instant.now());
-        accountToken.setExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
+        accountToken.setCustomer(account.getOwner())
+                    .setType(AccountTokenType.ACCOUNT_VERIFICATION)
+                    .setToken(UUID.randomUUID().toString())
+                    .setCreatedAt(Instant.now())
+                    .setExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
 
-        accountTokenRepository.save(
+        // save the token to the database
+        return accountTokenRepository.save(
                 accountToken
         );
-
-        sendAccountActivationTokenEmail(email, accountToken.getToken());
     }
 
-    public void sendAccountActivationTokenEmail(String email, String token) {
+    /**
+     * It sends an email with a verification link
+     *
+     * @param email The email address to send the verification link to.
+     * @param token The token that will be used to verify the user's account.
+     */
+    public void sendAccountActivationEmail(String email, String token) {
 
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);
-        String activationLink = url + "/auth/accounts/activate/" + token;
+        String activationLink = url + "/accounts/activate/" + token;
+
         // Send email to confirm registration
         emailSenderService.send(
                 email,

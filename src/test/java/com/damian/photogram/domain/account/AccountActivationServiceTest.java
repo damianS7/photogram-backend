@@ -1,6 +1,5 @@
 package com.damian.photogram.domain.account;
 
-import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
 import com.damian.photogram.domain.account.exception.AccountActivationNotPendingException;
@@ -20,10 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -31,7 +27,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
 public class AccountActivationServiceTest {
@@ -48,37 +45,23 @@ public class AccountActivationServiceTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private EmailSenderService emailSenderService;
-
-    @Mock
     private AccountTokenVerificationService accountTokenVerificationService;
 
     @InjectMocks
     private AccountActivationService accountActivationService;
 
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private BCryptPasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        customerRepository.deleteAll();
     }
 
     @AfterEach
     public void tearDown() {
+        customerRepository.deleteAll();
         SecurityContextHolder.clearContext();
     }
-
-    void setUpContext(Customer customer) {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
-    }
-
 
     @Test
     @DisplayName("Should activate account")
@@ -87,11 +70,8 @@ public class AccountActivationServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                passwordEncoder.encode("123456")
+                passwordEncoder.encode(passwordEncoder.encode(RAW_PASSWORD))
         );
-
-        // set the customer on the context
-        //        setUpContext(customer);
 
         AccountToken activationToken = new AccountToken(customer);
         activationToken.setToken("sdfsidjgfiosdjfi");
@@ -102,7 +82,6 @@ public class AccountActivationServiceTest {
         when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
         when(accountTokenRepository.save(any(AccountToken.class))).thenReturn(activationToken);
         when(accountRepository.save(any(Account.class))).thenReturn(customer.getAccount());
-        doNothing().when(emailSenderService).send(anyString(), anyString(), anyString());
         accountActivationService.activate(activationToken.getToken());
 
         // then
@@ -118,7 +97,7 @@ public class AccountActivationServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                passwordEncoder.encode("123456")
+                passwordEncoder.encode(passwordEncoder.encode(RAW_PASSWORD))
         );
 
         // set the customer on the context
@@ -144,7 +123,7 @@ public class AccountActivationServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                passwordEncoder.encode("123456")
+                passwordEncoder.encode(passwordEncoder.encode(RAW_PASSWORD))
         );
         customer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
@@ -169,7 +148,7 @@ public class AccountActivationServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                passwordEncoder.encode("123456")
+                passwordEncoder.encode(passwordEncoder.encode(RAW_PASSWORD))
         );
         customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
 
@@ -186,4 +165,5 @@ public class AccountActivationServiceTest {
         );
     }
 
+    // TODO shouldCreateAccountActivationToken
 }
