@@ -1,4 +1,4 @@
-package com.damian.photogram.domain.customer.dto.request;
+package com.damian.photogram.domain.account.dto.request;
 
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import jakarta.validation.constraints.Email;
@@ -9,9 +9,9 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 /**
- * Contains all the data required for Customer registration
+ * Contains all the data required for Account registration
  */
-public record CustomerRegistrationRequest(
+public record AccountRegistrationRequest(
         @NotBlank(message = "Email must not be blank")
         @Email(message = "Email must be a well-formed email address.")
         String email,

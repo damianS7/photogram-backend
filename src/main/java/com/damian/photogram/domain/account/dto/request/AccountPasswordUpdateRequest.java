@@ -1,10 +1,10 @@
-package com.damian.photogram.domain.customer.dto.request;
+package com.damian.photogram.domain.account.dto.request;
 
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record CustomerPasswordUpdateRequest(
+public record AccountPasswordUpdateRequest(
         @NotBlank(message = "Current password must not be blank")
         String currentPassword,
 
