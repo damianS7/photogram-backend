@@ -127,7 +127,7 @@ public class CustomerIntegrationTest {
         loginWithCustomer(customer);
 
         CustomerEmailUpdateRequest givenRequest = new CustomerEmailUpdateRequest(
-                "123456",
+                RAW_PASSWORD,
                 "customer2@test.com"
         );
 
