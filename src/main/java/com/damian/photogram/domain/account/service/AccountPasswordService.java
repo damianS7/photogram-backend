@@ -6,13 +6,13 @@ import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
 import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
-import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -86,15 +86,15 @@ public class AccountPasswordService {
      * @throws CustomerNotFoundException if the customer does not exist
      * @throws PasswordMismatchException if the password does not match
      */
-    public void updatePassword(CustomerPasswordUpdateRequest request) {
+    public void updatePassword(AccountPasswordUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext
-        final Customer loggedCustomer = AuthHelper.getLoggedCustomer();
+        final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // Before making any changes we check that the password sent by the customer matches the one in the entity
-        AuthHelper.validatePassword(loggedCustomer, request.currentPassword());
+        AuthHelper.validatePassword(currentCustomer, request.currentPassword());
 
         // update the password
-        this.updatePassword(loggedCustomer.getId(), request.newPassword());
+        this.updatePassword(currentCustomer.getId(), request.newPassword());
     }
 
     // Updates the customer password using a reset password link
@@ -104,7 +104,7 @@ public class AccountPasswordService {
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
 
-        // verify the token ...
+        // verify the token
         final AccountToken accountToken = accountTokenVerificationService.verify(token);
 
         // update the password
@@ -114,8 +114,13 @@ public class AccountPasswordService {
         accountTokenRepository.save(accountToken);
     }
 
-    // reset the password of a customer using their email
-    public void resetPassword(AccountPasswordResetRequest request) {
+    /**
+     * Create a password reset token for a customer
+     *
+     * @param request
+     * @return
+     */
+    public AccountToken createPasswordResetToken(AccountPasswordResetRequest request) {
         Account account = accountRepository
                 .findByCustomer_Email(request.email())
                 .orElseThrow(
@@ -126,22 +131,37 @@ public class AccountPasswordService {
         AccountToken token = new AccountToken(account.getOwner());
         token.setToken(token.generateToken());
         token.setType(AccountTokenType.RESET_PASSWORD);
-        accountTokenRepository.save(token);
-
-        // send the email with the link to reset the password
-        sendResetPasswordEmail(account.getOwner().getEmail(), token.getToken());
+        return accountTokenRepository.save(token);
     }
 
+    /**
+     * Send a reset password email to the customer
+     *
+     * @param toEmail
+     * @param token
+     */
     public void sendResetPasswordEmail(String toEmail, String token) {
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);
-        String link = url + "/auth/accounts/reset-password/" + token;
-
+        String link = url + "/accounts/reset-password/" + token;
         emailSenderService.send(
                 toEmail,
                 "Photogram password reset.",
                 "Reset your password following this url: " + link
+        );
+    }
+
+    /**
+     * Send a success email after resetting the password
+     *
+     * @param toEmail
+     */
+    public void sendResetPasswordSuccessEmail(String toEmail) {
+        emailSenderService.send(
+                toEmail,
+                "Photogram password reset.",
+                "Your password has been reset successfully."
         );
     }
 }
