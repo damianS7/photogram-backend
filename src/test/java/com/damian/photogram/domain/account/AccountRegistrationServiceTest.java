@@ -1,8 +1,9 @@
 package com.damian.photogram.domain.account;
 
+import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
-import com.damian.photogram.domain.customer.dto.request.CustomerRegistrationRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -22,7 +23,8 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
 public class AccountRegistrationServiceTest {
@@ -47,11 +49,11 @@ public class AccountRegistrationServiceTest {
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        customerRepository.deleteAll();
     }
 
     @AfterEach
     public void tearDown() {
+        customerRepository.deleteAll();
         SecurityContextHolder.clearContext();
     }
 
@@ -59,17 +61,19 @@ public class AccountRegistrationServiceTest {
     @DisplayName("should register a new customer")
     void shouldRegisterCustomer() {
         // given
-        Customer givenCustomer = new Customer();
-        givenCustomer.setEmail("customer@test.com");
-        givenCustomer.setPassword("123456");
-        givenCustomer.getProfile().setFirstName("John");
-        givenCustomer.getProfile().setLastName("Wick");
-        givenCustomer.getProfile().setPhone("123 123 123");
-        givenCustomer.getProfile().setGender(CustomerGender.MALE);
-        givenCustomer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        givenCustomer.getProfile().setImageFilename("no photoPath");
+        Customer givenCustomer = Customer.create()
+                                         .setMail("customer@test.com")
+                                         .setPassword(passwordEncoder.encode(RAW_PASSWORD))
+                                         .setProfile(profile -> profile
+                                                 .setFirstName("John")
+                                                 .setLastName("Wick")
+                                                 .setPhone("123 123 123")
+                                                 .setGender(CustomerGender.MALE)
+                                                 .setBirthdate(LocalDate.of(1989, 1, 1))
+                                                 .setImageFilename("no photoPath")
+                                         );
 
-        CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(
+        AccountRegistrationRequest registrationRequest = new AccountRegistrationRequest(
                 givenCustomer.getEmail(),
                 givenCustomer.getPassword(),
                 givenCustomer.getProfile().getUsername(),
@@ -80,12 +84,12 @@ public class AccountRegistrationServiceTest {
                 givenCustomer.getProfile().getGender()
         );
 
-        // when
-        doNothing().when(accountActivationService).sendAccountActivationToken(anyString());
+        AccountToken accountToken = AccountToken.create()
+                                                .setCustomer(givenCustomer);
 
-        when(customerService.createCustomer(any(CustomerRegistrationRequest.class))).thenReturn(givenCustomer);
-        //        when(accountRepository.findByCustomer_Email(anyString())).thenReturn(Optional.of(givenCustomer.getAccount()));
-        //        when(accountTokenRepository.findByCustomer_Id(anyLong())).thenReturn(Optional.of(accountToken));
+        // when
+        when(accountActivationService.createAccountActivationToken(anyString())).thenReturn(accountToken);
+        when(customerService.createCustomer(any(AccountRegistrationRequest.class))).thenReturn(givenCustomer);
 
         Customer registeredCustomer = accountRegistrationService.register(registrationRequest);
 
