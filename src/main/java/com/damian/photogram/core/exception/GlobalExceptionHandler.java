@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
                     AccountSuspendedException.class,
                     AccountNotVerifiedException.class,
             }
-    )
+    ) // 401
     public ResponseEntity<ApiResponse<String>> handleUnauthorized(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED));
@@ -102,6 +102,7 @@ public class GlobalExceptionHandler {
                     FollowersLimitExceededException.class,
                     FollowYourselfNotAllowedException.class,
                     AccountActivationTokenMismatchException.class,
+                    AccountActivationTokenUsedException.class,
                     PostNotAuthorException.class,
                     ProfileNotOwnerException.class,
                     SettingNotOwnerException.class
@@ -127,6 +128,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             {
                     ImageInvalidException.class,
+                    ImageTypeNotAllowedException.class
             }
     )
     public ResponseEntity<ApiResponse<String>> invalidType(ApplicationException ex) {
