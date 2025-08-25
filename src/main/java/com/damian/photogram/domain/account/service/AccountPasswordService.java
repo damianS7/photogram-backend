@@ -115,10 +115,10 @@ public class AccountPasswordService {
     }
 
     /**
-     * Create a password reset token for a customer
+     * Create a token for password reset
      *
-     * @param request
-     * @return
+     * @param request the request containing the email of the customer and password
+     * @return AccountToken with the token
      */
     public AccountToken createPasswordResetToken(AccountPasswordResetRequest request) {
         Account account = accountRepository
@@ -135,10 +135,10 @@ public class AccountPasswordService {
     }
 
     /**
-     * Send a reset password email to the customer
+     * Send email to the customer with password reset link.
      *
-     * @param toEmail
-     * @param token
+     * @param toEmail the customer's email address to send the email
+     * @param token   the token to be included in the email
      */
     public void sendResetPasswordEmail(String toEmail, String token) {
         String host = env.getProperty("app.frontend.host");
@@ -155,7 +155,7 @@ public class AccountPasswordService {
     /**
      * Send a success email after resetting the password
      *
-     * @param toEmail
+     * @param toEmail the customer's email address to send the email
      */
     public void sendResetPasswordSuccessEmail(String toEmail) {
         emailSenderService.send(

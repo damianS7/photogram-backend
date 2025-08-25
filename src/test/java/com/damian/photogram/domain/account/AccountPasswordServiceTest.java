@@ -2,21 +2,20 @@ package com.damian.photogram.domain.account;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountTokenVerificationService;
-import com.damian.photogram.domain.customer.dto.request.CustomerPasswordUpdateRequest;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.customer.service.CustomerService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,9 +43,6 @@ public class AccountPasswordServiceTest {
     private final String RAW_PASSWORD = "123456";
 
     @Mock
-    private Environment env;
-
-    @Mock
     private CustomerRepository customerRepository;
 
     @Mock
@@ -55,12 +50,6 @@ public class AccountPasswordServiceTest {
 
     @InjectMocks
     private AccountPasswordService accountPasswordService;
-
-    @Mock
-    private CustomerService customerService;
-
-    @Mock
-    private EmailSenderService emailSenderService;
 
     @Mock
     private AccountTokenRepository accountTokenRepository;
@@ -75,11 +64,11 @@ public class AccountPasswordServiceTest {
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        customerRepository.deleteAll();
     }
 
     @AfterEach
     public void tearDown() {
+        customerRepository.deleteAll();
         SecurityContextHolder.clearContext();
     }
 
@@ -92,8 +81,8 @@ public class AccountPasswordServiceTest {
     }
 
     @Test
-    @DisplayName("Should update customer password")
-    void shouldUpdateCustomerPassword() {
+    @DisplayName("Should update account password")
+    void shouldUpdateAccountPassword() {
         // given
         final String currentRawPassword = "123456";
         final String currentEncodedPassword = passwordEncoder.encode(currentRawPassword);
@@ -106,7 +95,7 @@ public class AccountPasswordServiceTest {
                 currentEncodedPassword
         );
 
-        CustomerPasswordUpdateRequest updateRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updateRequest = new AccountPasswordUpdateRequest(
                 currentRawPassword,
                 rawNewPassword
         );
@@ -131,13 +120,13 @@ public class AccountPasswordServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                bCryptPasswordEncoder.encode("1234")
+                bCryptPasswordEncoder.encode(RAW_PASSWORD)
         );
 
         // set the customer on the context
         setUpContext(customer);
 
-        CustomerPasswordUpdateRequest updateRequest = new CustomerPasswordUpdateRequest(
+        AccountPasswordUpdateRequest updateRequest = new AccountPasswordUpdateRequest(
                 "wrongPassword",
                 "1234"
         );
@@ -160,14 +149,14 @@ public class AccountPasswordServiceTest {
         Customer customer = new Customer(
                 10L,
                 "customer@test.com",
-                passwordEncoder.encode("1234")
+                passwordEncoder.encode(RAW_PASSWORD)
         );
 
         // set the customer on the context
         setUpContext(customer);
 
-        CustomerPasswordUpdateRequest updateRequest = new CustomerPasswordUpdateRequest(
-                "1234",
+        AccountPasswordUpdateRequest updateRequest = new AccountPasswordUpdateRequest(
+                RAW_PASSWORD,
                 "1234678Ax$"
         );
 
@@ -187,10 +176,9 @@ public class AccountPasswordServiceTest {
 
     @Test
     @DisplayName("Should reset password")
-    void shouldResetPassword() {
+    void shouldCreatePasswordResetToken() {
         // given
-        final String currentRawPassword = "123456";
-        final String currentEncodedPassword = passwordEncoder.encode(currentRawPassword);
+        final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
 
         Customer customer = new Customer(
                 10L,
@@ -206,27 +194,51 @@ public class AccountPasswordServiceTest {
         token.setToken(token.generateToken());
         token.setType(AccountTokenType.RESET_PASSWORD);
 
-        // set the customer on the context
-        //        setUpContext(customer);
-
         // when
         when(accountRepository.findByCustomer_Email(customer.getEmail())).thenReturn(Optional.of(customer.getAccount()));
         when(accountTokenRepository.save(any(AccountToken.class))).thenReturn(token);
-        when(env.getProperty("app.frontend.host")).thenReturn("photogram.local");
-        when(env.getProperty("app.frontend.port")).thenReturn("8090");
-        //        doNothing().when(emailSenderService).send(anyString(), anyString(), anyString());
-        accountPasswordService.resetPassword(passwordResetRequest);
+        accountPasswordService.createPasswordResetToken(passwordResetRequest);
 
         // then
         verify(accountTokenRepository, times(1)).save(any(AccountToken.class));
     }
 
     @Test
-    @DisplayName("Should set a new password after reset password")
-    void shouldSetPasswordAfterResetPassword() {
+    @DisplayName("Should not create password reset token when account not found")
+    void shouldNotCreatePasswordResetTokenWhenAccountNotFound() {
         // given
-        final String currentRawPassword = "123456";
-        final String currentEncodedPassword = passwordEncoder.encode(currentRawPassword);
+        final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
+
+        Customer customer = new Customer(
+                10L,
+                "customer@test.com",
+                currentEncodedPassword
+        );
+
+        AccountPasswordResetRequest passwordResetRequest = new AccountPasswordResetRequest(
+                customer.getEmail()
+        );
+
+        AccountToken token = new AccountToken(customer);
+        token.setToken(token.generateToken());
+        token.setType(AccountTokenType.RESET_PASSWORD);
+
+        // when
+        when(accountRepository.findByCustomer_Email(customer.getEmail())).thenReturn(Optional.empty());
+        assertThrows(
+                AccountNotFoundException.class,
+                () -> accountPasswordService.createPasswordResetToken(passwordResetRequest)
+        );
+
+        // then
+        verify(accountRepository, times(1)).findByCustomer_Email(anyString());
+    }
+
+    @Test
+    @DisplayName("Should set a new password after reset password")
+    void shouldSetPasswordAfterCreatePasswordResetToken() {
+        // given
+        final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
         final String rawNewPassword = "1111000";
         final String encodedNewPassword = passwordEncoder.encode(rawNewPassword);
 
@@ -244,9 +256,6 @@ public class AccountPasswordServiceTest {
         AccountToken token = new AccountToken(customer);
         token.setToken(token.generateToken());
         token.setType(AccountTokenType.RESET_PASSWORD);
-
-        // set the customer on the context
-        //        setUpContext(customer);
 
         // when
         when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
