@@ -88,7 +88,7 @@ public class AuthorizationIntegrationTest {
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
-                       .get("/api/v1/customers/me/profile")
+                       .get("/api/v1/customers/profile")
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(200))
