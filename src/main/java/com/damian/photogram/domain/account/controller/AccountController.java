@@ -1,7 +1,8 @@
 package com.damian.photogram.domain.account.controller;
 
-import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.dto.request.*;
+import com.damian.photogram.domain.account.model.Account;
+import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
@@ -39,6 +40,7 @@ public class AccountController {
             AccountRegistrationRequest request
     ) {
         Customer registeredCustomer = accountRegistrationService.register(request);
+
         CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(registeredCustomer);
 
         return ResponseEntity
@@ -46,9 +48,9 @@ public class AccountController {
                 .body(dto);
     }
 
-    // endpoint to modify customer password
+    // endpoint to modify current customer password
     @PatchMapping("/accounts/password")
-    public ResponseEntity<?> updateLoggedCustomerPassword(
+    public ResponseEntity<?> updatePassword(
             @Validated @RequestBody
             AccountPasswordUpdateRequest request
     ) {
@@ -56,7 +58,7 @@ public class AccountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body("Password updated");
+                .build();
     }
 
     // endpoint to activate an account
@@ -65,24 +67,33 @@ public class AccountController {
             @PathVariable @NotBlank
             String token
     ) {
-        accountActivationService.activate(token);
+
+        // activate the account using the provided token
+        Account account = accountActivationService.activate(token);
+
+        // send email to customer after account has been activated
+        accountActivationService.sendAccountActivatedEmail(account.getOwner());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("Account has been activated."));
+                .build();
     }
 
-    // endpoint for account to request resending activation
+    // endpoint for account to request for account activation email
     @PostMapping("/accounts/resend-activation")
     public ResponseEntity<?> resendActivation(
             @Validated @RequestBody
             AccountActivationResendRequest request
     ) {
-        accountActivationService.sendAccountActivationToken(request.email());
+        // generate a new activation token
+        AccountToken accountToken = accountActivationService.createAccountActivationToken(request.email());
+
+        // send the account activation link
+        accountActivationService.sendAccountActivationEmail(request.email(), accountToken.getToken());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("Activation email sent successfully. Please check your inbox."));
+                .build();
     }
 
     // endpoint to request for a reset password
@@ -91,11 +102,18 @@ public class AccountController {
             @Validated @RequestBody
             AccountPasswordResetRequest request
     ) {
-        accountPasswordService.resetPassword(request);
+        // generate a new password reset token
+        AccountToken accountToken = accountPasswordService.createPasswordResetToken(request);
+
+        // send the email with the link to reset the password
+        accountPasswordService.sendResetPasswordEmail(
+                accountToken.getCustomer().getEmail(),
+                accountToken.getToken()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("Reset password email sent successfully. Please check your inbox."));
+                .build();
     }
 
     // endpoint to set a new password using token
@@ -106,10 +124,14 @@ public class AccountController {
             @Validated @RequestBody
             AccountPasswordResetSetRequest request
     ) {
+        // update the password using the token
         accountPasswordService.updatePassword(token, request);
+
+        // send the email notifying password is successfully changed
+        accountPasswordService.sendResetPasswordSuccessEmail(request.email());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("Password reset successfully."));
+                .build();
     }
 }
