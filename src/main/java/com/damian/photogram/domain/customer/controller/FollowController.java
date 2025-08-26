@@ -42,7 +42,7 @@ public class FollowController {
     // endpoint to fetch all followers from current customer
     @GetMapping("/customers/followers")
     public ResponseEntity<?> getCurrentCustomerFollowers(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Page<Follow> follows = followService.getFollowers(pageable);
@@ -58,7 +58,7 @@ public class FollowController {
     public ResponseEntity<?> getCustomerFollowers(
             @PathVariable("customerId") @NotNull @Positive
             Long customerId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Page<Follow> follows = followService.getFollowers(customerId, pageable);
@@ -74,7 +74,7 @@ public class FollowController {
     public ResponseEntity<?> getCustomerFollowing(
             @PathVariable @NotNull @Positive
             Long customerId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Page<Follow> followed = followService.getFollowed(customerId, pageable);
