@@ -81,7 +81,6 @@ CREATE TABLE public.customer_auth_tokens (
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	expires_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT auth_token_pkey PRIMARY KEY (id),
-	CONSTRAINT unique_customer_type_token UNIQUE (customer_id, type),
 	CONSTRAINT auth_token_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
 );
 
