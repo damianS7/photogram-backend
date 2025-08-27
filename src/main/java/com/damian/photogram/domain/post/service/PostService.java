@@ -42,7 +42,7 @@ public class PostService {
      */
     public Page<Post> getPostsByUsername(String username, Pageable pageable) {
         // check if the customer exists by this username
-        profileRepository.findByUsername(username).orElseThrow(
+        profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
 

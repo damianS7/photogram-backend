@@ -123,7 +123,7 @@ public class ProfileService {
      */
     public void usernameExists(String username) {
         profileRepository
-                .findByUsername(username)
+                .findByUsernameIgnoreCase(username)
                 .orElseThrow(
                         () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
                 );

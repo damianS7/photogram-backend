@@ -27,7 +27,7 @@ public class FeedService {
     }
 
     public FeedDto getUserFeed(String username) {
-        final Profile profile = profileRepository.findByUsername(username).orElseThrow(
+        final Profile profile = profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
                 () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
         );
 

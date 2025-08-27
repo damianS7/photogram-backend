@@ -71,7 +71,7 @@ public class FeedServiceTest {
         loggedCustomer.getProfile().setUsername("customer7777");
 
         // when
-        when(profileRepository.findByUsername(loggedCustomer.getUsername()))
+        when(profileRepository.findByUsernameIgnoreCase(loggedCustomer.getUsername()))
                 .thenReturn(Optional.of(loggedCustomer.getProfile()));
 
         when(postRepository.countByAuthorId(anyLong()))
@@ -87,6 +87,6 @@ public class FeedServiceTest {
         // then
         assertThat(result)
                 .isNotNull();
-        verify(profileRepository, times(1)).findByUsername(loggedCustomer.getUsername());
+        verify(profileRepository, times(1)).findByUsernameIgnoreCase(loggedCustomer.getUsername());
     }
 }
