@@ -11,8 +11,14 @@ public class Exceptions {
         public static final String UPLOAD_FAILED = "Upload failed.";
     }
 
+    public static class AUTH {
+        public static final String BAD_CREDENTIALS = "Bad credentials.";
+    }
+
     public static class JWT {
+        public static final String INVALID_EMAIL = "Invalid email found in token.";
         public static final String TOKEN_EXPIRED = "Token has expired.";
+        public static final String INVALID_TOKEN = "Token is invalid.";
     }
 
     public static class IMAGE {
@@ -20,6 +26,7 @@ public class Exceptions {
         public static final String INVALID_PATH = "Invalid path.";
         public static final String FILE_SIZE_LIMIT = "Image is too large.";
         public static final String ONLY_IMAGES_ALLOWED = "Only images are allowed.";
+        public static final String TYPE_NOT_ALLOWED = "Filetype not allowed.";
         public static final String EMPTY_FILE = "File is empty.";
         public static final String UPLOAD_FAILED = "Image upload failed.";
     }
@@ -37,6 +44,7 @@ public class Exceptions {
         public static final String NOT_ELEGIBLE_FOR_ACTIVATION = "Account not elegible for activation.";
         public static final String INVALID_TOKEN = "Token is invalid.";
         public static final String EXPIRED_TOKEN = "Token has expired.";
+        public static final String TOKEN_USED = "Token has already been used.";
     }
 
     public static class ACCOUNT_TOKEN {
@@ -44,13 +52,21 @@ public class Exceptions {
     }
 
     public static class POSTS {
-        public static final String FILE_SIZE_LIMIT = "Post image is too large.";
         public static final String NOT_AUTHOR = "You are not the author of this post.";
         public static final String NOT_FOUND = "Post not found.";
         public static final String ALREADY_LIKED = "Post already liked.";
+
+        public static class IMAGE {
+            public static final String NOT_FOUND = "Post photo not found.";
+            public static final String FILE_SIZE_LIMIT = "Post photo is too large.";
+        }
     }
 
-    public static class LIKES {
+    public static class COMMENT {
+        public static final String NOT_AUTHOR = "You are not the author of this comment.";
+    }
+
+    public static class LIKE {
         public static final String NOT_FOUND = "Like not found.";
     }
 
@@ -80,9 +96,6 @@ public class Exceptions {
         public static class IMAGE {
             public static final String NOT_FOUND = "Profile photo not found.";
             public static final String FILE_SIZE_LIMIT = "Profile photo is too large.";
-            public static final String ONLY_IMAGES_ALLOWED = "Profile photo must be an image.";
-            public static final String EMPTY_FILE = "File is empty.";
-            public static final String UPLOAD_FAILED = "Profile photo upload failed.";
         }
     }
 }
