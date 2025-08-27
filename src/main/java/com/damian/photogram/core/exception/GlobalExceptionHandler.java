@@ -1,6 +1,5 @@
 package com.damian.photogram.core.exception;
 
-import com.damian.photogram.app.auth.exception.AuthenticationException;
 import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.customer.exception.*;
@@ -49,7 +48,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    AuthenticationException.class,
                     ExpiredJwtException.class,
                     BadCredentialsException.class,
                     AccountSuspendedException.class,
@@ -74,7 +72,7 @@ public class GlobalExceptionHandler {
                     SettingNotFoundException.class,
                     PostNotFoundException.class,
                     AccountNotFoundException.class,
-                    AccountActivationTokenNotFoundException.class
+                    AccountVerificationTokenNotFoundException.class
             }
     )
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
@@ -87,7 +85,7 @@ public class GlobalExceptionHandler {
                     CustomerEmailTakenException.class,
                     FollowAlreadyExistsException.class,
                     PostAlreadyLikedException.class,
-                    AccountActivationNotPendingException.class
+                    AccountVerificationNotPendingException.class
             }
     )
     // Handle conflict (409)
@@ -101,8 +99,8 @@ public class GlobalExceptionHandler {
                     PasswordMismatchException.class,
                     FollowersLimitExceededException.class,
                     FollowYourselfNotAllowedException.class,
-                    AccountActivationTokenMismatchException.class,
-                    AccountActivationTokenUsedException.class,
+                    AccountVerificationTokenMismatchException.class,
+                    AccountVerificationTokenUsedException.class,
                     PostNotAuthorException.class,
                     ProfileNotOwnerException.class,
                     SettingNotOwnerException.class
@@ -138,7 +136,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    AccountActivationTokenExpiredException.class,
+                    AccountVerificationTokenExpiredException.class,
             }
     )
     public ResponseEntity<ApiResponse<String>> handleGone(ApplicationException ex) {
