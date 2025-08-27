@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FollowService {
-    private final short MAX_FOLLOWS = 10;
+    private final short MAX_FOLLOWS = 20;
     private final FollowRepository followRepository;
     private final CustomerRepository customerRepository;
 
