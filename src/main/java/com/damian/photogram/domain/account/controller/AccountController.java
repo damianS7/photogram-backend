@@ -103,7 +103,7 @@ public class AccountController {
             AccountPasswordResetRequest request
     ) {
         // generate a new password reset token
-        AccountToken accountToken = accountPasswordService.createPasswordResetToken(request);
+        AccountToken accountToken = accountPasswordService.generatePasswordResetToken(request);
 
         // send the email with the link to reset the password
         accountPasswordService.sendResetPasswordEmail(
@@ -125,10 +125,7 @@ public class AccountController {
             AccountPasswordResetSetRequest request
     ) {
         // update the password using the token
-        accountPasswordService.updatePassword(token, request);
-
-        // send the email notifying password is successfully changed
-        accountPasswordService.sendResetPasswordSuccessEmail(request.email());
+        accountPasswordService.passwordResetWithToken(token, request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

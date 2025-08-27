@@ -176,7 +176,7 @@ public class AccountPasswordServiceTest {
 
     @Test
     @DisplayName("Should reset password")
-    void shouldCreatePasswordResetToken() {
+    void shouldGeneratePasswordResetToken() {
         // given
         final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
 
@@ -197,7 +197,7 @@ public class AccountPasswordServiceTest {
         // when
         when(accountRepository.findByCustomer_Email(customer.getEmail())).thenReturn(Optional.of(customer.getAccount()));
         when(accountTokenRepository.save(any(AccountToken.class))).thenReturn(token);
-        accountPasswordService.createPasswordResetToken(passwordResetRequest);
+        accountPasswordService.generatePasswordResetToken(passwordResetRequest);
 
         // then
         verify(accountTokenRepository, times(1)).save(any(AccountToken.class));
@@ -205,7 +205,7 @@ public class AccountPasswordServiceTest {
 
     @Test
     @DisplayName("Should not create password reset token when account not found")
-    void shouldNotCreatePasswordResetTokenWhenAccountNotFound() {
+    void shouldNotGeneratePasswordResetTokenWhenAccountNotFound() {
         // given
         final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
 
@@ -227,7 +227,7 @@ public class AccountPasswordServiceTest {
         when(accountRepository.findByCustomer_Email(customer.getEmail())).thenReturn(Optional.empty());
         assertThrows(
                 AccountNotFoundException.class,
-                () -> accountPasswordService.createPasswordResetToken(passwordResetRequest)
+                () -> accountPasswordService.generatePasswordResetToken(passwordResetRequest)
         );
 
         // then
@@ -236,7 +236,7 @@ public class AccountPasswordServiceTest {
 
     @Test
     @DisplayName("Should set a new password after reset password")
-    void shouldSetPasswordAfterCreatePasswordResetToken() {
+    void shouldSetPasswordAfterGeneratePasswordResetToken() {
         // given
         final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
         final String rawNewPassword = "1111000";
@@ -249,7 +249,6 @@ public class AccountPasswordServiceTest {
         );
 
         AccountPasswordResetSetRequest passwordResetRequest = new AccountPasswordResetSetRequest(
-                customer.getEmail(),
                 rawNewPassword
         );
 
@@ -258,12 +257,12 @@ public class AccountPasswordServiceTest {
         token.setType(AccountTokenType.RESET_PASSWORD);
 
         // when
-        when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        //        when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
         when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
         when(accountVerificationService.validateToken(token.getToken())).thenReturn(token);
         when(bCryptPasswordEncoder.encode(rawNewPassword)).thenReturn(encodedNewPassword);
         when(accountRepository.save(any(Account.class))).thenReturn(customer.getAccount());
-        accountPasswordService.updatePassword(token.getToken(), passwordResetRequest);
+        accountPasswordService.passwordResetWithToken(token.getToken(), passwordResetRequest);
 
         // then
         assertEquals(customer.getPassword(), encodedNewPassword);

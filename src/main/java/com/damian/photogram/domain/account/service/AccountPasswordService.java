@@ -51,7 +51,7 @@ public class AccountPasswordService {
     }
 
     /**
-     * It updates the password of given followedCustomerId.
+     * It updates the password of given customer.
      *
      * @param customerId the id of the customer to be updated
      * @param password   the new password to be set
@@ -80,7 +80,7 @@ public class AccountPasswordService {
     }
 
     /**
-     * It updates the password of the logged customer
+     * It updates the password of the current customer
      *
      * @param request the request body that contains the current password and the new password
      * @throws CustomerNotFoundException if the customer does not exist
@@ -97,30 +97,34 @@ public class AccountPasswordService {
         this.updatePassword(currentCustomer.getId(), request.newPassword());
     }
 
-    // Updates the customer password using a reset password link
-    public void updatePassword(String token, AccountPasswordResetSetRequest request) {
-        // find the customer we need to change its password
-        final Customer customer = customerRepository.findByEmail(request.email()).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
-        );
-
+    /**
+     * It resets the customer password using a token.
+     *
+     * @param token   the token used to reset the password
+     * @param request the request with the password to set
+     */
+    public void passwordResetWithToken(String token, AccountPasswordResetSetRequest request) {
         // verify the token
         final AccountToken accountToken = accountVerificationService.validateToken(token);
 
         // update the password
-        this.updatePassword(customer.getId(), request.password());
+        this.updatePassword(accountToken.getCustomer().getId(), request.password());
 
+        // set the token as used
         accountToken.setUsed(true);
         accountTokenRepository.save(accountToken);
+
+        // send the email notifying the customer that his password is successfully changed
+        this.sendResetPasswordSuccessEmail(accountToken.getCustomer().getEmail());
     }
 
     /**
-     * Create a token for password reset
+     * Generate a token for password reset
      *
      * @param request the request containing the email of the customer and password
      * @return AccountToken with the token
      */
-    public AccountToken createPasswordResetToken(AccountPasswordResetRequest request) {
+    public AccountToken generatePasswordResetToken(AccountPasswordResetRequest request) {
         Account account = accountRepository
                 .findByCustomer_Email(request.email())
                 .orElseThrow(
@@ -135,7 +139,7 @@ public class AccountPasswordService {
     }
 
     /**
-     * Send email to the customer with password reset link.
+     * Send email to the customer with a link to reset password.
      *
      * @param toEmail the customer's email address to send the email
      * @param token   the token to be included in the email
@@ -153,7 +157,7 @@ public class AccountPasswordService {
     }
 
     /**
-     * Send a success email after resetting the password
+     * Send an email after successfully reset of the password
      *
      * @param toEmail the customer's email address to send the email
      */
