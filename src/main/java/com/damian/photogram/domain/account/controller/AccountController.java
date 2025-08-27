@@ -61,17 +61,17 @@ public class AccountController {
                 .build();
     }
 
-    // endpoint to activate an account
-    @GetMapping("/accounts/activate/{token:.+}")
-    public ResponseEntity<?> activate(
+    // endpoint for account verification
+    @GetMapping("/accounts/verification/{token:.+}")
+    public ResponseEntity<?> verification(
             @PathVariable @NotBlank
             String token
     ) {
 
-        // activate the account using the provided token
+        // verification the account using the provided token
         Account account = accountVerificationService.verifyAccount(token);
 
-        // send email to customer after account has been activated
+        // send email to customer after account has been verificated
         accountVerificationService.sendAccountVerifiedEmail(account.getOwner());
 
         return ResponseEntity
@@ -79,16 +79,16 @@ public class AccountController {
                 .build();
     }
 
-    // endpoint for account to request for account activation email
-    @PostMapping("/accounts/resend-activation")
-    public ResponseEntity<?> resendActivation(
+    // endpoint for account to request for account verification email
+    @PostMapping("/accounts/resend-verification")
+    public ResponseEntity<?> resendVerification(
             @Validated @RequestBody
             AccountActivationResendRequest request
     ) {
-        // generate a new activation token
+        // generate a new verification token
         AccountToken accountToken = accountVerificationService.generateVerificationToken(request.email());
 
-        // send the account activation link
+        // send the account verification link
         accountVerificationService.sendAccountVerificationLinkEmail(request.email(), accountToken.getToken());
 
         return ResponseEntity
