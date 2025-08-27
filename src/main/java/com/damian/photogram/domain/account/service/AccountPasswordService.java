@@ -28,26 +28,26 @@ public class AccountPasswordService {
     private final AccountRepository accountRepository;
     private final EmailSenderService emailSenderService;
     private final CustomerRepository customerRepository;
-    private final AccountTokenVerificationService accountTokenVerificationService;
     private final AccountTokenRepository accountTokenRepository;
     private final Environment env;
+    private final AccountVerificationService accountVerificationService;
 
     public AccountPasswordService(
             BCryptPasswordEncoder bCryptPasswordEncoder,
             AccountRepository accountRepository,
             EmailSenderService emailSenderService,
             CustomerRepository customerRepository,
-            AccountTokenVerificationService accountTokenVerificationService,
             AccountTokenRepository accountTokenRepository,
-            Environment env
+            Environment env,
+            AccountVerificationService accountVerificationService
     ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.accountRepository = accountRepository;
         this.emailSenderService = emailSenderService;
         this.customerRepository = customerRepository;
-        this.accountTokenVerificationService = accountTokenVerificationService;
         this.accountTokenRepository = accountTokenRepository;
         this.env = env;
+        this.accountVerificationService = accountVerificationService;
     }
 
     /**
@@ -105,7 +105,7 @@ public class AccountPasswordService {
         );
 
         // verify the token
-        final AccountToken accountToken = accountTokenVerificationService.verify(token);
+        final AccountToken accountToken = accountVerificationService.validateToken(token);
 
         // update the password
         this.updatePassword(customer.getId(), request.password());

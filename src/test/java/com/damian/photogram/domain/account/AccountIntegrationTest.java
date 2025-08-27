@@ -68,7 +68,7 @@ public class AccountIntegrationTest {
         customer.setRole(CustomerRole.ADMIN);
         customer.setEmail(this.email);
         customer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
         customer.getProfile().setPhone("123 123 123");

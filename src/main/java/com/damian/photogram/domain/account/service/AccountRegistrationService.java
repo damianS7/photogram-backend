@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AccountRegistrationService {
-    private final AccountActivationService accountActivationService;
+    private final AccountVerificationService accountVerificationService;
     private final CustomerService customerService;
 
     public AccountRegistrationService(
-            AccountActivationService accountActivationService,
+            AccountVerificationService accountVerificationService,
             CustomerService customerService
     ) {
-        this.accountActivationService = accountActivationService;
+        this.accountVerificationService = accountVerificationService;
         this.customerService = customerService;
     }
 
@@ -30,10 +30,10 @@ public class AccountRegistrationService {
         Customer registeredCustomer = customerService.createCustomer(request);
 
         // Create a token for the account activation
-        AccountToken accountToken = accountActivationService.createAccountActivationToken(request.email());
+        AccountToken accountToken = accountVerificationService.generateVerificationToken(request.email());
 
         // send the account activation link
-        accountActivationService.sendAccountActivationEmail(request.email(), accountToken.getToken());
+        accountVerificationService.sendAccountVerificationLinkEmail(request.email(), accountToken.getToken());
 
         return registeredCustomer;
     }

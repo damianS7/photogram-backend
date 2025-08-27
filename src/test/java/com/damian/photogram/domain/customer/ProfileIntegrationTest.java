@@ -70,14 +70,14 @@ public class ProfileIntegrationTest {
                                     .setBirthdate(LocalDate.of(1989, 1, 1))
                                     .setImageFilename("avatar.jpg")
                             );
-        customerA.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerA.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerA);
 
         customerB = Customer.create()
                             .setMail("customerB@test.com")
                             .setPassword(bCryptPasswordEncoder.encode(this.rawPassword)
                             );
-        customerB.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerB.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerB);
 
         customerAdmin = Customer.create()
@@ -85,7 +85,7 @@ public class ProfileIntegrationTest {
                                 .setRole(CustomerRole.ADMIN)
                                 .setPassword(bCryptPasswordEncoder.encode(this.rawPassword)
                                 );
-        customerAdmin.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customerAdmin.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerAdmin);
     }
 

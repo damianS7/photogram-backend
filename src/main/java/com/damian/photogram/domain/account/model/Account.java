@@ -28,6 +28,7 @@ public class Account {
     private Instant updatedAt;
 
     public Account() {
+        this.updatedAt = Instant.now();
         this.accountStatus = AccountStatus.PENDING_VERIFICATION;
     }
 
@@ -72,7 +73,7 @@ public class Account {
     }
 
     public boolean isEmailVerified() {
-        return this.accountStatus.equals(AccountStatus.ACTIVE);
+        return this.accountStatus.equals(AccountStatus.VERIFIED);
     }
 
     public AccountStatus getAccountStatus() {

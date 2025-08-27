@@ -53,7 +53,7 @@ public class FeedIntegrationTest {
         customer.setEmail("customer@test.com");
         customer.setPassword(bCryptPasswordEncoder.encode("123456"));
         customer.getProfile().setUsername("customer7777");
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
 
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");

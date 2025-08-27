@@ -2,8 +2,8 @@ package com.damian.photogram.domain.account;
 
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.model.AccountToken;
-import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
+import com.damian.photogram.domain.account.service.AccountVerificationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -41,7 +41,7 @@ public class AccountRegistrationServiceTest {
     private CustomerService customerService;
 
     @Mock
-    private AccountActivationService accountActivationService;
+    private AccountVerificationService accountVerificationService;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
@@ -88,7 +88,7 @@ public class AccountRegistrationServiceTest {
                                                 .setCustomer(givenCustomer);
 
         // when
-        when(accountActivationService.createAccountActivationToken(anyString())).thenReturn(accountToken);
+        when(accountVerificationService.generateVerificationToken(anyString())).thenReturn(accountToken);
         when(customerService.createCustomer(any(AccountRegistrationRequest.class))).thenReturn(givenCustomer);
 
         Customer registeredCustomer = accountRegistrationService.register(registrationRequest);

@@ -79,7 +79,7 @@ public class PostIntegrationTest {
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
                                    .setImageFilename("avatar.jpg")
                            );
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
     }
 

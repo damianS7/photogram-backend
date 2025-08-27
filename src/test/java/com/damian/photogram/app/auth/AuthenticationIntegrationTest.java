@@ -62,7 +62,7 @@ public class AuthenticationIntegrationTest {
         customer.setRole(CustomerRole.ADMIN);
         customer.setEmail(this.email);
         customer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
         customer.getProfile().setPhone("123 123 123");
@@ -83,7 +83,7 @@ public class AuthenticationIntegrationTest {
     @DisplayName("Should login when valid credentials")
     void shouldLoginWhenValidCredentials() throws Exception {
         // given
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
 
         AuthenticationRequest request = new AuthenticationRequest(

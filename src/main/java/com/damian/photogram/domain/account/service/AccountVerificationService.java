@@ -4,8 +4,7 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
-import com.damian.photogram.domain.account.exception.AccountActivationNotPendingException;
-import com.damian.photogram.domain.account.exception.AccountNotFoundException;
+import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
@@ -19,37 +18,34 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
-public class AccountActivationService {
+public class AccountVerificationService {
     private final Environment env;
     private final AccountTokenRepository accountTokenRepository;
     private final AccountRepository accountRepository;
     private final EmailSenderService emailSenderService;
-    private final AccountTokenVerificationService accountTokenVerificationService;
 
-    public AccountActivationService(
+    public AccountVerificationService(
             Environment env,
             AccountTokenRepository accountTokenRepository,
             AccountRepository accountRepository,
-            EmailSenderService emailSenderService,
-            AccountTokenVerificationService accountTokenVerificationService
+            EmailSenderService emailSenderService
     ) {
         this.env = env;
         this.accountTokenRepository = accountTokenRepository;
         this.accountRepository = accountRepository;
         this.emailSenderService = emailSenderService;
-        this.accountTokenVerificationService = accountTokenVerificationService;
     }
 
     /**
      * Activate an account using the token
      *
      * @param token the token to activate the account.
-     * @throws AccountNotFoundException             when the account cannot be found.
-     * @throws AccountActivationNotPendingException when the account is not pending for activation.
+     * @throws AccountNotFoundException               when the account cannot be found.
+     * @throws AccountVerificationNotPendingException when the account is not pending for activation.
      */
-    public Account activate(String token) {
+    public Account verifyAccount(String token) {
         // check the token is valid and not expired.
-        AccountToken accountToken = accountTokenVerificationService.verify(token);
+        AccountToken accountToken = this.validateToken(token);
 
         // find the customer associated with the token
         Account accountCustomer = accountRepository
@@ -60,7 +56,7 @@ public class AccountActivationService {
 
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // mark the token as used
@@ -69,34 +65,65 @@ public class AccountActivationService {
 
         // update account status to active
         accountCustomer.setAccountStatus(
-                AccountStatus.ACTIVE
+                AccountStatus.VERIFIED
         );
+
+        // set the time at what the account was updated
+        accountCustomer.setUpdatedAt(Instant.now());
 
         return accountRepository.save(accountCustomer);
     }
 
     /**
-     * It sends a welcome message to the customer email address after activation.
+     * Validate if the token matches with the one in the database
+     * also run checks for expiration and usage of the token.
+     *
+     * @param token the token to verify
+     * @return AccountToken the token entity
+     */
+    public AccountToken validateToken(String token) {
+        // check the token if it matches with the one in database
+        AccountToken accountToken = accountTokenRepository
+                .findByToken(token)
+                .orElseThrow(
+                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT_ACTIVATION.INVALID_TOKEN)
+                );
+
+        // check expiration
+        if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
+            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT_ACTIVATION.EXPIRED_TOKEN);
+        }
+
+        // check if token is already used
+        if (accountToken.isUsed()) {
+            throw new AccountVerificationTokenUsedException(Exceptions.ACCOUNT_ACTIVATION.TOKEN_USED);
+        }
+
+        return accountToken;
+    }
+
+    /**
+     * It sends a welcome message to the customer email address after verification.
      *
      * @param customer The customer to send a welcome message to.
      */
-    public void sendAccountActivatedEmail(Customer customer) {
+    public void sendAccountVerifiedEmail(Customer customer) {
         emailSenderService.send(
                 customer.getEmail(),
-                "Welcome to photogram!",
-                "Your account has been activated successfully."
+                "Welcome to Photogram!",
+                "Your account has been verified successfully."
         );
     }
 
     /**
-     * Generate an activation token to the customer associated to the customer email address.
+     * Create a new verification token associated to the customer.
      *
      * @param email The email address of the customer.
-     * @return An AccountToken object containing the activation token.
-     * @throws AccountNotFoundException             If the customer is not found.
-     * @throws AccountActivationNotPendingException If the account activation is not pending.
+     * @return An AccountToken object containing the verification token.
+     * @throws AccountNotFoundException               If the customer is not found.
+     * @throws AccountVerificationNotPendingException If the account is not pending for verification.
      */
-    public AccountToken createAccountActivationToken(String email) {
+    public AccountToken generateVerificationToken(String email) {
         // retrieve the customer by email
         Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
                 () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND_BY_EMAIL)
@@ -104,7 +131,7 @@ public class AccountActivationService {
 
         // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountActivationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // check if AccountToken exists orElse create a new one
@@ -133,7 +160,7 @@ public class AccountActivationService {
      * @param email The email address to send the verification link to.
      * @param token The token that will be used to verify the user's account.
      */
-    public void sendAccountActivationEmail(String email, String token) {
+    public void sendAccountVerificationLinkEmail(String email, String token) {
 
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
@@ -143,7 +170,7 @@ public class AccountActivationService {
         // Send email to confirm registration
         emailSenderService.send(
                 email,
-                "Photogram account activation link.",
+                "Photogram account verification link.",
                 "Please click on the link below to confirm your registration: \n\n" + activationLink
         );
     }

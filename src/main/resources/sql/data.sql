@@ -19,7 +19,7 @@ INSERT INTO public.customer_profiles (customer_id, username,first_name,last_name
 	 (8, 'Thom.b4','Thomas','Brown','901 322 223','1993-07-04','MALE'::public."customer_gender_type",NULL,NULL,'2025-04-28 01:48:28.903419'),
 	 (9, 'MLRX5','Michael','Brown','901 322 223','1993-07-04','MALE'::public."customer_gender_type",NULL,NULL,'2025-04-28 01:48:28.903419');
 INSERT INTO public.customer_auth (customer_id,password_hash,account_status,updated_at) VALUES
-	 (1,'$2a$10$hyxP/Azy1W1OjjhRarmDzO3J.CcMc5n1D4UzQJKUD4YD/yPV4AL06','ACTIVE'::public."account_status_type",'2025-04-28 13:11:10.477439'),
+	 (1,'$2a$10$hyxP/Azy1W1OjjhRarmDzO3J.CcMc5n1D4UzQJKUD4YD/yPV4AL06','VERIFIED'::public."account_status_type",'2025-04-28 13:11:10.477439'),
 	 (2,'$2a$10$hyxP/Azy1W1OjjhRarmDzO3J.CcMc5n1D4UzQJKUD4YD/yPV4AL06','PENDING_VERIFICATION'::public."account_status_type",'2025-04-28 13:11:10.477439'),
 	 (3,'$2a$10$hyxP/Azy1W1OjjhRarmDzO3J.CcMc5n1D4UzQJKUD4YD/yPV4AL06','PENDING_VERIFICATION'::public."account_status_type",'2025-04-28 13:11:10.477439'),
 	 (4,'$2a$10$hyxP/Azy1W1OjjhRarmDzO3J.CcMc5n1D4UzQJKUD4YD/yPV4AL06','PENDING_VERIFICATION'::public."account_status_type",'2025-04-28 13:11:10.477439'),

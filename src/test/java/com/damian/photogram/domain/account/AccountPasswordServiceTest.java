@@ -12,7 +12,7 @@ import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
-import com.damian.photogram.domain.account.service.AccountTokenVerificationService;
+import com.damian.photogram.domain.account.service.AccountVerificationService;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
+@ExtendWith(MockitoExtension.class)
 public class AccountPasswordServiceTest {
 
     private final String RAW_PASSWORD = "123456";
@@ -55,7 +55,7 @@ public class AccountPasswordServiceTest {
     private AccountTokenRepository accountTokenRepository;
 
     @Mock
-    private AccountTokenVerificationService accountTokenVerificationService;
+    private AccountVerificationService accountVerificationService;
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -260,7 +260,7 @@ public class AccountPasswordServiceTest {
         // when
         when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
         when(accountRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getAccount()));
-        when(accountTokenVerificationService.verify(token.getToken())).thenReturn(token);
+        when(accountVerificationService.validateToken(token.getToken())).thenReturn(token);
         when(bCryptPasswordEncoder.encode(rawNewPassword)).thenReturn(encodedNewPassword);
         when(accountRepository.save(any(Account.class))).thenReturn(customer.getAccount());
         accountPasswordService.updatePassword(token.getToken(), passwordResetRequest);

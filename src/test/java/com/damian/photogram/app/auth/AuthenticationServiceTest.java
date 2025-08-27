@@ -65,7 +65,7 @@ public class AuthenticationServiceTest {
                 "alice@gmail.com",
                 "123456"
         );
-        customer.getAccount().setAccountStatus(AccountStatus.ACTIVE);
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
 

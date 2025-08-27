@@ -3,9 +3,9 @@ package com.damian.photogram.domain.account.controller;
 import com.damian.photogram.domain.account.dto.request.*;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
-import com.damian.photogram.domain.account.service.AccountActivationService;
 import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
+import com.damian.photogram.domain.account.service.AccountVerificationService;
 import com.damian.photogram.domain.customer.dto.response.CustomerWithProfileDto;
 import com.damian.photogram.domain.customer.mapper.CustomerDtoMapper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -21,16 +21,16 @@ public class AccountController {
 
     private final AccountRegistrationService accountRegistrationService;
     private final AccountPasswordService accountPasswordService;
-    private final AccountActivationService accountActivationService;
+    private final AccountVerificationService accountVerificationService;
 
     public AccountController(
             AccountRegistrationService accountRegistrationService,
             AccountPasswordService accountPasswordService,
-            AccountActivationService accountActivationService
+            AccountVerificationService accountVerificationService
     ) {
         this.accountRegistrationService = accountRegistrationService;
         this.accountPasswordService = accountPasswordService;
-        this.accountActivationService = accountActivationService;
+        this.accountVerificationService = accountVerificationService;
     }
 
     // endpoint for account registration
@@ -69,10 +69,10 @@ public class AccountController {
     ) {
 
         // activate the account using the provided token
-        Account account = accountActivationService.activate(token);
+        Account account = accountVerificationService.verifyAccount(token);
 
         // send email to customer after account has been activated
-        accountActivationService.sendAccountActivatedEmail(account.getOwner());
+        accountVerificationService.sendAccountVerifiedEmail(account.getOwner());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -86,10 +86,10 @@ public class AccountController {
             AccountActivationResendRequest request
     ) {
         // generate a new activation token
-        AccountToken accountToken = accountActivationService.createAccountActivationToken(request.email());
+        AccountToken accountToken = accountVerificationService.generateVerificationToken(request.email());
 
         // send the account activation link
-        accountActivationService.sendAccountActivationEmail(request.email(), accountToken.getToken());
+        accountVerificationService.sendAccountVerificationLinkEmail(request.email(), accountToken.getToken());
 
         return ResponseEntity
                 .status(HttpStatus.OK)

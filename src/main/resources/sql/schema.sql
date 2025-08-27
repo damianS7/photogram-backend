@@ -49,7 +49,7 @@ CREATE TABLE public.customer_profiles (
 CREATE TYPE public."account_status_type" AS ENUM (
 	'PENDING_VERIFICATION',
 	'SUSPENDED',
-	'ACTIVE'
+	'VERIFIED'
 );
 
 CREATE CAST (varchar as account_status_type) WITH INOUT AS IMPLICIT;
@@ -66,7 +66,7 @@ CREATE TABLE public.customer_auth (
 );
 
 CREATE TYPE public."auth_token_type" AS ENUM (
-	'ACCOUNT_ACTIVATION',
+	'ACCOUNT_VERIFICATION',
 	'RESET_PASSWORD'
 );
 
