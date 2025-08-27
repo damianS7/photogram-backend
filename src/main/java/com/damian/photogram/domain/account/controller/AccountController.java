@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.account.controller;
 
+import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.dto.request.*;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
@@ -76,7 +77,7 @@ public class AccountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .build();
+                .body(ApiResponse.success("Your account has been verified. You can now log in with your credentials."));
     }
 
     // endpoint for account to request for account verification email
@@ -93,7 +94,7 @@ public class AccountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .build();
+                .body(ApiResponse.success("A verification link has been sent to your email."));
     }
 
     // endpoint to request for a reset password
@@ -113,7 +114,7 @@ public class AccountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .build();
+                .body(ApiResponse.success("A password reset link has been sent to your email address."));
     }
 
     // endpoint to set a new password using token
@@ -129,6 +130,6 @@ public class AccountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .build();
+                .body(ApiResponse.success("Password reset successfully."));
     }
 }
