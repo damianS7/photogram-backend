@@ -56,7 +56,7 @@ public class AccountVerificationService {
 
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // mark the token as used
@@ -86,17 +86,17 @@ public class AccountVerificationService {
         AccountToken accountToken = accountTokenRepository
                 .findByToken(token)
                 .orElseThrow(
-                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT_ACTIVATION.INVALID_TOKEN)
+                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.VERIFICATION.TOKEN_NOT_FOUND)
                 );
 
         // check expiration
         if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
-            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT_ACTIVATION.EXPIRED_TOKEN);
+            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT.VERIFICATION.EXPIRED_TOKEN);
         }
 
         // check if token is already used
         if (accountToken.isUsed()) {
-            throw new AccountVerificationTokenUsedException(Exceptions.ACCOUNT_ACTIVATION.TOKEN_USED);
+            throw new AccountVerificationTokenUsedException(Exceptions.ACCOUNT.VERIFICATION.TOKEN_USED);
         }
 
         return accountToken;
@@ -131,7 +131,7 @@ public class AccountVerificationService {
 
         // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT_ACTIVATION.NOT_ELEGIBLE_FOR_ACTIVATION);
+            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELEGIBLE_FOR_ACTIVATION);
         }
 
         // check if AccountToken exists orElse create a new one
