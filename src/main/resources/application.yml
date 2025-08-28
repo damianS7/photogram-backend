@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
 server:
   port: 8090
 jwt:
