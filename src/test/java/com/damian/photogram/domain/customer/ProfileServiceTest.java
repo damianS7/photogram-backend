@@ -187,7 +187,7 @@ public class ProfileServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.PROFILE.ACCESS_FORBIDDEN, exception.getMessage());
+        assertEquals(Exceptions.PROFILE.NOT_OWNER, exception.getMessage());
     }
 
     @Test

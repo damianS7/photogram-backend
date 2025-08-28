@@ -40,7 +40,7 @@ public class PostImageService {
     private void validateImageOrThrow(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new PostImageFileSizeExceededException(
-                    Exceptions.POSTS.IMAGE.FILE_SIZE_LIMIT
+                    Exceptions.POSTS.IMAGE.TOO_LARGE
             );
         }
     }

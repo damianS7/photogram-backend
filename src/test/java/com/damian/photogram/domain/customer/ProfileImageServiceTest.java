@@ -218,6 +218,6 @@ public class ProfileImageServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.PROFILE.IMAGE.FILE_SIZE_LIMIT, exception.getMessage());
+        assertEquals(Exceptions.PROFILE.IMAGE.TOO_LARGE, exception.getMessage());
     }
 }

@@ -125,7 +125,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    ImageInvalidException.class,
                     ImageTypeNotAllowedException.class
             }
     )

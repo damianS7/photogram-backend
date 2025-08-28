@@ -38,11 +38,11 @@ public class ImageUploaderService {
                 .anyMatch(ct -> ct.equalsIgnoreCase(contentType));
 
         if (!imageTypeAllowed) {
-            throw new ImageTypeNotAllowedException(Exceptions.IMAGE.TYPE_NOT_ALLOWED);
+            throw new ImageTypeNotAllowedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED);
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new ImageFileSizeExceededException(Exceptions.IMAGE.FILE_SIZE_LIMIT);
+            throw new ImageFileSizeExceededException(Exceptions.IMAGE.TOO_LARGE);
         }
     }
 

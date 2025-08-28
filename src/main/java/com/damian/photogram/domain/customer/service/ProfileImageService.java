@@ -41,7 +41,7 @@ public class ProfileImageService {
     private void validateImageOrElseThrow(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new ImageFileSizeExceededException(
-                    Exceptions.PROFILE.IMAGE.FILE_SIZE_LIMIT
+                    Exceptions.PROFILE.IMAGE.TOO_LARGE
             );
         }
     }

@@ -25,7 +25,7 @@ public class ProfileAuthorizationHelper {
         if (!profile.getOwner().getId().equals(customer.getId())) {
             // banking card does not belong to this customer
             throw new ProfileNotOwnerException(
-                    Exceptions.PROFILE.ACCESS_FORBIDDEN
+                    Exceptions.PROFILE.NOT_OWNER
             );
         }
         return this;

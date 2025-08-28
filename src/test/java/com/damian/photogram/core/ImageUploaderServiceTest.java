@@ -86,7 +86,7 @@ public class ImageUploaderServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.IMAGE.TYPE_NOT_ALLOWED, exception.getMessage());
+        assertEquals(Exceptions.IMAGE.TYPE_NOT_SUPPORTED, exception.getMessage());
     }
 
     @Test
@@ -107,6 +107,6 @@ public class ImageUploaderServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.IMAGE.FILE_SIZE_LIMIT, exception.getMessage());
+        assertEquals(Exceptions.IMAGE.TOO_LARGE, exception.getMessage());
     }
 }
