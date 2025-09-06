@@ -1,8 +1,10 @@
 package com.damian.photogram.app.notification.dto;
 
-public record LikeNotificationEvent(
+public record NotificationEvent(
         Long postId,
-        String username,
+        Long senderId,
+        String senderUsername,
+        Long recipientId,
         String content,
         String createdAt
 ) {

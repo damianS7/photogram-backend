@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.app.notification.NotificationService;
-import com.damian.photogram.app.notification.dto.CommentNotificationEvent;
+import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -101,12 +101,14 @@ public class CommentService {
 
     // TODO
     public void notifyComment(Comment comment) {
-        CommentNotificationEvent notificationEvent = new CommentNotificationEvent(
+        NotificationEvent notificationEvent = new NotificationEvent(
                 comment.getPost().getId(),
+                comment.getAuthor().getId(),
                 comment.getAuthor().getProfile().getUsername(),
+                comment.getPost().getAuthor().getId(),
                 comment.getAuthor().getProfile().getUsername() + " comment your post.",
                 comment.getCreatedAt().toString()
         );
-        notificationService.publish(notificationEvent);
+        notificationService.publish(notificationEvent, comment.getPost().getAuthor().getId());
     }
 }
