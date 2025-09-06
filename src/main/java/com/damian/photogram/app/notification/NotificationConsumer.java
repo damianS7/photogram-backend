@@ -14,8 +14,6 @@ public class NotificationConsumer {
 
     @RabbitListener(queues = RabbitConfig.QUEUE)
     public void receiveMessage(String message) {
-        //        Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        //        System.out.println(message);
         notificationService.publish(message);
     }
 }
