@@ -7,9 +7,12 @@ database:
 	docker compose -f compose.yaml up -d --no-deps --build database
 mailpit:
 	docker compose -f compose.yaml up -d --no-deps --build mailpit
+rabbitmq:
+	docker compose -f compose.yaml up -d --no-deps --build rabbitmq
 deploy:
 	./mvnw clean package -DskipTests && docker compose -f compose.yaml up -d --build
 
+deploy-rabbitmq: rabbitmq
 deploy-mail: mailpit
 deploy-backend: backend
 deploy-database: database

@@ -1,5 +1,7 @@
 package com.damian.photogram.domain.customer.service;
 
+import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.dto.FollowNotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.*;
@@ -17,13 +19,16 @@ public class FollowService {
     private final short MAX_FOLLOWS = 20;
     private final FollowRepository followRepository;
     private final CustomerRepository customerRepository;
+    private final NotificationService notificationService;
 
     public FollowService(
             FollowRepository followRepository,
-            CustomerRepository customerRepository
+            CustomerRepository customerRepository,
+            NotificationService notificationService
     ) {
         this.followRepository = followRepository;
         this.customerRepository = customerRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -167,5 +172,16 @@ public class FollowService {
 
         // delete the follow relationship from the database
         followRepository.deleteById(follow.getId());
+    }
+
+    // TODO
+    public void notifyFollow(Follow follow) {
+        notificationService.publish(new FollowNotificationEvent(
+                follow.getFollowerCustomer().getId(),
+                follow.getFollowedCustomer().getId(),
+                follow.getFollowerCustomer().getProfile().getUsername(),
+                follow.getFollowerCustomer().getProfile().getUsername() + " has follow you.",
+                follow.getCreatedAt().toString()
+        ));
     }
 }

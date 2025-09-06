@@ -1,5 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
+import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.dto.CommentNotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -20,13 +22,16 @@ import org.springframework.stereotype.Service;
 public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     public CommentService(
             PostRepository postRepository,
-            CommentRepository commentRepository
+            CommentRepository commentRepository,
+            NotificationService notificationService
     ) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -92,5 +97,16 @@ public class CommentService {
 
         // delete the comment
         commentRepository.deleteById(id);
+    }
+
+    // TODO
+    public void notifyComment(Comment comment) {
+        CommentNotificationEvent notificationEvent = new CommentNotificationEvent(
+                comment.getPost().getId(),
+                comment.getAuthor().getProfile().getUsername(),
+                comment.getAuthor().getProfile().getUsername() + " comment your post.",
+                comment.getCreatedAt().toString()
+        );
+        notificationService.publish(notificationEvent);
     }
 }

@@ -3,6 +3,11 @@ app:
     host: "localhost"
     port: 8080
 spring:
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASS}
   datasource:
     url: jdbc:postgresql://localhost:5440/postgres
     username: ${DB_USER}

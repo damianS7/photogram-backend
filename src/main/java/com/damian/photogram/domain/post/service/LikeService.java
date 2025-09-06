@@ -1,5 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
+import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.dto.LikeNotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -18,13 +20,16 @@ import org.springframework.stereotype.Service;
 public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     public LikeService(
             LikeRepository likeRepository,
-            PostRepository postRepository
+            PostRepository postRepository,
+            NotificationService notificationService
     ) {
         this.likeRepository = likeRepository;
         this.postRepository = postRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -102,5 +107,15 @@ public class LikeService {
                 );
 
         likeRepository.deleteById(like.getId());
+    }
+
+    public void likeNotification(Like like) {
+        LikeNotificationEvent notificationEvent = new LikeNotificationEvent(
+                like.getPost().getId(),
+                like.getCustomer().getUsername(),
+                like.getCustomer().getProfile().getUsername() + " liked your post.",
+                like.getCreatedAt().toString()
+        );
+        notificationService.publish(notificationEvent);
     }
 }

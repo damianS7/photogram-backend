@@ -42,6 +42,7 @@ public class LikeController {
             Long postId
     ) {
         Like like = likeService.like(postId);
+        likeService.likeNotification(like);
         LikeDto likeDto = LikeDtoMapper.toLikeDto(like);
 
         return ResponseEntity

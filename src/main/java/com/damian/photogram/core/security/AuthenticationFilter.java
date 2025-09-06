@@ -7,6 +7,7 @@ import com.damian.photogram.core.service.CustomerDetailsService;
 import com.damian.photogram.core.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
@@ -61,17 +62,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         // Get the Authorization header.
-        final String authHeader = request.getHeader("Authorization");
+        final String jwtToken = this.extractToken(request);
 
         // If the header is null or does not start with "Bearer " then we
         // don't have a token, so we can just continue the filter chain.
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // Extract the JWT from the Authorization header.
-        final String jwtToken = authHeader.substring(7);
 
         // Check if the token has expired.
         if (!jwtUtil.isTokenValid(jwtToken)) {
@@ -126,5 +124,24 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         // Continue the filter chain.
         filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        // First find the token in the header
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+
+        // Find the token in a cookie
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null; // no token found
     }
 }

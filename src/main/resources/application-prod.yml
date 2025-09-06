@@ -3,6 +3,11 @@ app:
     host: "photogram.local"
     port: 8080
 spring:
+  rabbitmq:
+    host: ${RABBIT_HOST:rabbitmq}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASS}
   mail:
     host: ${MAIL_HOST:mailpit}
     port: ${MAIL_PORT:1025}
