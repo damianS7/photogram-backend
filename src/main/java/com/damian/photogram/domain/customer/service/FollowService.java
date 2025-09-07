@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.customer.service;
 
+import com.damian.photogram.app.notification.NotificationEventType;
 import com.damian.photogram.app.notification.NotificationService;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
@@ -178,11 +179,12 @@ public class FollowService {
     public void notifyFollow(Follow follow) {
         notificationService.publish(
                 new NotificationEvent(
+                        NotificationEventType.FOLLOW,
                         0L,
                         follow.getFollowerCustomer().getId(),
                         follow.getFollowerCustomer().getProfile().getUsername(),
                         follow.getFollowerCustomer().getId(),
-                        follow.getFollowerCustomer().getProfile().getUsername() + " has follow you.",
+                        " has follow you.",
                         follow.getCreatedAt().toString()
                 ), follow.getFollowedCustomer().getId()
         );

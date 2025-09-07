@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.post.service;
 
+import com.damian.photogram.app.notification.NotificationEventType;
 import com.damian.photogram.app.notification.NotificationService;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
@@ -109,13 +110,15 @@ public class LikeService {
         likeRepository.deleteById(like.getId());
     }
 
+    // TODO
     public void likeNotification(Like like) {
         NotificationEvent notificationEvent = new NotificationEvent(
+                NotificationEventType.LIKE,
                 like.getPost().getId(),
                 like.getCustomer().getId(),
-                like.getCustomer().getUsername(),
+                like.getCustomer().getProfile().getUsername(),
                 like.getPost().getAuthor().getId(),
-                like.getCustomer().getProfile().getUsername() + " liked your post.",
+                " liked your post.",
                 like.getCreatedAt().toString()
         );
         notificationService.publish(notificationEvent, like.getPost().getAuthor().getId());
