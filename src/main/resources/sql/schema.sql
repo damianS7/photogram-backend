@@ -127,6 +127,23 @@ CREATE TABLE public.customer_post_comments (
     CONSTRAINT post_id_fkey FOREIGN KEY (post_id) REFERENCES public.customer_posts(id) ON DELETE CASCADE
 );
 
+CREATE TYPE public."notification_type" AS ENUM (
+	'LIKE',
+	'FOLLOW',
+	'COMMENT'
+);
+CREATE CAST (varchar as notification_type) WITH INOUT AS IMPLICIT;
+CREATE TABLE public.customer_notifications (
+	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
+	customer_id int4 NOT NULL,
+	type public."notification_type" NOT NULL,
+	message varchar(255) NOT NULL,
+	metadata jsonb NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT customer_notifications_pkey PRIMARY KEY (id),
+    CONSTRAINT customer_notifications_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
+);
+
 CREATE TABLE public.customer_settings (
 	id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
 	customer_id int4 NOT NULL,
