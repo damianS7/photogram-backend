@@ -1,5 +1,6 @@
 package com.damian.photogram.app.notification;
 
+import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.config.RabbitConfig;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public class NotificationConsumer {
     }
 
     @RabbitListener(queues = RabbitConfig.QUEUE)
-    public void receiveMessage(String message) {
-        notificationService.publish(message);
+    public void receiveMessage(NotificationEvent notification) {
+        notificationService.publish(notification);
     }
 }
