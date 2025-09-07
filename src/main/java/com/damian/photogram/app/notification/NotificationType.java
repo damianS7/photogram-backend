@@ -1,6 +1,6 @@
 package com.damian.photogram.app.notification;
 
-public enum NotificationEventType {
+public enum NotificationType {
     LIKE,
     COMMENT,
     FOLLOW
