@@ -1,9 +1,9 @@
 package com.damian.photogram.app.notification.dto;
 
-import com.damian.photogram.app.notification.NotificationEventType;
+import com.damian.photogram.app.notification.NotificationType;
 
 public record NotificationEvent(
-        NotificationEventType type,
+        NotificationType type,
         Long postId,
         Long senderId,
         String senderUsername,
