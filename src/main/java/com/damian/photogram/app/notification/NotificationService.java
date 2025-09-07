@@ -42,6 +42,11 @@ public class NotificationService {
     }
 
     public void publish(NotificationEvent event, Long recipientId) {
+        // if the receiverId is the same as senderId then do nothing
+        if (event.senderId().equals(recipientId)) {
+            return;
+        }
+
         var sink = userSinks.get(recipientId);
         if (sink != null) {
             sink.tryEmitNext(event);
