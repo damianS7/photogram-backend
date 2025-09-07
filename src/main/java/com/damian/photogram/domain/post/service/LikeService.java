@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
-import com.damian.photogram.app.notification.NotificationEventType;
 import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
@@ -15,6 +15,8 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service
@@ -65,7 +67,7 @@ public class LikeService {
      * @throws PostNotFoundException     If the post does not exist.
      * @throws PostAlreadyLikedException If the post is already liked by the current customer.
      */
-    public Like like(Long postId) {
+    public Like likePost(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // find the post to like
@@ -82,6 +84,32 @@ public class LikeService {
         return likeRepository.save(
                 new Like(post, currentCustomer)
         );
+    }
+
+    // TODO
+
+    /**
+     * It generates a notification for the like.
+     *
+     * @param like
+     */
+    public void publishLikeNotification(Like like) {
+        Map<String, Object> metadata = Map.of(
+                "postId", like.getPost().getId(),
+                "username", like.getCustomer().getProfile().getUsername()
+        );
+
+        String message = metadata.get("username") + " has liked your post.";
+
+        NotificationEvent notification = new NotificationEvent(
+                like.getPost().getAuthor().getId(),
+                NotificationType.LIKE,
+                metadata,
+                message,
+                like.getCreatedAt().toString()
+        );
+
+        notificationService.publish(notification);
     }
 
     /**
@@ -108,19 +136,5 @@ public class LikeService {
                 );
 
         likeRepository.deleteById(like.getId());
-    }
-
-    // TODO
-    public void likeNotification(Like like) {
-        NotificationEvent notificationEvent = new NotificationEvent(
-                NotificationEventType.LIKE,
-                like.getPost().getId(),
-                like.getCustomer().getId(),
-                like.getCustomer().getProfile().getUsername(),
-                like.getPost().getAuthor().getId(),
-                " liked your post.",
-                like.getCreatedAt().toString()
-        );
-        notificationService.publish(notificationEvent, like.getPost().getAuthor().getId());
     }
 }

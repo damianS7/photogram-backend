@@ -64,7 +64,7 @@ public class LikeServiceTest {
 
     @Test
     @DisplayName("Should like a post")
-    void shouldLike() {
+    void shouldLikePost() {
         // given
         Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
@@ -82,7 +82,7 @@ public class LikeServiceTest {
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
         when(likeRepository.isPostLikedByCustomer(post.getId(), currentCustomer.getId())).thenReturn(false);
         when(likeRepository.save(any(Like.class))).thenReturn(like);
-        Like result = likeService.like(post.getId());
+        Like result = likeService.likePost(post.getId());
 
         // then
         assertThat(result)
@@ -93,7 +93,7 @@ public class LikeServiceTest {
 
     @Test
     @DisplayName("Should not like when post not found")
-    void shouldNotLikeWhenPostNotFound() {
+    void shouldNotLikePostWhenPostNotFound() {
         // given
         Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
@@ -110,14 +110,14 @@ public class LikeServiceTest {
         // then
         assertThrows(
                 PostNotFoundException.class,
-                () -> likeService.like(post.getId())
+                () -> likeService.likePost(post.getId())
         );
 
     }
 
     @Test
     @DisplayName("Should not like when post already liked")
-    void shouldNotLikeWhenPostWhenPostAlreadyLiked() {
+    void shouldNotLikePostWhenPostWhenPostAlreadyLiked() {
         // given
         Customer currentCustomer = new Customer(
                 1L, "customer@test.com",
@@ -136,7 +136,7 @@ public class LikeServiceTest {
         // then
         assertThrows(
                 PostAlreadyLikedException.class,
-                () -> likeService.like(post.getId())
+                () -> likeService.likePost(post.getId())
         );
 
     }

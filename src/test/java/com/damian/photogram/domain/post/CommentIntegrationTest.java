@@ -134,7 +134,7 @@ public class CommentIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("content");
+        JsonNode contentNode = root.get("message");
 
         CommentDto[] commentsDto = objectMapper.treeToValue(contentNode, CommentDto[].class);
 

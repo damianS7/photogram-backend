@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post.service;
 
-import com.damian.photogram.app.notification.NotificationEventType;
 import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
@@ -17,6 +17,8 @@ import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service
@@ -101,16 +103,22 @@ public class CommentService {
     }
 
     // TODO
-    public void notifyComment(Comment comment) {
-        NotificationEvent notificationEvent = new NotificationEvent(
-                NotificationEventType.COMMENT,
-                comment.getPost().getId(),
-                comment.getAuthor().getId(),
-                comment.getAuthor().getProfile().getUsername(),
+    public void publishCommentNotification(Comment comment) {
+        Map<String, Object> metadata = Map.of(
+                "postId", comment.getPost().getId(),
+                "username", comment.getAuthor().getProfile().getUsername()
+        );
+
+        String message = metadata.get("username") + " has comment your post.";
+
+        NotificationEvent notification = new NotificationEvent(
                 comment.getPost().getAuthor().getId(),
-                " comment your post.",
+                NotificationType.COMMENT,
+                metadata,
+                message,
                 comment.getCreatedAt().toString()
         );
-        notificationService.publish(notificationEvent, comment.getPost().getAuthor().getId());
+
+        notificationService.publish(notification);
     }
 }

@@ -41,8 +41,8 @@ public class LikeController {
             @PathVariable @NotNull @Positive
             Long postId
     ) {
-        Like like = likeService.like(postId);
-        likeService.likeNotification(like);
+        Like like = likeService.likePost(postId);
+        likeService.publishLikeNotification(like);
         LikeDto likeDto = LikeDtoMapper.toLikeDto(like);
 
         return ResponseEntity

@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.customer.service;
 
-import com.damian.photogram.app.notification.NotificationEventType;
 import com.damian.photogram.app.notification.NotificationService;
+import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.AuthHelper;
@@ -13,6 +13,8 @@ import com.damian.photogram.domain.customer.repository.FollowRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service
@@ -176,17 +178,21 @@ public class FollowService {
     }
 
     // TODO
-    public void notifyFollow(Follow follow) {
-        notificationService.publish(
-                new NotificationEvent(
-                        NotificationEventType.FOLLOW,
-                        0L,
-                        follow.getFollowerCustomer().getId(),
-                        follow.getFollowerCustomer().getProfile().getUsername(),
-                        follow.getFollowerCustomer().getId(),
-                        " has follow you.",
-                        follow.getCreatedAt().toString()
-                ), follow.getFollowedCustomer().getId()
+    public void publishFollowNotification(Follow follow) {
+        Map<String, Object> metadata = Map.of(
+                "username", follow.getFollowerCustomer().getProfile().getUsername()
         );
+
+        String message = metadata.get("username") + " has follow you.";
+
+        NotificationEvent notification = new NotificationEvent(
+                follow.getFollowedCustomer().getId(),
+                NotificationType.FOLLOW,
+                metadata,
+                message,
+                follow.getCreatedAt().toString()
+        );
+
+        notificationService.publish(notification);
     }
 }

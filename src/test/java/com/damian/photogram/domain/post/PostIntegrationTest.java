@@ -129,7 +129,7 @@ public class PostIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("content");
+        JsonNode contentNode = root.get("message");
 
         PostDto[] postsDto = objectMapper.treeToValue(contentNode, PostDto[].class);
 
