@@ -32,6 +32,10 @@ public class Follow {
         this.followerCustomer = followerCustomer;
     }
 
+    public static Follow create(Customer customer) {
+        return new Follow(null, customer);
+    }
+
     public static Follow create() {
         return new Follow();
     }
@@ -71,6 +75,10 @@ public class Follow {
         return this;
     }
 
+    public Follow follows(Customer followedCustomer) {
+        return this.setFollowedCustomer(followedCustomer);
+    }
+
     public Customer getFollowerCustomer() {
         return followerCustomer;
     }
@@ -78,5 +86,9 @@ public class Follow {
     public Follow setFollowerCustomer(Customer followerCustomer) {
         this.followerCustomer = followerCustomer;
         return this;
+    }
+
+    public Follow follower(Customer follower) {
+        return this.setFollowerCustomer(follower);
     }
 }

@@ -152,7 +152,9 @@ public class FollowService {
 
         // save the follow relationship in the database
         return followRepository.save(
-                new Follow(customerToFollow, currentCustomer)
+                Follow.create()
+                      .follower(currentCustomer)
+                      .follows(customerToFollow)
         );
     }
 
