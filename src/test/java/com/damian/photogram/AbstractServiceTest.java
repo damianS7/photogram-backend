@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AbstractServiceTest {
+public abstract class AbstractServiceTest {
     protected final String RAW_PASSWORD = "123456";
 
     //    @Mock
