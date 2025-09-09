@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.post;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.domain.post.exception.CommentNotAuthorException;
@@ -10,23 +11,14 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.post.service.CommentService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 import java.util.Set;
@@ -35,8 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class CommentServiceTest {
+public class CommentServiceTest extends AbstractServiceTest {
 
     @Mock
     private PostRepository postRepository;
@@ -44,30 +35,9 @@ public class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
-
     @InjectMocks
     private CommentService commentService;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
-    }
-
+    
     @Test
     @DisplayName("Should get comments paginated")
     void shouldGetCommentsPaginated() {

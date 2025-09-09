@@ -1,25 +1,14 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-    hikari:
-      maximum-pool-size: 2
-
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop  # Crea y borra la BD en cada test
-    show-sql: false  # Muestra las consultas SQL en la consola
+      ddl-auto: create-drop
+    show-sql: true
     properties:
       hibernate:
-        format_sql: true  # Formatea mejor los logs SQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   mail:
     host: localhost
     port: 1025
@@ -32,7 +21,7 @@ spring:
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: DEBUG           # muestra las sentencias SQL
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # muestra los valores que se pasan a los parámetros
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
     org.springframework.jdbc.core.StatementCreatorUtils: TRACE

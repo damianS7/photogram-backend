@@ -1,21 +1,19 @@
 package com.damian.photogram.app.auth;
 
+import com.damian.photogram.AbstractIntegrationTest;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -27,26 +25,12 @@ import java.util.Map;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuthorizationIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    private String rawPassword = "123456";
     private Customer customer;
     private Customer admin;
 
@@ -54,7 +38,7 @@ public class AuthorizationIntegrationTest {
     void setUp() {
         customer = new Customer();
         customer.setEmail("customer@test.com");
-        customer.setPassword(bCryptPasswordEncoder.encode(rawPassword));
+        customer.setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD));
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
         customer.getProfile().setPhone("123 123 123");
@@ -66,15 +50,10 @@ public class AuthorizationIntegrationTest {
 
         admin = new Customer();
         admin.setEmail("admin@test.com");
-        admin.setPassword(bCryptPasswordEncoder.encode(rawPassword));
-        admin.setRole(CustomerRole.ADMIN);
+        admin.setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD));
+        admin.setRole(UserRole.ADMIN);
 
         customerRepository.save(admin);
-    }
-
-    @AfterAll
-    void tearDown() {
-        customerRepository.deleteAll();
     }
 
     @Test
@@ -113,7 +92,7 @@ public class AuthorizationIntegrationTest {
         fields.put("gender", CustomerGender.FEMALE);
 
         ProfileUpdateRequest request = new ProfileUpdateRequest(
-                this.rawPassword,
+                this.RAW_PASSWORD,
                 fields
         );
 
@@ -146,7 +125,7 @@ public class AuthorizationIntegrationTest {
         fields.put("gender", CustomerGender.FEMALE);
 
         ProfileUpdateRequest request = new ProfileUpdateRequest(
-                this.rawPassword,
+                this.RAW_PASSWORD,
                 fields
         );
 

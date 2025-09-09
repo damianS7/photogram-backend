@@ -1,25 +1,19 @@
 package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.app.auth.dto.AuthenticationRequest;
-import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.AbstractIntegrationTest;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.dto.response.FollowDto;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Follow;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.customer.repository.FollowRepository;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -30,73 +24,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class FollowIntegrationTest {
-    private final String RAW_PASSWORD = "123456";
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private FollowRepository followRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+public class FollowIntegrationTest extends AbstractIntegrationTest {
 
     private Customer customer;
-    private String token;
 
     @BeforeAll
     void setUp() {
         customer = Customer.create()
-                           .setMail("customer@test.com")
+                           .setEmail("customer@test.com")
                            .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
-                           .setRole(CustomerRole.CUSTOMER)
+                           .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setFirstName("John")
                                    .setLastName("Wick")
+                                   .setUsername("johnwick")
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
                                    .setImageFilename("avatar.jpg")
                            );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
-    }
-
-    @AfterAll
-    void tearDown() {
-        followRepository.deleteAll();
-        customerRepository.deleteAll();
-    }
-
-    void loginWithCustomer(Customer customer) throws Exception {
-        // given
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                customer.getEmail(), "123456"
-        );
-
-        String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
-
-        // when
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
-                                          .contentType(MediaType.APPLICATION_JSON)
-                                          .content(jsonRequest))
-                                  .andReturn();
-
-        AuthenticationResponse response = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                AuthenticationResponse.class
-        );
-
-        token = response.token();
     }
 
     @Test
@@ -127,7 +75,7 @@ public class FollowIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("message");
+        JsonNode contentNode = root.get("content");
 
         FollowDto[] followDto = objectMapper.treeToValue(contentNode, FollowDto[].class);
 
@@ -143,10 +91,18 @@ public class FollowIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        Customer customerToBeFollowed = new Customer(
-                "follow@test.com",
-                bCryptPasswordEncoder.encode("123456")
-        );
+        Customer customerToBeFollowed = Customer.create()
+                                                .setEmail("customerToBeFollowed@test.com")
+                                                .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                                                .setRole(UserRole.CUSTOMER)
+                                                .setProfile(profile -> profile
+                                                        .setFirstName("Donnie")
+                                                        .setLastName("Wick")
+                                                        .setUsername("donniewick")
+                                                        .setGender(CustomerGender.MALE)
+                                                        .setBirthdate(LocalDate.of(1989, 1, 1))
+                                                        .setImageFilename("avatar.jpg")
+                                                );
         customerRepository.save(customerToBeFollowed);
 
         // when

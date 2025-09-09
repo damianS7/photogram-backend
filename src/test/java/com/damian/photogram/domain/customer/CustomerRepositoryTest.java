@@ -1,29 +1,19 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.AbstractRepositoryTest;
 import com.damian.photogram.domain.account.model.Account;
-import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@DataJpaTest
-public class CustomerRepositoryTest {
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private AccountRepository authRepository;
+public class CustomerRepositoryTest extends AbstractRepositoryTest {
 
     @BeforeEach
     void setUp() {
@@ -141,7 +131,7 @@ public class CustomerRepositoryTest {
         );
 
         // when
-        Account account = authRepository.findByCustomer_Id(customer.getId()).orElseThrow();
+        Account account = accountRepository.findByCustomer_Id(customer.getId()).orElseThrow();
 
         // then
         assertThat(customer.getId()).isNotNull();

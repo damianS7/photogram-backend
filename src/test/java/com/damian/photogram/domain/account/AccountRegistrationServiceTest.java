@@ -1,23 +1,17 @@
 package com.damian.photogram.domain.account;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.service.AccountRegistrationService;
 import com.damian.photogram.domain.account.service.AccountVerificationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.service.CustomerService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -26,13 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class) // Habilita Mockito en JUnit 5
-public class AccountRegistrationServiceTest {
-
-    private final String RAW_PASSWORD = "123456";
-
-    @Mock
-    private CustomerRepository customerRepository;
+public class AccountRegistrationServiceTest extends AbstractServiceTest {
 
     @InjectMocks
     private AccountRegistrationService accountRegistrationService;
@@ -43,26 +31,12 @@ public class AccountRegistrationServiceTest {
     @Mock
     private AccountVerificationService accountVerificationService;
 
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        customerRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
-
     @Test
     @DisplayName("should register a new customer")
     void shouldRegisterCustomer() {
         // given
         Customer givenCustomer = Customer.create()
-                                         .setMail("customer@test.com")
+                                         .setEmail("customer@test.com")
                                          .setPassword(passwordEncoder.encode(RAW_PASSWORD))
                                          .setProfile(profile -> profile
                                                  .setFirstName("John")

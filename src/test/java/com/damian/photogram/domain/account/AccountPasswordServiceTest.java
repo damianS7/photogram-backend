@@ -1,7 +1,9 @@
 package com.damian.photogram.domain.account;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.service.EmailSenderService;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
@@ -15,19 +17,10 @@ import com.damian.photogram.domain.account.service.AccountPasswordService;
 import com.damian.photogram.domain.account.service.AccountVerificationService;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
@@ -37,13 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class AccountPasswordServiceTest {
-
-    private final String RAW_PASSWORD = "123456";
+public class AccountPasswordServiceTest extends AbstractServiceTest {
 
     @Mock
-    private CustomerRepository customerRepository;
+    private EmailSenderService emailSenderService;
 
     @Mock
     private AccountRepository accountRepository;
@@ -59,26 +49,6 @@ public class AccountPasswordServiceTest {
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        customerRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
-    }
 
     @Test
     @DisplayName("Should update account password")
@@ -262,6 +232,7 @@ public class AccountPasswordServiceTest {
         when(accountVerificationService.validateToken(token.getToken())).thenReturn(token);
         when(bCryptPasswordEncoder.encode(rawNewPassword)).thenReturn(encodedNewPassword);
         when(accountRepository.save(any(Account.class))).thenReturn(customer.getAccount());
+        doNothing().when(emailSenderService).send(anyString(), anyString(), anyString());
         accountPasswordService.passwordResetWithToken(token.getToken(), passwordResetRequest);
 
         // then
