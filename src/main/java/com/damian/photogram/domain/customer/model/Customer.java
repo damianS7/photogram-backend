@@ -1,20 +1,15 @@
 package com.damian.photogram.domain.customer.model;
 
-import com.damian.photogram.core.security.CustomerDetails;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.domain.account.model.Account;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.function.Consumer;
 
 @Entity
 @Table(name = "customers")
-public class Customer implements CustomerDetails {
+public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +24,7 @@ public class Customer implements CustomerDetails {
     private Profile profile;
 
     @Enumerated(EnumType.STRING)
-    private CustomerRole role;
+    private UserRole role;
 
     @Column
     private Instant createdAt;
@@ -40,7 +35,7 @@ public class Customer implements CustomerDetails {
     public Customer() {
         this.account = new Account(this);
         this.profile = new Profile(this);
-        this.role = CustomerRole.CUSTOMER;
+        this.role = UserRole.CUSTOMER;
     }
 
     public Customer(Long id, String email, String password) {
@@ -79,31 +74,24 @@ public class Customer implements CustomerDetails {
         return this;
     }
 
-    public CustomerRole getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public Customer setRole(CustomerRole role) {
+    public Customer setRole(UserRole role) {
         this.role = role;
         return this;
     }
 
-    @Override
     public String getEmail() {
         return email;
     }
 
-    @Override
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Customer setMail(String email) {
+    public Customer setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    @Override
     public String getPassword() {
         return account.getPassword();
     }
@@ -113,36 +101,8 @@ public class Customer implements CustomerDetails {
         return this;
     }
 
-    @Override
     public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return CustomerDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return CustomerDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return CustomerDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return CustomerDetails.super.isEnabled();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority("ROLE_" + this.role.name());
-        return Collections.singletonList(authority);
+        return this.profile.getUsername();
     }
 
     public Profile getProfile() {

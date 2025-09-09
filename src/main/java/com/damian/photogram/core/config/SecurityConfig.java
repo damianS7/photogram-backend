@@ -1,6 +1,6 @@
 package com.damian.photogram.core.config;
 
-import com.damian.photogram.core.service.CustomerDetailsService;
+import com.damian.photogram.app.user.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,19 +18,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config
+    ) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(
-            CustomerDetailsService customerDetailsService,
+            CustomUserDetailsService customUserDetailsService,
             PasswordEncoder passwordEncoder
     ) {
         DaoAuthenticationProvider daoAuthenticationProvider =
                 new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-        daoAuthenticationProvider.setUserDetailsService(customerDetailsService);
+        daoAuthenticationProvider.setUserDetailsService(customUserDetailsService);
         return daoAuthenticationProvider;
     }
 }

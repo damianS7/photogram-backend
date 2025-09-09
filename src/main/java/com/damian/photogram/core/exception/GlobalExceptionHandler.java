@@ -1,5 +1,6 @@
 package com.damian.photogram.core.exception;
 
+import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.core.utils.ApiResponse;
 import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.customer.exception.*;
@@ -11,6 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,6 +55,8 @@ public class GlobalExceptionHandler {
                     ExpiredJwtException.class,
                     BadCredentialsException.class,
                     AccountSuspendedException.class,
+                    DisabledException.class,
+                    LockedException.class,
                     AccountNotVerifiedException.class,
             }
     ) // 401
@@ -61,6 +67,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
+                    UsernameNotFoundException.class,
+                    EmailNotFoundException.class,
                     ImageNotFoundException.class,
                     EntityNotFoundException.class,
                     CustomerNotFoundException.class,

@@ -3,6 +3,10 @@ package com.damian.photogram.core.exception;
 
 public class Exceptions {
 
+    public static class AUTH {
+        public static final String EMAIL_NOT_FOUND = "Authentication failed. Email not found.";
+    }
+
     public static class CUSTOMER {
         public static final String EMAIL_TAKEN = "Email is already taken.";
         public static final String NOT_FOUND = "Customer not found.";
@@ -43,6 +47,7 @@ public class Exceptions {
         public static final String BAD_CREDENTIALS = "Bad credentials.";
         public static final String EMAIL_NOT_VERIFIED = "Email is not verified.";
         public static final String SUSPENDED = "Account is suspended.";
+        public static final String LOCKED = "User account is locked";
         public static final String NOT_FOUND = "Account not found.";
         public static final String NOT_FOUND_BY_EMAIL = "Account not found. Invalid email address.";
 

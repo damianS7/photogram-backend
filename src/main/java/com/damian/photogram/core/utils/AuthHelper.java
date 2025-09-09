@@ -1,8 +1,9 @@
 package com.damian.photogram.core.utils;
 
+import com.damian.photogram.app.user.User;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -16,14 +17,18 @@ public class AuthHelper {
     }
 
     public static Customer getLoggedCustomer() {
-        return (Customer) SecurityContextHolder
+        return AuthHelper.getLoggedUser().getCustomer();
+    }
+
+    public static User getLoggedUser() {
+        return (User) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
     }
 
     public static boolean isAdmin(Customer customer) {
-        return customer.getRole().equals(CustomerRole.ADMIN);
+        return customer.getRole().equals(UserRole.ADMIN);
     }
 
 }

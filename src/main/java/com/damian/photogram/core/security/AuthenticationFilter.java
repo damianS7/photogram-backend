@@ -1,9 +1,10 @@
 package com.damian.photogram.core.security;
 
 
+import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.app.auth.exception.JwtAuthenticationException;
+import com.damian.photogram.app.user.CustomUserDetailsService;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.service.CustomerDetailsService;
 import com.damian.photogram.core.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -29,16 +30,16 @@ import java.io.IOException;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomerDetailsService customerDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
     public AuthenticationFilter(
             JwtUtil jwtUtil,
-            CustomerDetailsService customerDetailsService,
+            CustomUserDetailsService customUserDetailsService,
             AuthenticationEntryPoint authenticationEntryPoint
     ) {
         this.jwtUtil = jwtUtil;
-        this.customerDetailsService = customerDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
@@ -94,23 +95,23 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         // If the email found in token is not null and there is no Authentication object
         // in the SecurityContext, then we can go ahead and authenticate the user.
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            CustomerDetails customerDetails;
+            UserDetails userDetails;
             try {
                 // Load the customer details from the database.
-                customerDetails = customerDetailsService.loadCustomerByEmail(email);
-            } catch (UsernameNotFoundException e) {
+                userDetails = customUserDetailsService.loadUserByEmail(email);
+            } catch (EmailNotFoundException e) {
                 // In case no such user exists by this email, then we sent 401
                 authenticationEntryPoint.commence(
-                        request, response, new JwtAuthenticationException(Exceptions.JWT.INVALID_EMAIL)
+                        request, response, new EmailNotFoundException(e.getMessage())
                 );
                 return;
             }
 
             // Create an Authentication object.
             var authToken = new UsernamePasswordAuthenticationToken(
-                    customerDetails,
+                    userDetails,
                     null,
-                    customerDetails.getAuthorities()
+                    userDetails.getAuthorities()
             );
 
             // Add some extra details to the Authentication object.
