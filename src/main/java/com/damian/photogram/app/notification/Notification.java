@@ -43,8 +43,7 @@ public class Notification {
     }
 
     public static Notification create(Customer customer) {
-        Notification notification = new Notification(customer);
-        return notification;
+        return new Notification(customer);
     }
 
     public Long getId() {

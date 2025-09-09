@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.exception.FollowAlreadyExistsException;
@@ -62,11 +63,12 @@ public class FollowServiceTest {
     }
 
     void setUpContext(Customer customer) {
+        User user = new User(customer);
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
     }
 
     @Test
@@ -160,7 +162,10 @@ public class FollowServiceTest {
                 2L, "customer1@test.com", passwordEncoder.encode("password")
         );
 
-        Follow givenFollow = new Follow(currentCustomer, friendCustomer);
+        Follow givenFollow = Follow
+                .create()
+                .follower(currentCustomer)
+                .follows(friendCustomer);
 
         // when
         when(customerRepository.findById(friendCustomer.getId())).thenReturn(Optional.of(friendCustomer));
@@ -171,6 +176,8 @@ public class FollowServiceTest {
 
         // then
         assertNotNull(result);
+        assertEquals(currentCustomer.getId(), result.getFollowerCustomer().getId());
+        assertEquals(friendCustomer.getId(), result.getFollowedCustomer().getId());
         verify(followRepository, times(1)).save(any(Follow.class));
     }
 

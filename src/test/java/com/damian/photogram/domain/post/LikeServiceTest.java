@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.post;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
 import com.damian.photogram.domain.post.exception.PostAlreadyLikedException;
@@ -9,18 +10,10 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.post.service.LikeService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
@@ -29,8 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class LikeServiceTest {
+public class LikeServiceTest extends AbstractServiceTest {
 
     @Mock
     private PostRepository postRepository;
@@ -43,24 +35,6 @@ public class LikeServiceTest {
 
     @InjectMocks
     private LikeService likeService;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
-    }
 
     @Test
     @DisplayName("Should like a post")

@@ -1,73 +1,36 @@
 package com.damian.photogram.domain.account;
 
-import com.damian.photogram.app.auth.dto.AuthenticationRequest;
-import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.AbstractIntegrationTest;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.account.repository.AccountRepository;
-import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.customer.repository.ProfileRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AccountIntegrationTest {
+public class AccountIntegrationTest extends AbstractIntegrationTest {
     private final String email = "customer@test.com";
-    private final String rawPassword = "123456";
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private AccountTokenRepository accountTokenRepository;
-
-    @Autowired
-    private ProfileRepository profileRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private Customer customer;
 
     @BeforeAll
     void setUp() {
         customer = new Customer();
-        customer.setRole(CustomerRole.ADMIN);
+        customer.setRole(UserRole.ADMIN);
         customer.setEmail(this.email);
-        customer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
@@ -85,28 +48,6 @@ public class AccountIntegrationTest {
         accountTokenRepository.deleteAll();
         accountRepository.deleteAll();
         customerRepository.deleteAll();
-    }
-
-    String loginWithCustomer(Customer customer) throws Exception {
-        // given
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                customer.getEmail(), "123456"
-        );
-
-        String jsonRequest = objectMapper.writeValueAsString(authenticationRequest);
-
-        // when
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
-                                          .contentType(MediaType.APPLICATION_JSON)
-                                          .content(jsonRequest))
-                                  .andReturn();
-
-        AuthenticationResponse response = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                AuthenticationResponse.class
-        );
-
-        return response.token();
     }
 
     @Test
@@ -261,7 +202,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should update password")
     void shouldUpdatePassword() throws Exception {
         // given
-        String token = loginWithCustomer(customer);
+        loginWithCustomer(customer);
 
         AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "123456",
@@ -282,7 +223,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should update password")
     void shouldNotUpdatePasswordWhenPasswordMismatch() throws Exception {
         // given
-        String token = loginWithCustomer(customer);
+        loginWithCustomer(customer);
         AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 "12345678$Xa"
@@ -302,7 +243,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should not update password when password policy not satisfied")
     void shouldNotUpdatePasswordWhenPasswordPolicyNotSatisfied() throws Exception {
         // given
-        String token = loginWithCustomer(customer);
+        loginWithCustomer(customer);
         AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 "1234"
@@ -325,7 +266,7 @@ public class AccountIntegrationTest {
     @DisplayName("Should not update password when password is null")
     void shouldNotUpdatePasswordWhenPasswordIsNull() throws Exception {
         // given
-        String token = loginWithCustomer(customer);
+        loginWithCustomer(customer);
         AccountPasswordUpdateRequest updatePasswordRequest = new AccountPasswordUpdateRequest(
                 "1234564",
                 null

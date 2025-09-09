@@ -1,23 +1,17 @@
 package com.damian.photogram.app.auth;
 
+import com.damian.photogram.AbstractIntegrationTest;
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.customer.repository.ProfileRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -29,27 +23,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuthenticationIntegrationTest {
+public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     private final String email = "customer@test.com";
-    private final String rawPassword = "123456";
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ProfileRepository profileRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -59,9 +35,9 @@ public class AuthenticationIntegrationTest {
     @BeforeAll
     void setUp() {
         customer = new Customer();
-        customer.setRole(CustomerRole.ADMIN);
+        customer.setRole(UserRole.ADMIN);
         customer.setEmail(this.email);
-        customer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        customer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");
@@ -87,7 +63,7 @@ public class AuthenticationIntegrationTest {
         customerRepository.save(customer);
 
         AuthenticationRequest request = new AuthenticationRequest(
-                this.email, this.rawPassword
+                this.email, this.RAW_PASSWORD
         );
 
         // request to json
@@ -141,7 +117,7 @@ public class AuthenticationIntegrationTest {
         // given
         Customer givenCustomer = new Customer();
         givenCustomer.setEmail("disabled-customer@test.com");
-        givenCustomer.setPassword(bCryptPasswordEncoder.encode(this.rawPassword));
+        givenCustomer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
         givenCustomer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
         customerRepository.save(givenCustomer);
@@ -216,7 +192,7 @@ public class AuthenticationIntegrationTest {
         customerRepository.save(customer);
 
         AuthenticationRequest request = new AuthenticationRequest(
-                email, rawPassword
+                email, RAW_PASSWORD
         );
 
         // request to json

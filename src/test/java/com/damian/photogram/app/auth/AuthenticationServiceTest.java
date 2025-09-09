@@ -1,26 +1,22 @@
 package com.damian.photogram.app.auth;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.account.exception.AccountSuspendedException;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,10 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-public class AuthenticationServiceTest {
-    @Mock
-    private CustomerRepository customerRepository;
+public class AuthenticationServiceTest extends AbstractServiceTest {
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -42,16 +35,6 @@ public class AuthenticationServiceTest {
 
     @Mock
     private JwtUtil jwtUtil;
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    public void tearDown() {
-        customerRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
 
     @Test
     @DisplayName("should login when valid credentials")
@@ -65,6 +48,8 @@ public class AuthenticationServiceTest {
                 "alice@gmail.com",
                 "123456"
         );
+        User user = new User(customer);
+
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
@@ -72,7 +57,7 @@ public class AuthenticationServiceTest {
         // when
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(jwtUtil.generateToken(anyMap(), anyString())).thenReturn(token);
-        when(authentication.getPrincipal()).thenReturn(customer);
+        when(authentication.getPrincipal()).thenReturn(user);
 
         AuthenticationResponse response = authenticationService.login(request);
 
@@ -116,6 +101,7 @@ public class AuthenticationServiceTest {
                 "alice@gmail.com",
                 "123456"
         );
+        User user = new User(customer);
         customer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
@@ -123,7 +109,7 @@ public class AuthenticationServiceTest {
         // when
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(jwtUtil.generateToken(anyMap(), anyString())).thenReturn(token);
-        when(authentication.getPrincipal()).thenReturn(customer);
+        when(authentication.getPrincipal()).thenReturn(user);
 
         AccountSuspendedException exception = assertThrows(
                 AccountSuspendedException.class,
@@ -146,6 +132,7 @@ public class AuthenticationServiceTest {
                 "alice@gmail.com",
                 "123456"
         );
+        User user = new User(customer);
         customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
@@ -153,7 +140,7 @@ public class AuthenticationServiceTest {
         // when
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(jwtUtil.generateToken(anyMap(), anyString())).thenReturn(token);
-        when(authentication.getPrincipal()).thenReturn(customer);
+        when(authentication.getPrincipal()).thenReturn(user);
 
         AccountNotVerifiedException exception = assertThrows(
                 AccountNotVerifiedException.class,

@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
@@ -62,11 +63,12 @@ public class CustomerServiceTest {
     }
 
     void setUpContext(Customer customer) {
+        User user = new User(customer);
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
     }
 
     @Test

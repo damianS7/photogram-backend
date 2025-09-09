@@ -1,5 +1,7 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.app.user.User;
+import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
@@ -7,7 +9,6 @@ import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.CustomerRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
@@ -70,9 +71,9 @@ public class ProfileImageServiceTest {
 
         customer = Customer.create()
                            .setId(2L)
-                           .setMail("customer@test.com")
+                           .setEmail("customer@test.com")
                            .setPassword(passwordEncoder.encode(RAW_PASSWORD))
-                           .setRole(CustomerRole.CUSTOMER)
+                           .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setId(5L)
                                    .setUsername("John")
@@ -90,11 +91,12 @@ public class ProfileImageServiceTest {
     }
 
     void setUpContext(Customer customer) {
+        User user = new User(customer);
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
     }
 
     @Test

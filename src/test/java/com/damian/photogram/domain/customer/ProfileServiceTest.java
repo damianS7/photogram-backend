@@ -1,5 +1,6 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
@@ -56,7 +57,7 @@ public class ProfileServiceTest {
 
         customer = Customer.create()
                            .setId(2L)
-                           .setMail("customer@test.com")
+                           .setEmail("customer@test.com")
                            .setPassword(passwordEncoder.encode(RAW_PASSWORD))
                            .setProfile(profile -> profile
                                    .setId(5L)
@@ -74,11 +75,12 @@ public class ProfileServiceTest {
     }
 
     void setUpContext(Customer customer) {
+        User user = new User(customer);
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(customer);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
     }
 
     @Test
