@@ -86,12 +86,12 @@ public class AccountVerificationService {
         AccountToken accountToken = accountTokenRepository
                 .findByToken(token)
                 .orElseThrow(
-                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.VERIFICATION.TOKEN_NOT_FOUND)
+                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.TOKEN.NOT_FOUND)
                 );
 
         // check expiration
         if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
-            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT.VERIFICATION.EXPIRED_TOKEN);
+            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT.VERIFICATION.TOKEN_EXPIRED);
         }
 
         // check if token is already used
@@ -126,7 +126,7 @@ public class AccountVerificationService {
     public AccountToken generateVerificationToken(String email) {
         // retrieve the customer by email
         Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
-                () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND_BY_EMAIL)
+                () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND)
         );
 
         // only account pending for verification can request the email
