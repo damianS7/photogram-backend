@@ -4,7 +4,28 @@ package com.damian.photogram.core.exception;
 public class Exceptions {
 
     public static class AUTH {
-        public static final String EMAIL_NOT_FOUND = "Authentication failed. Email not found.";
+        public static final String BAD_CREDENTIALS = "Authentication failed. Bad credentials.";
+        public static final String ACCOUNT_SUSPENDED = "Authentication failed. Account is suspended.";
+        public static final String ACCOUNT_NOT_VERIFIED = "Authentication failed. Email is not verified.";
+    }
+
+    public static class ACCOUNT {
+        public static final String NOT_FOUND = "Account not found.";
+
+        public static class TOKEN {
+            public static final String NOT_FOUND = "Token not found.";
+        }
+
+        public static class VERIFICATION {
+            public static final String TOKEN_USED = "Token has already been used.";
+            public static final String TOKEN_EXPIRED = "Token has expired.";
+            public static final String NOT_ELEGIBLE_FOR_ACTIVATION = "Account not elegible for activation.";
+        }
+    }
+
+    public static class JWT {
+        public static final String TOKEN_EXPIRED = "Token has expired.";
+        public static final String INVALID_TOKEN = "Token is invalid.";
     }
 
     public static class CUSTOMER {
@@ -35,29 +56,6 @@ public class Exceptions {
         public static final String TYPE_NOT_SUPPORTED = "Image type not supported.";
         public static final String EMPTY_FILE = "Image file is empty.";
         public static final String UPLOAD_FAILED = "Image upload failed.";
-    }
-
-    public static class JWT {
-        public static final String INVALID_EMAIL = "Invalid email found in token.";
-        public static final String TOKEN_EXPIRED = "Token has expired.";
-        public static final String INVALID_TOKEN = "Token is invalid.";
-    }
-
-    public static class ACCOUNT {
-        public static final String BAD_CREDENTIALS = "Bad credentials.";
-        public static final String EMAIL_NOT_VERIFIED = "Email is not verified.";
-        public static final String SUSPENDED = "Account is suspended.";
-        public static final String LOCKED = "User account is locked";
-        public static final String NOT_FOUND = "Account not found.";
-        public static final String NOT_FOUND_BY_EMAIL = "Account not found. Invalid email address.";
-
-        public static class VERIFICATION {
-            public static final String TOKEN_NOT_FOUND = "Token not found.";
-            public static final String NOT_ELEGIBLE_FOR_ACTIVATION = "Account not elegible for activation.";
-            public static final String INVALID_TOKEN = "Token is invalid.";
-            public static final String EXPIRED_TOKEN = "Token has expired.";
-            public static final String TOKEN_USED = "Token has already been used.";
-        }
     }
 
     public static class POSTS {

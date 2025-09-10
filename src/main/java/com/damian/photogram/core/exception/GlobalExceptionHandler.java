@@ -7,7 +7,6 @@ import com.damian.photogram.domain.customer.exception.*;
 import com.damian.photogram.domain.post.exception.*;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
 import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +24,30 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleBadCredentials() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(ApiResponse.error(Exceptions.AUTH.BAD_CREDENTIALS));
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<?> handleLocked() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(Exceptions.AUTH.ACCOUNT_SUSPENDED));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<?> handleDisabled() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(Exceptions.AUTH.ACCOUNT_NOT_VERIFIED));
+    }
 
     @ExceptionHandler(
             {
                     ImageEmptyFileException.class,
                     ProfileUpdateValidationException.class
             }
-    )
+    ) // 400
     public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST));
@@ -52,17 +68,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    ExpiredJwtException.class,
-                    BadCredentialsException.class,
-                    AccountSuspendedException.class,
-                    DisabledException.class,
-                    LockedException.class,
                     AccountNotVerifiedException.class,
+                    AccountSuspendedException.class,
+                    PasswordMismatchException.class,
+                    FollowersLimitExceededException.class,
+                    FollowYourselfNotAllowedException.class,
+                    AccountVerificationTokenMismatchException.class,
+                    AccountVerificationTokenUsedException.class,
+                    PostNotAuthorException.class,
+                    ProfileNotOwnerException.class,
+                    SettingNotOwnerException.class
             }
-    ) // 401
-    public ResponseEntity<ApiResponse<String>> handleUnauthorized(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED));
+    ) // 403
+    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
     @ExceptionHandler(
@@ -82,7 +102,7 @@ public class GlobalExceptionHandler {
                     AccountNotFoundException.class,
                     AccountVerificationTokenNotFoundException.class
             }
-    )
+    ) // 404
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
@@ -102,22 +122,6 @@ public class GlobalExceptionHandler {
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
     }
 
-    @ExceptionHandler(
-            {
-                    PasswordMismatchException.class,
-                    FollowersLimitExceededException.class,
-                    FollowYourselfNotAllowedException.class,
-                    AccountVerificationTokenMismatchException.class,
-                    AccountVerificationTokenUsedException.class,
-                    PostNotAuthorException.class,
-                    ProfileNotOwnerException.class,
-                    SettingNotOwnerException.class
-            }
-    )
-    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
-    }
 
     @ExceptionHandler(
             {
