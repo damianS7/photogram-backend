@@ -72,13 +72,14 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         Customer customer = new Customer(
                 1L,
                 "alice@gmail.com",
-                "123456"
+                "1234"
         );
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
 
         // when
-        when(authenticationManager.authenticate(any())).thenThrow(BadCredentialsException.class);
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new BadCredentialsException(Exceptions.AUTH.BAD_CREDENTIALS));
 
         BadCredentialsException exception = assertThrows(
                 BadCredentialsException.class,
@@ -86,7 +87,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.ACCOUNT.BAD_CREDENTIALS, exception.getMessage());
+        assertEquals(Exceptions.AUTH.BAD_CREDENTIALS, exception.getMessage());
     }
 
     @Test
@@ -117,7 +118,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.ACCOUNT.SUSPENDED, exception.getMessage());
+        assertEquals(Exceptions.AUTH.ACCOUNT_SUSPENDED, exception.getMessage());
     }
 
     @Test
@@ -148,6 +149,6 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED, exception.getMessage());
+        assertEquals(Exceptions.AUTH.ACCOUNT_NOT_VERIFIED, exception.getMessage());
     }
 }
