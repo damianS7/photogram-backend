@@ -1,7 +1,8 @@
-package com.damian.photogram.app.user;
+package com.damian.photogram.core.security.user;
 
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.model.Account;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +22,7 @@ public class User implements UserDetails {
     public Customer getCustomer() {
         return user;
     }
-    
+
     public String getEmail() {
         return user.getEmail();
     }

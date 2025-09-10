@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.exception.FollowAlreadyExistsException;
 import com.damian.photogram.domain.customer.exception.FollowNotFoundException;

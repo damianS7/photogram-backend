@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.customer.controller;
 
-import com.damian.photogram.core.service.ImageHelper;
+import com.damian.photogram.core.utils.ImageHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.dto.response.ProfileDto;
 import com.damian.photogram.domain.customer.mapper.ProfileDtoMapper;

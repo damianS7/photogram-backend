@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.customer.model;
 
-import com.damian.photogram.app.user.UserRole;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.model.Account;
 import jakarta.persistence.*;
 

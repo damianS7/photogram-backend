@@ -1,6 +1,6 @@
 package com.damian.photogram;
 
-import com.damian.photogram.app.user.User;
+import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

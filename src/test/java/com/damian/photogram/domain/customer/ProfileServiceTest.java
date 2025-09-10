@@ -1,8 +1,8 @@
 package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.app.user.User;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;

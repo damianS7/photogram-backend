@@ -1,8 +1,8 @@
 package com.damian.photogram.core.utils;
 
-import com.damian.photogram.app.user.User;
-import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.security.user.User;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

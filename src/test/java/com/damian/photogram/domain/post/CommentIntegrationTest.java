@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.app.user.UserRole;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.model.Customer;

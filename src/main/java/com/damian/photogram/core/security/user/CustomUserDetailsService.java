@@ -1,4 +1,4 @@
-package com.damian.photogram.app.user;
+package com.damian.photogram.core.security.user;
 
 import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.core.exception.Exceptions;

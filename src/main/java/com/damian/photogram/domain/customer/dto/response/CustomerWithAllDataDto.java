@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.customer.dto.response;
 
-import com.damian.photogram.app.user.UserRole;
+import com.damian.photogram.domain.customer.enums.UserRole;
 
 import java.time.Instant;
 

@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.account;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.app.user.UserRole;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.enums.AccountStatus;

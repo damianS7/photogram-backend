@@ -1,14 +1,14 @@
 package com.damian.photogram.domain.customer;
 
-import com.damian.photogram.app.user.User;
-import com.damian.photogram.app.user.UserRole;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
+import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
