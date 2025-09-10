@@ -92,7 +92,7 @@ public class FollowController {
             Long customerId
     ) {
         Follow follow = followService.follow(customerId);
-        followService.publishFollowNotification(follow);
+        followService.sendFollowNotification(follow);
         FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
 
         return ResponseEntity

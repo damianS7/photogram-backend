@@ -52,7 +52,7 @@ public class CommentController {
             CommentCreateRequest request
     ) {
         Comment comment = commentService.addComment(postId, request);
-        commentService.publishCommentNotification(comment);
+        commentService.sendCommentNotification(comment);
         CommentDto commentDto = CommentDtoMapper.map(comment);
 
         return ResponseEntity

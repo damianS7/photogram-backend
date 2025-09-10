@@ -117,7 +117,6 @@ public class FollowService {
     }
 
     /**
-     * It follows a customer.
      * Current customer will follow the specified customer.
      *
      * @param customerId the id of the customer to follow
@@ -179,22 +178,27 @@ public class FollowService {
         followRepository.deleteById(follow.getId());
     }
 
-    // TODO
-    public void publishFollowNotification(Follow follow) {
+    /**
+     * Send a follow notification to the followed customer
+     *
+     * @param follow the follow relationship
+     */
+    public void sendFollowNotification(Follow follow) {
+        final String followedUsername = follow.getFollowedCustomer().getProfile().getUsername();
         Map<String, Object> metadata = Map.of(
-                "username", follow.getFollowerCustomer().getProfile().getUsername()
+                "username", followedUsername
         );
 
-        String message = metadata.get("username") + " has follow you.";
-
+        // create the notification event
         NotificationEvent notification = new NotificationEvent(
                 follow.getFollowedCustomer().getId(),
                 NotificationType.FOLLOW,
                 metadata,
-                message,
+                followedUsername + " has follow you.",
                 follow.getCreatedAt().toString()
         );
 
-        notificationService.publish(notification);
+        // publish the notification
+        notificationService.publishNotification(notification);
     }
 }

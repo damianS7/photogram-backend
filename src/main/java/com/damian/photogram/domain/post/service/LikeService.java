@@ -86,32 +86,6 @@ public class LikeService {
         );
     }
 
-    // TODO
-
-    /**
-     * It generates a notification for the like.
-     *
-     * @param like
-     */
-    public void publishLikeNotification(Like like) {
-        Map<String, Object> metadata = Map.of(
-                "postId", like.getPost().getId(),
-                "username", like.getCustomer().getProfile().getUsername()
-        );
-
-        String message = metadata.get("username") + " has liked your post.";
-
-        NotificationEvent notification = new NotificationEvent(
-                like.getPost().getAuthor().getId(),
-                NotificationType.LIKE,
-                metadata,
-                message,
-                like.getCreatedAt().toString()
-        );
-
-        notificationService.publish(notification);
-    }
-
     /**
      * Unlike a post.
      * The unlike will be assigned to the current customer.
@@ -136,5 +110,30 @@ public class LikeService {
                 );
 
         likeRepository.deleteById(like.getId());
+    }
+
+    /**
+     * It generates a notification for the like.
+     *
+     * @param like
+     */
+    public void sendLikeNotification(Like like) {
+        final String likerUsername = like.getCustomer().getProfile().getUsername();
+        Map<String, Object> metadata = Map.of(
+                "postId", like.getPost().getId(),
+                "username", likerUsername
+        );
+
+        // create the notification event
+        NotificationEvent notification = new NotificationEvent(
+                like.getPost().getAuthor().getId(),
+                NotificationType.LIKE,
+                metadata,
+                likerUsername + " has liked your post.",
+                like.getCreatedAt().toString()
+        );
+
+        // publish the notification
+        notificationService.publishNotification(notification);
     }
 }

@@ -102,23 +102,29 @@ public class CommentService {
         commentRepository.deleteById(id);
     }
 
-    // TODO
-    public void publishCommentNotification(Comment comment) {
+
+    /**
+     * It generates a notification for the comment.
+     *
+     * @param comment
+     */
+    public void sendCommentNotification(Comment comment) {
+        final String authorUsername = comment.getAuthor().getProfile().getUsername();
         Map<String, Object> metadata = Map.of(
                 "postId", comment.getPost().getId(),
-                "username", comment.getAuthor().getProfile().getUsername()
+                "username", authorUsername
         );
 
-        String message = metadata.get("username") + " has comment your post.";
-
+        // create the notification event
         NotificationEvent notification = new NotificationEvent(
-                comment.getPost().getAuthor().getId(),
+                comment.getPost().getAuthor().getId(), // owner of the post will be the recipient
                 NotificationType.COMMENT,
                 metadata,
-                message,
+                authorUsername + " has comment your post.",
                 comment.getCreatedAt().toString()
         );
 
-        notificationService.publish(notification);
+        // publish the notification
+        notificationService.publishNotification(notification);
     }
 }
