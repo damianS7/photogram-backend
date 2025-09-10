@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractServiceTest {
     protected final String RAW_PASSWORD = "123456";
 
-    //    @Mock
     protected BCryptPasswordEncoder passwordEncoder;
 
     public AbstractServiceTest() {

@@ -1,10 +1,10 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageEmptyFileException;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
-import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
@@ -13,21 +13,14 @@ import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.customer.service.ProfileImageService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,16 +36,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-public class ProfileImageServiceTest {
-
-    private final String RAW_PASSWORD = "123456";
+public class ProfileImageServiceTest extends AbstractServiceTest {
 
     @Mock
     private ProfileRepository profileRepository;
-
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
 
     @Mock
     private ImageUploaderService imageUploaderService;
@@ -85,26 +72,10 @@ public class ProfileImageServiceTest {
                            );
     }
 
-    @AfterEach
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        User user = new User(customer);
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
-    }
-
     @Test
     @DisplayName("Should get profile image")
     void shouldGetProfileImage() throws IOException {
         // given
-        //        setUpContext(customer);
-
         String filename = "image.jpg";
         Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
         Files.createDirectories(directoryPath); // ensure path exists
