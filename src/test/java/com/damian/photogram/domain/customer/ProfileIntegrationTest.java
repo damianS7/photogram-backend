@@ -1,11 +1,11 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.dto.response.ProfileDto;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.*;
 import org.springframework.core.io.ByteArrayResource;
@@ -179,7 +179,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Should upload customer profile image")
-    void shouldUploadCustomerProfileImage() throws Exception {
+    void shouldUploadProfileImage() throws Exception {
         // given
         loginWithCustomer(customerA);
 
@@ -213,5 +213,125 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         assertThat(resource).isNotNull();
         assertEquals(resource.contentLength(), file.getBytes().length);
         assertEquals(result.getResponse().getContentType(), file.getContentType());
+    }
+
+    @Test
+    @DisplayName("Should upload customer profile image")
+    void shouldNotUploadProfileImageWhenFileIsEmpty() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                customerA.getProfile().getImageFilename(),
+                "image/jpeg",
+                new byte[0]
+        );
+
+        // when
+        mockMvc
+                .perform(
+                        multipart("/api/v1/customers/profile/photo")
+                                .file(file)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(400))
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Should upload customer profile image")
+    void shouldNotUploadProfileImageWhenFileIsNotImage() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                customerA.getProfile().getImageFilename(),
+                "text/plain",
+                new byte[5]
+        );
+
+        // when
+        mockMvc
+                .perform(
+                        multipart("/api/v1/customers/profile/photo")
+                                .file(file)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(415))
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Should upload customer profile image")
+    void shouldNotUploadProfileImageWhenSizeExceedsLimit() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                customerA.getProfile().getImageFilename(),
+                "image/jpeg",
+                new byte[5 * 1024 * 1024 + 1]
+        );
+
+        // when
+        mockMvc
+                .perform(
+                        multipart("/api/v1/customers/profile/photo")
+                                .file(file)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(413))
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Should upload customer profile image")
+    void shouldNotUploadProfileImageWhenImageTypeIsNotAllowed() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                customerA.getProfile().getImageFilename(),
+                "image/png",
+                new byte[1]
+        );
+
+        // when
+        mockMvc
+                .perform(
+                        multipart("/api/v1/customers/profile/photo")
+                                .file(file)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(415))
+                .andReturn();
     }
 }
