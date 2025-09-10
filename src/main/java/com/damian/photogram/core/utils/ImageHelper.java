@@ -1,4 +1,4 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.utils;
 
 import org.springframework.core.io.Resource;
 
