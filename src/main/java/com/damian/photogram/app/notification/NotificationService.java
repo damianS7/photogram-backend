@@ -6,6 +6,8 @@ import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class NotificationService {
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
     private final NotificationRepository notificationRepository;
     private final CustomerRepository customerRepository;
     private final Map<Long, Sinks.Many<NotificationEvent>> userSinks = new ConcurrentHashMap<>();
@@ -76,32 +79,49 @@ public class NotificationService {
     /**
      * Publish a notification event to the recipient.
      *
-     * @param event the notification event
+     * @param notificationEvent the notification event
      */
-    public void publish(NotificationEvent event) {
+    public void publishNotification(NotificationEvent notificationEvent) {
         Customer customer = AuthHelper.getLoggedCustomer();
+
         // if the receiverId is the same as senderId then do nothing
-        if (customer.getId().equals(event.recipientId())) {
+        // this is to prevent sending notifications to oneself
+        // for example when a user likes or comment their own post
+        if (customer.getId().equals(notificationEvent.recipientId())) {
+            log.debug("Notification not sent: sender {} cannot notify himself.", customer.getId());
             return;
         }
 
         // find recipient customer who will receive the notification
-        Customer recipient = customerRepository.findById(event.recipientId()).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
-        );
+        Customer recipient = customerRepository
+                .findById(notificationEvent.recipientId())
+                .orElseThrow(() -> {
+                    log.warn(
+                            "Notification not sent: Customer recipient with id={} not found.",
+                            notificationEvent.recipientId()
+                    );
+                    return new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND);
+                });
 
-        // create and save notification
+        // create and save notification to the database
         Notification notification = Notification
                 .create(recipient)
-                .setMessage(event.message())
-                .setMetadata(event.metadata())
-                .setType(event.type());
+                .setMessage(notificationEvent.message())
+                .setMetadata(notificationEvent.metadata())
+                .setType(notificationEvent.type());
         notificationRepository.save(notification);
+        log.info(
+                "Notification for recipientId={} of type={} stored on db.",
+                notificationEvent.recipientId(),
+                notificationEvent.type()
+        );
+
 
         // emit event to the recipient if connected
-        var sink = userSinks.get(event.recipientId());
+        var sink = userSinks.get(notificationEvent.recipientId());
         if (sink != null) {
-            sink.tryEmitNext(event);
+            sink.tryEmitNext(notificationEvent);
+            log.debug("Notification emitted to connected user recipientId={}", notificationEvent.recipientId());
         }
     }
 }

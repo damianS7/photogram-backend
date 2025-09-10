@@ -15,6 +15,6 @@ public class NotificationConsumer {
 
     @RabbitListener(queues = RabbitConfig.QUEUE)
     public void receiveMessage(NotificationEvent notification) {
-        notificationService.publish(notification);
+        notificationService.publishNotification(notification);
     }
 }

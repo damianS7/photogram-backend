@@ -105,7 +105,7 @@ public class NotificationServiceTest extends AbstractServiceTest {
 
     @Test
     @DisplayName("should publish notification")
-    void shouldPublish() {
+    void shouldPublishNotification() {
         // given
         Customer publisher = new Customer(
                 1L, "publisher@demo.com", "1223456"
@@ -133,7 +133,7 @@ public class NotificationServiceTest extends AbstractServiceTest {
         when(customerRepository.findById(recipient.getId())).thenReturn(Optional.of(recipient));
         when(notificationRepository.save(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
-        notificationService.publish(event);
+        notificationService.publishNotification(event);
 
         // then
         verify(notificationRepository).save(any());
@@ -141,7 +141,7 @@ public class NotificationServiceTest extends AbstractServiceTest {
 
     @Test
     @DisplayName("should not publish when publisher and recipient are the same")
-    void shouldNotPublishWhenPublisherAndRecipientAreTheSame() {
+    void shouldNotPublishNotificationWhenPublisherAndRecipientAreTheSame() {
         // given
         Customer publisher = new Customer(
                 1L, "publisher@demo.com", "1223456"
@@ -161,7 +161,7 @@ public class NotificationServiceTest extends AbstractServiceTest {
                 Instant.now().toString()
         );
         // when
-        notificationService.publish(event);
+        notificationService.publishNotification(event);
         verify(notificationRepository, never()).save(any());
     }
 
