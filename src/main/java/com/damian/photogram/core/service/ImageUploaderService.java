@@ -20,7 +20,7 @@ import java.util.UUID;
 public class ImageUploaderService {
     private final String IMAGE_PATH = "uploads/images/";
     private final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-    private final String[] ALLOWED_IMAGE_TYPE = {"image/jpg", "image/jpeg", "image/webp"};
+    private final String[] ALLOWED_IMAGE_TYPE = {"image/jpg", "image/jpeg", "image/png"};
 
     public ImageUploaderService(
     ) {
@@ -69,7 +69,7 @@ public class ImageUploaderService {
         // TODO compress or convert to webp image before uploading to server
 
         final String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-        if (!filename.endsWith(extension)) {
+        if (extension != null && !filename.endsWith(extension)) {
             filename += "." + extension;
         }
 
