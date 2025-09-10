@@ -112,6 +112,28 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should not login when email not exist")
+    void shouldNotLoginWhenEmailNotExist() throws Exception {
+        // given
+        AuthenticationRequest request = new AuthenticationRequest(
+                "nonemail@demo.com", "123456"
+        );
+
+        // request to json
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .post("/api/v1/auth/login")
+                       .contentType(MediaType.APPLICATION_JSON)
+                       .content(jsonRequest))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(jsonPath("$.message").value(Exceptions.AUTH.BAD_CREDENTIALS))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
     @DisplayName("Should not login when account is disabled")
     void shouldNotLoginWhenAccountIsSuspended() throws Exception {
         // given
@@ -134,8 +156,8 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(jsonRequest))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value(Exceptions.ACCOUNT.SUSPENDED))
+               .andExpect(MockMvcResultMatchers.status().is(403))
+               .andExpect(jsonPath("$.message").value(Exceptions.AUTH.ACCOUNT_SUSPENDED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -204,7 +226,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(jsonRequest))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(403))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 

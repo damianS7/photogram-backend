@@ -75,6 +75,19 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should not have access when not authenticated")
+    void shouldNotHaveAccessWhenNotAuthenticated() throws Exception {
+        // given
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                       .get("/api/v1/customers/profile"))
+               .andDo(print())
+               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
     @DisplayName("Should not have access when token has expired")
     void shouldNotHaveAccessWhenTokenHasExpired() throws Exception {
         // given
