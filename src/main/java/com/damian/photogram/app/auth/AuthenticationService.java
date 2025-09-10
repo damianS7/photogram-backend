@@ -8,7 +8,9 @@ import com.damian.photogram.core.utils.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.account.exception.AccountSuspendedException;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -40,28 +42,13 @@ public class AuthenticationService {
         final String password = request.password();
         final Authentication auth;
 
-        try {
-            // Authenticate the user
-            auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            email, password)
-            );
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(
-                    Exceptions.ACCOUNT.BAD_CREDENTIALS
-            );
-        } catch (LockedException e) {
-            throw new AccountSuspendedException(
-                    Exceptions.ACCOUNT.SUSPENDED
-            );
-        } catch (DisabledException e) {
-            throw new AccountNotVerifiedException(
-                    Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED
-            );
-        }
+        // Authenticate the user
+        auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        email, password)
+        );
 
         // Get the authenticated user
-        //        final Customer customer = (Customer) auth.getPrincipal();
         final User currentUser = ((User) auth.getPrincipal());
         final HashMap<String, Object> claims = new HashMap<>();
         claims.put("email", currentUser.getEmail());
@@ -76,14 +63,14 @@ public class AuthenticationService {
         // check if the account is disabled
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
             throw new AccountSuspendedException(
-                    Exceptions.ACCOUNT.SUSPENDED
+                    Exceptions.AUTH.ACCOUNT_SUSPENDED
             );
         }
 
         // check if the account is verified
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
             throw new AccountNotVerifiedException(
-                    Exceptions.ACCOUNT.EMAIL_NOT_VERIFIED
+                    Exceptions.AUTH.ACCOUNT_NOT_VERIFIED
             );
         }
 
