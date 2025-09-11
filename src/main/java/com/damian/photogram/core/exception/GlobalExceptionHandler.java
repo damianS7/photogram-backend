@@ -129,8 +129,8 @@ public class GlobalExceptionHandler {
                     PostImageFileSizeExceededException.class,
                     MaxUploadSizeExceededException.class,
             }
-    )
-    public ResponseEntity<ApiResponse<String>> handleTooLarge(ApplicationException ex) {
+    ) // 413 Payload Too Large
+    public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
     }
