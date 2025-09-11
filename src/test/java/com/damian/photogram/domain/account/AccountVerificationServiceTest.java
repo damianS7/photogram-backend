@@ -234,5 +234,40 @@ public class AccountVerificationServiceTest extends AbstractServiceTest {
         // then
         verify(accountTokenRepository, times(1)).findByToken(anyString());
     }
-    // TODO shouldCreateAccountActivationToken
+
+    @Test
+    @DisplayName("Should generate account activation token")
+    void shouldGenerateAccountActivationToken() {
+        // given
+        Customer customer = Customer
+                .create()
+                .setEmail("customer@test.com")
+                .setPassword(passwordEncoder.encode(passwordEncoder.encode(RAW_PASSWORD))
+                );
+
+        AccountToken givenActivationToken = AccountToken.create()
+                                                        .setCustomer(customer)
+                                                        .setToken("activation-token")
+                                                        .setType(AccountTokenType.ACCOUNT_VERIFICATION);
+
+        // when
+        when(accountRepository.findByCustomer_Email(customer.getEmail()))
+                .thenReturn(Optional.of(customer.getAccount()));
+        when(accountTokenRepository.findByCustomer_Id(customer.getId()))
+                .thenReturn(Optional.of(givenActivationToken));
+        when(accountTokenRepository.save(any(AccountToken.class)))
+                .thenReturn(givenActivationToken);
+
+        AccountToken generatedToken = accountVerificationService.generateVerificationToken(customer.getEmail());
+
+        // then
+        assertThat(generatedToken)
+                .isNotNull()
+                .extracting(AccountToken::isUsed)
+                .isEqualTo(false);
+
+        verify(accountTokenRepository, times(1)).findByCustomer_Id(customer.getId());
+        verify(accountRepository, times(1)).findByCustomer_Email(customer.getEmail());
+        verify(accountTokenRepository, times(1)).save(any(AccountToken.class));
+    }
 }
