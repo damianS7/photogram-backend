@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.account.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.service.EmailSenderService;
+import com.damian.photogram.core.mail.service.EmailSenderService;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
 import com.damian.photogram.domain.account.exception.*;

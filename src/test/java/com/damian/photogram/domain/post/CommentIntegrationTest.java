@@ -1,9 +1,9 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.domain.post.dto.response.CommentDto;
@@ -42,7 +42,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                                    .setUsername("John")
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
-                                   .setImageFilename("avatar.jpg")
+                                   .setImageFilename("images/avatar.jpg")
                            );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);

@@ -2,8 +2,8 @@ package com.damian.photogram.domain.account.service;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.service.EmailSenderService;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.mail.service.EmailSenderService;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;

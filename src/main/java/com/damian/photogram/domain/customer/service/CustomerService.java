@@ -2,7 +2,7 @@ package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;

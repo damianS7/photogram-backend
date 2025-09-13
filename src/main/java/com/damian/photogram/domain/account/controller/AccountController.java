@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.account.controller;
 
-import com.damian.photogram.core.utils.ApiResponse;
+import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.domain.account.dto.request.*;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;

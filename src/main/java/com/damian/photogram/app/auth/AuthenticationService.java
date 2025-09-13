@@ -4,7 +4,7 @@ import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
-import com.damian.photogram.core.utils.JwtUtil;
+import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.account.exception.AccountSuspendedException;
