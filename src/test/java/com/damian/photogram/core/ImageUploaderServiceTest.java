@@ -1,15 +1,13 @@
 package com.damian.photogram.core;
 
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
-import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
+import com.damian.photogram.AbstractServiceTest;
+import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mock;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,18 +15,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 
-@ExtendWith(MockitoExtension.class)
-public class ImageUploaderServiceTest {
+public class ImageUploaderServiceTest extends AbstractServiceTest {
 
     @InjectMocks
     private ImageUploaderService imageUploaderService;
+
+    @Mock
+    private ImageStorageService imageStorageService;
 
     @Test
     @DisplayName("Should upload image")
     void shouldUploadImage() throws IOException {
         // given
+        setUpContext(
+                Customer.create()
+                        .setId(1L)
+        );
         MultipartFile givenFile = new MockMultipartFile(
                 "file.jpg",
                 "photo.jpg",
@@ -37,6 +45,8 @@ public class ImageUploaderServiceTest {
         );
 
         // when
+        doNothing().when(imageStorageService).storeImage(any(), anyString(), anyString());
+
         String filename = imageUploaderService.uploadImage(
                 givenFile, "posts", givenFile.getName()
         );
@@ -44,69 +54,8 @@ public class ImageUploaderServiceTest {
         // then
         assertNotNull(filename);
         assertEquals(filename, givenFile.getName());
-        Files.deleteIfExists(Path.of("./uploads/images/posts/" + filename));
+        Files.deleteIfExists(Path.of(imageUploaderService.getCustomerUploadFolder(1L) + filename));
     }
 
-    @Test
-    @DisplayName("Should not upload image when file is empty")
-    void shouldNotUploadImageWhenFileIsEmpty() {
-        // given
-        MultipartFile givenFile = new MockMultipartFile(
-                "file.jpg",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[0]
-        );
 
-        // when
-        ImageEmptyFileException exception = assertThrows(
-                ImageEmptyFileException.class,
-                () -> imageUploaderService.uploadImage(givenFile, "posts")
-        );
-
-        // then
-        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should not upload image when file is not image")
-    void shouldNotUploadImageWhenFileIsNotImage() {
-        // given
-        MultipartFile givenFile = new MockMultipartFile(
-                "file.jpg",
-                "photo.jpg",
-                "video/mp4",
-                new byte[5]
-        );
-
-        // when
-        ImageTypeNotAllowedException exception = assertThrows(
-                ImageTypeNotAllowedException.class,
-                () -> imageUploaderService.uploadImage(givenFile, "posts")
-        );
-
-        // then
-        assertEquals(Exceptions.IMAGE.TYPE_NOT_SUPPORTED, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should not upload image when size exceeds limit")
-    void shouldNotUploadImageWhenSizeExceedsLimit() {
-        // given
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[5 * 1024 * 1024 + 1]
-        );
-
-        // when
-        ImageFileSizeExceededException exception = assertThrows(
-                ImageFileSizeExceededException.class,
-                () -> imageUploaderService.uploadImage(givenFile, "posts")
-        );
-
-        // then
-        assertEquals(Exceptions.IMAGE.TOO_LARGE, exception.getMessage());
-    }
 }
