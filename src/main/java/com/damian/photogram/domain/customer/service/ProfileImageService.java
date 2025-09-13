@@ -2,12 +2,13 @@ package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.service.ImageProcessingService;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.service.ImageValidationService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.customer.exception.ProfilePhotoNotFoundException;
-import com.damian.photogram.domain.customer.helper.ProfileHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
@@ -17,56 +18,72 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProfileImageService {
-    private final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+    public static final String PROFILE_IMAGE_FOLDER = "";
     private final ProfileRepository profileRepository;
     private final ImageUploaderService imageUploaderService;
     private final ImageStorageService imageStorageService;
+    private final ImageProcessingService imageProcessingService;
+    private final ImageValidationService imageValidationService;
+    private final long COMPRESS_SIZE_TRIGGER = 250L * 1024; // 250 kb
+    private final long MAX_IMAGE_SIZE = 2L * 1024 * 1024; // 2 MB
+    private final int MAX_WIDTH = 500; // 500px
+    private final int MAX_HEIGHT = 500; // 500px
+    private final String[] ALLOWED_IMAGE_TYPES = {"image/jpg", "image/jpeg", "image/png"};
 
     public ProfileImageService(
             ImageStorageService imageStorageService,
             ProfileRepository profileRepository,
-            ImageUploaderService imageUploaderService
+            ImageUploaderService imageUploaderService,
+            ImageProcessingService imageProcessingService,
+            ImageValidationService imageValidationService
     ) {
         this.imageStorageService = imageStorageService;
         this.profileRepository = profileRepository;
         this.imageUploaderService = imageUploaderService;
+        this.imageProcessingService = imageProcessingService;
+        this.imageValidationService = imageValidationService;
     }
 
-    /**
-     * Run validations for the uploaded image
-     *
-     * @param file the uploaded image
-     * @throws ImageFileSizeExceededException if the image size exceeds the limit
-     */
-    private void validateImageOrElseThrow(MultipartFile file) {
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new ImageFileSizeExceededException(
-                    Exceptions.PROFILE.IMAGE.TOO_LARGE
-            );
-        }
+    public long getMaxImageSize() {
+        return this.MAX_IMAGE_SIZE;
     }
 
     /**
      * It uploads an image and set it as customer profile photo
      *
      * @param currentPassword the password of the current customer user
-     * @param file            the uploaded image
-     * @return the uploaded image resource
+     * @param image           the uploaded image
+     * @return image filename
      * @throws ImageFileSizeExceededException if the image size exceeds the limit
      */
-    public String uploadImage(String currentPassword, MultipartFile file) {
+    public String uploadImage(String currentPassword, MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // validate password
         AuthHelper.validatePassword(currentCustomer, currentPassword);
 
-        // run file validations
-        this.validateImageOrElseThrow(file);
+        // run basic image validations
+        imageValidationService.validateImage(
+                image,
+                MAX_IMAGE_SIZE,
+                ALLOWED_IMAGE_TYPES
+        );
 
-        // Save the uploaded file and return the stored filename
+        // Resize the image to the limits allowed for the profile image
+        if (imageValidationService.isResizeNeeded(image, MAX_WIDTH, MAX_HEIGHT)) {
+            image = imageProcessingService.resizeImageMultipart(image, MAX_WIDTH, MAX_HEIGHT);
+        }
+
+        // Compress the image when size exceeds COMPRESS_SIZE_TRIGGER
+        if (imageValidationService.isCompressionNeeded(image, COMPRESS_SIZE_TRIGGER)) {
+            image = imageProcessingService.compressImage(image);
+        }
+
+        // Upload the image
         String filename = imageUploaderService.uploadImage(
-                file,
-                ProfileHelper.getProfileImageUploadPath(currentCustomer.getId()),
+                image,
+                PROFILE_IMAGE_FOLDER,
                 "avatar"
         );
 
@@ -98,7 +115,7 @@ public class ProfileImageService {
 
         // return the image as resource
         return imageStorageService.getImage(
-                ProfileHelper.getProfileImageUploadPath(customerId),
+                ImageUploaderService.getCustomerUploadFolder(customerId) + PROFILE_IMAGE_FOLDER,
                 profile.getImageFilename()
         );
     }

@@ -1,13 +1,13 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.service.ImageProcessingService;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.service.ImageValidationService;
 import com.damian.photogram.core.utils.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.post.exception.PostImageFileSizeExceededException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
-import com.damian.photogram.domain.post.helper.PostHelper;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import org.springframework.core.io.Resource;
@@ -16,33 +16,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PostImageService {
-    private final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    public static final String POST_IMAGE_FOLDER = "posts/"; // profile
     private final ImageUploaderService imageUploaderService;
     private final ImageStorageService imageStorageService;
     private final PostRepository postRepository;
+    private final ImageValidationService imageValidationService;
+    private final ImageProcessingService imageProcessingService;
+    private final long COMPRESS_SIZE_TRIGGER = 250L * 1024; // 250 kb
+    private final long MAX_IMAGE_SIZE = 5L * 1024 * 1024; // 2 MB
+    private final int MAX_WIDTH = 1920; // 1920px
+    private final int MAX_HEIGHT = 1080; // 1080px
+    private final String[] ALLOWED_IMAGE_TYPES = {"image/jpg", "image/jpeg", "image/png"};
 
     public PostImageService(
             ImageUploaderService imageUploaderService,
             ImageStorageService imageStorageService,
-            PostRepository postRepository
+            PostRepository postRepository,
+            ImageValidationService imageValidationService,
+            ImageProcessingService imageProcessingService
     ) {
         this.imageUploaderService = imageUploaderService;
         this.imageStorageService = imageStorageService;
         this.postRepository = postRepository;
-    }
-
-    /**
-     * Run specific validations for post images
-     *
-     * @param file MultipartFile
-     * @throws PostImageFileSizeExceededException if the file size exceeds
-     */
-    private void validateImageOrThrow(MultipartFile file) {
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new PostImageFileSizeExceededException(
-                    Exceptions.POSTS.IMAGE.TOO_LARGE
-            );
-        }
+        this.imageValidationService = imageValidationService;
+        this.imageProcessingService = imageProcessingService;
     }
 
     /**
@@ -54,13 +51,27 @@ public class PostImageService {
     public String uploadImage(MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
-        // run image validations
-        this.validateImageOrThrow(image);
+        // run basic image validations
+        imageValidationService.validateImage(
+                image,
+                MAX_IMAGE_SIZE,
+                ALLOWED_IMAGE_TYPES
+        );
+
+        // Resize the image to the limits allowed for the profile image
+        if (imageValidationService.isResizeNeeded(image, MAX_WIDTH, MAX_HEIGHT)) {
+            image = imageProcessingService.resizeImageMultipart(image, MAX_WIDTH, MAX_HEIGHT);
+        }
+
+        // Compress the image when size exceeds COMPRESS_SIZE_TRIGGER
+        if (imageValidationService.isCompressionNeeded(image, COMPRESS_SIZE_TRIGGER)) {
+            image = imageProcessingService.compressImage(image);
+        }
 
         // saving image
         return imageUploaderService.uploadImage(
                 image,
-                PostHelper.getPostsImagePath(currentCustomer.getId())
+                POST_IMAGE_FOLDER
         );
     }
 
@@ -72,14 +83,13 @@ public class PostImageService {
      * @throws PostNotFoundException if the post does not exist
      */
     public Resource getImage(Long postId) {
-
         // find the post
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
         );
 
         return imageStorageService.getImage(
-                PostHelper.getPostsImagePath(post.getAuthor().getId()),
+                ImageUploaderService.getCustomerUploadFolder(post.getAuthor().getId()) + POST_IMAGE_FOLDER,
                 post.getPhotoFilename()
         );
     }
