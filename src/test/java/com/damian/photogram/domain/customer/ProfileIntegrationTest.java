@@ -44,7 +44,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                     .setLastName("Wick")
                                     .setGender(CustomerGender.MALE)
                                     .setBirthdate(LocalDate.of(1989, 1, 1))
-                                    .setImageFilename("avatar.jpg")
+                                    .setImageFilename("images/avatar.jpg")
                             );
         customerA.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerA);

@@ -28,7 +28,7 @@ public class ProfileRepositoryTest extends AbstractRepositoryTest {
                                    .setLastName("Wick")
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
-                                   .setImageFilename("avatar.jpg")
+                                   .setImageFilename("images/avatar.jpg")
                            );
 
         customerRepository.save(customer);
