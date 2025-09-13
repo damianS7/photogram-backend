@@ -1,8 +1,8 @@
 package com.damian.photogram.domain.post.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;

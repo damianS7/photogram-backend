@@ -1,12 +1,12 @@
 package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.service.ImageProcessingService;
-import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.core.service.ImageUploaderService;
-import com.damian.photogram.core.service.ImageValidationService;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.service.ImageProcessingService;
+import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.core.image.service.ImageUploaderService;
+import com.damian.photogram.core.image.service.ImageValidationService;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.customer.exception.ProfilePhotoNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;

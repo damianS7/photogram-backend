@@ -1,6 +1,6 @@
 package com.damian.photogram.core;
 
-import com.damian.photogram.core.service.EmailSenderService;
+import com.damian.photogram.core.mail.service.EmailSenderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

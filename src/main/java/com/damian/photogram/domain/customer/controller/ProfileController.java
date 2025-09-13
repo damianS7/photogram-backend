@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.customer.controller;
 
-import com.damian.photogram.core.utils.ImageHelper;
+import com.damian.photogram.core.common.ImageHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.dto.response.ProfileDto;
 import com.damian.photogram.domain.customer.mapper.ProfileDtoMapper;
@@ -97,7 +97,7 @@ public class ProfileController {
             String currentPassword,
             @RequestParam("file") MultipartFile file
     ) {
-        profileImageService.uploadImage(currentPassword, file);
+        profileImageService.uploadProfileImage(currentPassword, file);
         Resource resource = profileImageService.getProfileImage();
         String contentType = ImageHelper.getContentType(resource);
 

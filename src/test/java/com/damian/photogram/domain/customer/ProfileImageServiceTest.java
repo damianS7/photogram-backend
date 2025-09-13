@@ -1,9 +1,9 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.core.service.ImageUploaderService;
-import com.damian.photogram.core.service.ImageValidationService;
+import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.core.image.service.ImageUploaderService;
+import com.damian.photogram.core.image.service.ImageValidationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;

@@ -4,7 +4,7 @@ import com.damian.photogram.AbstractIntegrationTest;
 import com.damian.photogram.app.notification.dto.NotificationDto;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.security.user.User;
-import com.damian.photogram.core.utils.JwtUtil;
+import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.UserRole;

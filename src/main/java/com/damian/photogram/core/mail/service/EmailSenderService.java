@@ -1,4 +1,4 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.mail.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

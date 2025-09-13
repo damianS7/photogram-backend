@@ -2,12 +2,12 @@ package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
-import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
-import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.core.service.ImageUploaderService;
-import com.damian.photogram.core.service.ImageValidationService;
+import com.damian.photogram.core.image.exception.ImageEmptyFileException;
+import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
+import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.core.image.service.ImageUploaderService;
+import com.damian.photogram.core.image.service.ImageValidationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -126,12 +126,12 @@ public class PostImageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        doThrow(new ImageTypeNotAllowedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED))
+        doThrow(new ImageTypeNotSupportedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED))
                 .when(imageValidationService)
                 .validateImage(any(MultipartFile.class), any(Long.class), any(String[].class));
 
-        ImageTypeNotAllowedException exception = assertThrows(
-                ImageTypeNotAllowedException.class,
+        ImageTypeNotSupportedException exception = assertThrows(
+                ImageTypeNotSupportedException.class,
                 () -> postImageService.uploadImage(givenFile)
         );
 

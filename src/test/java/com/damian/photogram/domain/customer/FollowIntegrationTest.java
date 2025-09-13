@@ -1,10 +1,10 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.dto.response.FollowDto;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Follow;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,7 +41,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                    .setUsername("johnwick")
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
-                                   .setImageFilename("avatar.jpg")
+                                   .setImageFilename("images/avatar.jpg")
                            );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
@@ -101,7 +101,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                                         .setUsername("donniewick")
                                                         .setGender(CustomerGender.MALE)
                                                         .setBirthdate(LocalDate.of(1989, 1, 1))
-                                                        .setImageFilename("avatar.jpg")
+                                                        .setImageFilename("images/avatar.jpg")
                                                 );
         customerRepository.save(customerToBeFollowed);
 

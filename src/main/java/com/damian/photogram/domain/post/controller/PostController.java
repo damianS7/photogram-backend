@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.post.controller;
 
-import com.damian.photogram.core.utils.ImageHelper;
+import com.damian.photogram.core.common.ImageHelper;
 import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.domain.post.dto.response.PostDto;

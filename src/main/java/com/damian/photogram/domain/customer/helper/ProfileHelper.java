@@ -1,9 +1,10 @@
 package com.damian.photogram.domain.customer.helper;
 
+import com.damian.photogram.core.image.service.ImageUploaderService;
+
 public class ProfileHelper {
-    private static final String PROFILE_IMAGE_UPLOAD_PATH = "customers/{id}/";
 
     public static String getProfileImageUploadPath(Long customerId) {
-        return PROFILE_IMAGE_UPLOAD_PATH.replace("{id}", customerId.toString());
+        return ImageUploaderService.ROOT_UPLOAD_FOLDER + customerId;
     }
 }

@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;

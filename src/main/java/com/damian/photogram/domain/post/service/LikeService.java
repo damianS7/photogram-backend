@@ -4,7 +4,7 @@ import com.damian.photogram.app.notification.NotificationService;
 import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
