@@ -58,15 +58,9 @@ public class PostImageService {
                 ALLOWED_IMAGE_TYPES
         );
 
-        // Resize the image to the limits allowed for the profile image
-        if (imageValidationService.isResizeNeeded(image, MAX_WIDTH, MAX_HEIGHT)) {
-            image = imageProcessingService.resizeImageMultipart(image, MAX_WIDTH, MAX_HEIGHT);
-        }
-
-        // Compress the image when size exceeds COMPRESS_SIZE_TRIGGER
-        if (imageValidationService.isCompressionNeeded(image, COMPRESS_SIZE_TRIGGER)) {
-            image = imageProcessingService.compressImage(image);
-        }
+        // At this point the image is guaranteed to be not null and of an allowed type
+        // Image optimizations (resize and compress)
+        image = imageProcessingService.optimizeImage(image, MAX_WIDTH, MAX_HEIGHT);
 
         // saving image
         return imageUploaderService.uploadImage(

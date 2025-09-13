@@ -1,7 +1,6 @@
 package com.damian.photogram.core.service;
 
 import com.damian.photogram.core.exception.ImageCompressionFailedException;
-import com.damian.photogram.core.exception.ImageResizeFailedException;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +19,84 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Service class for compressing images.
+ * Service class for processing images. Mostly compressing and resizing.
  */
 @Service
 public class ImageProcessingService {
     private static final Logger log = LoggerFactory.getLogger(ImageProcessingService.class);
+    private final int COMPRESSION_TRIGGER = 150 * 1024; // 500 kb
     private final float IMAGE_QUALITY = 0.7f; // compression quality (0.0f - 1.0f)
 
-    public ImageProcessingService(
-    ) {
+    public BufferedImage multipartToBufferedImage(MultipartFile file) {
+        try {
+            return ImageIO.read(file.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    public BufferedImage fileToBufferedImage(File file) {
+        try {
+            return ImageIO.read(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public File bufferedImageToFile(File file, BufferedImage image) {
+        try {
+            ImageIO.write(image, "jpg", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return file;
+    }
+
+    public MultipartFile bufferedImageToMultipart(BufferedImage image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "jpg", baos);
+            return new ImageMultipartAdapter(
+                    "image",
+                    "image.jpg",
+                    "image/jpeg",
+                    baos.toByteArray()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Optimize an image by resizing and compressing it if necessary.
+     *
+     * @param file
+     * @param maxWidth
+     * @param maxHeight
+     * @return
+     */
+    public MultipartFile optimizeImage(MultipartFile file, int maxWidth, int maxHeight) {
+        log.info("Optimizing image with size: {} bytes", file.getSize());
+        BufferedImage image = multipartToBufferedImage(file);
+
+        // Resize if the image exceeds the maximum dimensions
+        if (isImageResolutionExceeded(image, maxWidth, maxHeight)) {
+            image = resizeBufferedImage(image, maxWidth, maxHeight);
+            file = bufferedImageToMultipart(image);
+        }
+
+        // Compress if the image size exceeds the trigger
+        if (file.getSize() >= COMPRESSION_TRIGGER) {
+            file = compressImage(file);
+        }
+
+        return file;
+    }
+
+    // COMPRESS METHODS
+
     public byte[] compressImage(BufferedImage image) {
+        log.info("Compressing image with size: {} bytes", image.getData().getDataBuffer().getSize());
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ImageOutputStream output = ImageIO.createImageOutputStream(baos)) {
 
@@ -45,7 +110,7 @@ public class ImageProcessingService {
             jpgWriter.write(null, new IIOImage(image, null, null), jpgWriteParam);
             jpgWriter.dispose();
 
-            log.info("Image compressed successfully");
+            log.info("Image compressed successfully into {} bytes", baos.size());
             return baos.toByteArray();
         } catch (IOException e) {
             throw new ImageCompressionFailedException(e.getMessage());
@@ -73,20 +138,22 @@ public class ImageProcessingService {
         return compressImage(new ImageMultipartAdapter(file));
     }
 
-    public BufferedImage resizeBufferedImage(BufferedImage image, int maxWidth, int maxHeight) {
+    // RESIZE METHODS
+
+    public BufferedImage resizeBufferedImage(BufferedImage image, int targetWidth, int targetHeight) {
         final int currentWidth = image.getWidth();
         final int currentHeight = image.getHeight();
-        log.debug("Resizing image with original dimensions {}x{}", currentWidth, currentHeight);
 
-        // Resize only if the image exceeds the maximum dimensions
-        if (currentWidth < maxWidth && currentHeight < maxHeight) {
-            log.debug("Image is within limits ({}x{}), no resize needed", currentWidth, currentHeight);
-            return image;
-        }
+        log.info(
+                "Resizing image with original dimensions {}x{} to {}x{}",
+                currentWidth,
+                currentHeight,
+                targetWidth,
+                targetHeight
+        );
 
-
-        double widthRatio = (double) maxWidth / currentWidth;
-        double heightRatio = (double) maxHeight / currentHeight;
+        double widthRatio = (double) targetWidth / currentWidth;
+        double heightRatio = (double) targetHeight / currentHeight;
         double scale = Math.min(widthRatio, heightRatio);
 
         int newWidth = (int) (currentWidth * scale);
@@ -102,42 +169,46 @@ public class ImageProcessingService {
         return resizedImage;
     }
 
-    public MultipartFile resizeImageMultipart(MultipartFile file, int maxWidth, int maxHeight) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            BufferedImage resizedImage = resizeBufferedImage(
-                    ImageIO.read(file.getInputStream()), maxWidth, maxHeight
-            );
-            ImageIO.write(resizedImage, "jpg", baos);
-        } catch (IOException e) {
-            throw new ImageResizeFailedException(e.getMessage());
+    public MultipartFile resizeImageMultipart(MultipartFile file, int targetWidth, int targetHeight) {
+        BufferedImage image = multipartToBufferedImage(file);
+        BufferedImage resizedImage = resizeBufferedImage(image, targetWidth, targetHeight);
+
+        // If no resizing was needed, return the original file
+        if (resizedImage == image) {
+            return file;
         }
 
-        return new ImageMultipartAdapter(
-                file.getName(),
-                file.getOriginalFilename(),
-                "image/jpeg",
-                baos.toByteArray()
-        );
+        return bufferedImageToMultipart(resizedImage);
     }
 
-    public MultipartFile resizeImageFile(File file, int maxWidth, int maxHeight) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            BufferedImage resizedImage = resizeBufferedImage(
-                    ImageIO.read(file), maxWidth, maxHeight
-            );
+    public File resizeImageFile(File file, int targetWidth, int targetHeight) {
+        BufferedImage image = fileToBufferedImage(file);
+        BufferedImage resizedImage = resizeBufferedImage(image, targetWidth, targetHeight);
 
-            ImageIO.write(resizedImage, "jpg", baos);
-
-        } catch (IOException e) {
-            throw new ImageResizeFailedException(e.getMessage());
+        // If no resizing was needed, return the original file
+        if (resizedImage == image) {
+            return file;
         }
-        return new ImageMultipartAdapter(
-                file.getName(),
-                file.getName(),
-                "image/jpeg",
-                baos.toByteArray()
+
+        return bufferedImageToFile(file, resizedImage);
+    }
+
+    public boolean isImageResolutionExceeded(BufferedImage image, int maxWidth, int maxHeight) {
+        final int currentWidth = image.getWidth();
+        final int currentHeight = image.getHeight();
+        log.info(
+                "Checking image dimensions ({}x{}). Limits ({}x{})",
+                currentWidth,
+                currentHeight,
+                maxWidth,
+                maxHeight
         );
+
+        // Resize only if the image exceeds the maximum dimensions
+        if (currentWidth <= maxWidth && currentHeight <= maxHeight) {
+            log.info("Image is within limits ({}x{}), no resize needed", currentWidth, currentHeight);
+            return false;
+        }
+        return true;
     }
 }

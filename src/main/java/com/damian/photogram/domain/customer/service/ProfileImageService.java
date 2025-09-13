@@ -45,10 +45,6 @@ public class ProfileImageService {
         this.imageValidationService = imageValidationService;
     }
 
-    public long getMaxImageSize() {
-        return this.MAX_IMAGE_SIZE;
-    }
-
     /**
      * It uploads an image and set it as customer profile photo
      *
@@ -57,7 +53,7 @@ public class ProfileImageService {
      * @return image filename
      * @throws ImageFileSizeExceededException if the image size exceeds the limit
      */
-    public String uploadImage(String currentPassword, MultipartFile image) {
+    public String uploadProfileImage(String currentPassword, MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // validate password
@@ -70,15 +66,9 @@ public class ProfileImageService {
                 ALLOWED_IMAGE_TYPES
         );
 
-        // Resize the image to the limits allowed for the profile image
-        if (imageValidationService.isResizeNeeded(image, MAX_WIDTH, MAX_HEIGHT)) {
-            image = imageProcessingService.resizeImageMultipart(image, MAX_WIDTH, MAX_HEIGHT);
-        }
-
-        // Compress the image when size exceeds COMPRESS_SIZE_TRIGGER
-        if (imageValidationService.isCompressionNeeded(image, COMPRESS_SIZE_TRIGGER)) {
-            image = imageProcessingService.compressImage(image);
-        }
+        // At this point the image is guaranteed to be not null and of an allowed type
+        // Image optimizations (resize and compress)
+        image = imageProcessingService.optimizeImage(image, MAX_WIDTH, MAX_HEIGHT);
 
         // Upload the image
         String filename = imageUploaderService.uploadImage(

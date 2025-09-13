@@ -75,13 +75,8 @@ public class PostImageServiceTest extends AbstractServiceTest {
         String filename = "avatar.jpg";
 
         // when
+        when(givenFile.getInputStream()).thenReturn(givenFile.getInputStream());
         doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
-        when(imageValidationService.isResizeNeeded(
-                any(MultipartFile.class),
-                any(Integer.class),
-                any(Integer.class)
-        )).thenReturn(false);
-        when(imageValidationService.isCompressionNeeded(any(MultipartFile.class), any(Long.class))).thenReturn(false);
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString())).thenReturn(filename);
 
         String filenameResult = postImageService.uploadImage(

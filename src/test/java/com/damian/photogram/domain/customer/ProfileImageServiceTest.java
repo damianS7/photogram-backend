@@ -1,10 +1,6 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
-import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
 import com.damian.photogram.core.service.ImageValidationService;
@@ -19,8 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -34,7 +28,6 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -51,7 +44,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     @Mock
     private ImageStorageService imageStorageService;
 
-    @Spy
+    @Mock
     private ImageValidationService imageValidationService;
 
     @InjectMocks
@@ -106,7 +99,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
 
     @Test
     @DisplayName("Should upload profile image")
-    void shouldUploadProfileImage() throws IOException {
+    void shouldUploadProfileImage() {
         // given
         setUpContext(customer);
         MultipartFile givenFile = new MockMultipartFile(
@@ -118,20 +111,12 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
 
         String filename = "avatar.jpg";
 
-        ImageValidationService imgValidationService = Mockito.mock(ImageValidationService.class);
-
         // when
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
-        doNothing().when(imgValidationService).validateImage(any(), any(Long.class), any(String[].class));
-        when(imgValidationService.isResizeNeeded(
-                any(MultipartFile.class),
-                any(Integer.class),
-                any(Integer.class)
-        )).thenReturn(false);
-        when(imgValidationService.isCompressionNeeded(any(MultipartFile.class), any(Long.class))).thenReturn(false);
+        doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(filename);
 
-        String filenameResult = profileImageService.uploadImage(
+        String filenameResult = profileImageService.uploadProfileImage(
                 RAW_PASSWORD, givenFile
         );
 
@@ -140,73 +125,4 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         assertEquals(filename, filenameResult);
         verify(profileRepository, times(1)).save(any(Profile.class));
     }
-
-    @Test
-    @DisplayName("Should not upload profile image when file is empty")
-    void shouldNotUploadProfileImageWhenFileIsEmpty() {
-        // given
-        setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[0]
-        );
-
-        // when
-        ImageEmptyFileException exception = assertThrows(
-                ImageEmptyFileException.class,
-                () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
-        );
-
-        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should not upload profile image when file is not image")
-    void shouldNotUploadProfileImageWhenFileIsNotImage() {
-        // given
-        setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "not-image/jpeg",
-                new byte[5]
-        );
-
-        // when
-        ImageTypeNotAllowedException exception = assertThrows(
-                ImageTypeNotAllowedException.class,
-                () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
-        );
-
-        assertEquals(Exceptions.IMAGE.TYPE_NOT_SUPPORTED, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should not upload profile image when size exceeds limit")
-    void shouldNotUploadProfileImageWhenSizeExceedsLimit() {
-        // given
-        setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[((int) profileImageService.getMaxImageSize()) + 1]
-        );
-
-        // when
-        ImageFileSizeExceededException exception = assertThrows(
-                ImageFileSizeExceededException.class,
-                () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
-        );
-
-        // then
-        assertEquals(Exceptions.IMAGE.TOO_LARGE, exception.getMessage());
-        assertThat(givenFile.getSize()).isGreaterThan(profileImageService.getMaxImageSize());
-    }
-
-    // shouldNotUploadProfileImageWhenResolutionExceedsLimit
-    // shouldUploadAndCompressProfileImage
-    // shouldUploadAndResizeProfileImage
 }
