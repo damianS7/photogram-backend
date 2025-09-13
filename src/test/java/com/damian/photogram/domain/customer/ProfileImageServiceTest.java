@@ -7,6 +7,7 @@ import com.damian.photogram.core.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
 import com.damian.photogram.core.service.ImageStorageService;
 import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.service.ImageValidationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -31,10 +34,11 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProfileImageServiceTest extends AbstractServiceTest {
 
@@ -47,12 +51,16 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     @Mock
     private ImageStorageService imageStorageService;
 
+    @Spy
+    private ImageValidationService imageValidationService;
+
     @InjectMocks
     private ProfileImageService profileImageService;
     private Customer customer;
 
     @BeforeEach
     void setUp() {
+        // TODO remove this?
         passwordEncoder = new BCryptPasswordEncoder();
         profileRepository.deleteAll();
 
@@ -68,7 +76,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
                                    .setLastName("Wick")
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
-                                   .setImageFilename("avatar.jpg")
+                                   .setImageFilename("images/avatar.jpg")
                            );
     }
 
@@ -77,7 +85,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     void shouldGetProfileImage() throws IOException {
         // given
         String filename = "image.jpg";
-        Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
+        Path directoryPath = Paths.get(imageUploaderService.getCustomerUploadFolder(customer.getId()) + "/");
         Files.createDirectories(directoryPath); // ensure path exists
         Path filePath = directoryPath.resolve(filename);
         Files.write(filePath, "test".getBytes()); // create dummy file
@@ -109,21 +117,28 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         );
 
         String filename = "avatar.jpg";
-        //        Path directoryPath = Paths.get("uploads/images/customers/" + customer.getId() + "/");
-        //        Files.createDirectories(directoryPath); // ensure path exists
-        //        Path filePath = directoryPath.resolve(filename);
-        //        Files.write(filePath, givenFile.getBytes()); // create dummy file
+
+        ImageValidationService imgValidationService = Mockito.mock(ImageValidationService.class);
 
         // when
-        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(
-                filename);
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
-        String result = profileImageService.uploadImage(
+        doNothing().when(imgValidationService).validateImage(any(), any(Long.class), any(String[].class));
+        when(imgValidationService.isResizeNeeded(
+                any(MultipartFile.class),
+                any(Integer.class),
+                any(Integer.class)
+        )).thenReturn(false);
+        when(imgValidationService.isCompressionNeeded(any(MultipartFile.class), any(Long.class))).thenReturn(false);
+        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(filename);
+
+        String filenameResult = profileImageService.uploadImage(
                 RAW_PASSWORD, givenFile
         );
 
         // then
-        assertNotNull(result);
+        assertNotNull(filenameResult);
+        assertEquals(filename, filenameResult);
+        verify(profileRepository, times(1)).save(any(Profile.class));
     }
 
     @Test
@@ -139,13 +154,12 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenThrow(
-                ImageEmptyFileException.class
-        );
-        assertThrows(
+        ImageEmptyFileException exception = assertThrows(
                 ImageEmptyFileException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
+
+        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
     }
 
     @Test
@@ -161,15 +175,12 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenThrow(
-                ImageTypeNotAllowedException.class
-        );
-
         ImageTypeNotAllowedException exception = assertThrows(
                 ImageTypeNotAllowedException.class,
                 () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
         );
 
+        assertEquals(Exceptions.IMAGE.TYPE_NOT_SUPPORTED, exception.getMessage());
     }
 
     @Test
@@ -181,7 +192,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
                 "file",
                 "photo.jpg",
                 "image/jpeg",
-                new byte[5 * 1024 * 1024 + 1]
+                new byte[((int) profileImageService.getMaxImageSize()) + 1]
         );
 
         // when
@@ -191,6 +202,11 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.PROFILE.IMAGE.TOO_LARGE, exception.getMessage());
+        assertEquals(Exceptions.IMAGE.TOO_LARGE, exception.getMessage());
+        assertThat(givenFile.getSize()).isGreaterThan(profileImageService.getMaxImageSize());
     }
+
+    // shouldNotUploadProfileImageWhenResolutionExceedsLimit
+    // shouldUploadAndCompressProfileImage
+    // shouldUploadAndResizeProfileImage
 }
