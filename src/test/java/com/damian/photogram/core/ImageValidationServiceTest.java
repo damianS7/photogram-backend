@@ -2,10 +2,10 @@ package com.damian.photogram.core;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
-import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
-import com.damian.photogram.core.service.ImageValidationService;
+import com.damian.photogram.core.image.exception.ImageEmptyFileException;
+import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
+import com.damian.photogram.core.image.service.ImageValidationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -72,8 +72,8 @@ public class ImageValidationServiceTest extends AbstractServiceTest {
         );
 
         // when
-        ImageTypeNotAllowedException ex = assertThrows(
-                ImageTypeNotAllowedException.class,
+        ImageTypeNotSupportedException ex = assertThrows(
+                ImageTypeNotSupportedException.class,
                 () -> imageValidationService.validateImage(
                         givenImage, 5L * 1024 * 1024, new String[]{"image/jpg", "image/jpeg", "image/png"}
                 )

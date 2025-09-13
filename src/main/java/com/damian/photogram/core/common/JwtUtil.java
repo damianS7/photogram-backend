@@ -1,4 +1,4 @@
-package com.damian.photogram.core.utils;
+package com.damian.photogram.core.common;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

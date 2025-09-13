@@ -1,8 +1,8 @@
 package com.damian.photogram.core;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.core.service.ImageStorageService;
-import com.damian.photogram.core.service.ImageUploaderService;
+import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,5 +57,5 @@ public class ImageUploaderServiceTest extends AbstractServiceTest {
         Files.deleteIfExists(Path.of(imageUploaderService.getCustomerUploadFolder(1L) + filename));
     }
 
-
+    // TODO shouldNotUploadImage
 }

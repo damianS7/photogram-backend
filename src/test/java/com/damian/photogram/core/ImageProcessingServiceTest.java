@@ -2,7 +2,7 @@ package com.damian.photogram.core;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
-import com.damian.photogram.core.service.ImageProcessingService;
+import com.damian.photogram.core.image.service.ImageProcessingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

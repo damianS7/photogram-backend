@@ -1,6 +1,6 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.image.service;
 
-import com.damian.photogram.core.exception.ImageCompressionFailedException;
+import com.damian.photogram.core.image.exception.ImageCompressionFailedException;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

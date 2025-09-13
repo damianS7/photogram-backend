@@ -1,6 +1,6 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.image.service;
 
-import com.damian.photogram.core.utils.AuthHelper;
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

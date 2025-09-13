@@ -1,9 +1,9 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageEmptyFileException;
-import com.damian.photogram.core.exception.ImageFileSizeExceededException;
-import com.damian.photogram.core.exception.ImageTypeNotAllowedException;
+import com.damian.photogram.core.image.exception.ImageEmptyFileException;
+import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class ImageValidationService {
                 .anyMatch(ct -> ct.equalsIgnoreCase(contentType));
 
         if (!imageTypeAllowed) {
-            throw new ImageTypeNotAllowedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED);
+            throw new ImageTypeNotSupportedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED);
         }
 
         if (file.getSize() > maxFileSize) {

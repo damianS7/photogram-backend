@@ -1,8 +1,8 @@
-package com.damian.photogram.core.service;
+package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.ImageFailedUploadException;
-import com.damian.photogram.core.exception.ImageNotFoundException;
+import com.damian.photogram.core.image.exception.ImageFailedUploadException;
+import com.damian.photogram.core.image.exception.ImageNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;

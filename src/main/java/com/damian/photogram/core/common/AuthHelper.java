@@ -1,4 +1,4 @@
-package com.damian.photogram.core.utils;
+package com.damian.photogram.core.common;
 
 import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.core.security.user.User;
