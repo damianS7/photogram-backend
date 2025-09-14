@@ -3,11 +3,11 @@ package com.damian.photogram.app.auth;
 import com.damian.photogram.AbstractIntegrationTest;
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.JwtUtil;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +129,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                        .content(jsonRequest))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value(Exceptions.AUTH.BAD_CREDENTIALS))
+               .andExpect(jsonPath("$.message").value(Exceptions.ACCOUNT.BAD_CREDENTIALS))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -157,7 +157,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                        .content(jsonRequest))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(403))
-               .andExpect(jsonPath("$.message").value(Exceptions.AUTH.ACCOUNT_SUSPENDED))
+               .andExpect(jsonPath("$.message").value(Exceptions.ACCOUNT.SUSPENDED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 

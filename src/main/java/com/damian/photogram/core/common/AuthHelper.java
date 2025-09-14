@@ -5,14 +5,18 @@ import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class AuthHelper {
     private static final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private static final Logger log = LoggerFactory.getLogger(AuthHelper.class);
 
     public static void validatePassword(Customer customer, String rawPassword) {
         if (!bCryptPasswordEncoder.matches(rawPassword, customer.getAccount().getPassword())) {
+            log.error("Failed to validate password for: {}", customer.getId());
             throw new AccountInvalidPasswordConfirmationException(Exceptions.ACCOUNT.INVALID_PASSWORD);
         }
     }

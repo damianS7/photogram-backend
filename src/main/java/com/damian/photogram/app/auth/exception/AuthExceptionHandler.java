@@ -2,6 +2,8 @@ package com.damian.photogram.app.auth.exception;
 
 import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
+import com.damian.photogram.domain.account.exception.AccountSuspendedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -30,25 +32,35 @@ public class AuthExceptionHandler {
         log.warn("Failed login attempt. Bad credentials.", e);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(
-                                     ApiResponse.error(Exceptions.AUTH.BAD_CREDENTIALS)
+                                     ApiResponse.error(Exceptions.ACCOUNT.BAD_CREDENTIALS)
                              );
     }
 
-    @ExceptionHandler(LockedException.class)
+    @ExceptionHandler(
+            {
+                    LockedException.class,
+                    AccountSuspendedException.class
+            }
+    )
     public ResponseEntity<?> handleLocked(RuntimeException e) {
         log.warn("Failed login attempt. Account is suspended.", e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(
-                                     ApiResponse.error(Exceptions.AUTH.ACCOUNT_SUSPENDED)
+                                     ApiResponse.error(Exceptions.ACCOUNT.SUSPENDED)
                              );
     }
 
-    @ExceptionHandler(DisabledException.class)
+    @ExceptionHandler(
+            {
+                    AccountNotVerifiedException.class,
+                    DisabledException.class
+            }
+    )
     public ResponseEntity<?> handleDisabled(RuntimeException e) {
         log.warn("Failed login attempt. Account not verified.", e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(
-                                     ApiResponse.error(Exceptions.AUTH.ACCOUNT_NOT_VERIFIED)
+                                     ApiResponse.error(Exceptions.ACCOUNT.NOT_VERIFIED)
                              );
     }
 }

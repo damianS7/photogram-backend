@@ -10,6 +10,8 @@ import com.damian.photogram.domain.account.model.AccountToken;
 import com.damian.photogram.domain.account.repository.AccountRepository;
 import com.damian.photogram.domain.account.repository.AccountTokenRepository;
 import com.damian.photogram.domain.customer.model.Customer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 @Service
 public class AccountVerificationService {
+    private static final Logger log = LoggerFactory.getLogger(AccountVerificationService.class);
     private final Environment env;
     private final AccountTokenRepository accountTokenRepository;
     private final AccountRepository accountRepository;
@@ -44,6 +47,8 @@ public class AccountVerificationService {
      * @throws AccountVerificationNotPendingException when the account is not pending for activation.
      */
     public Account verifyAccount(String token) {
+        log.debug("Verifying account");
+
         // check the token is valid and not expired.
         AccountToken accountToken = this.validateToken(token);
 
@@ -51,11 +56,15 @@ public class AccountVerificationService {
         Account accountCustomer = accountRepository
                 .findByCustomer_Id(accountToken.getCustomer().getId())
                 .orElseThrow(
-                        () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND)
+                        () -> {
+                            log.error("Failed to verify account. Account not found.");
+                            return new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND);
+                        }
                 );
 
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
+            log.error("Failed to verify account. Account is not awaiting verification.");
             throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE);
         }
 
@@ -71,6 +80,7 @@ public class AccountVerificationService {
         // set the time at what the account was updated
         accountCustomer.setUpdatedAt(Instant.now());
 
+        log.debug("Account successfully verified.");
         return accountRepository.save(accountCustomer);
     }
 
@@ -82,23 +92,30 @@ public class AccountVerificationService {
      * @return AccountToken the token entity
      */
     public AccountToken validateToken(String token) {
+        log.debug("Validating token: {}", token);
         // check the token if it matches with the one in database
         AccountToken accountToken = accountTokenRepository
                 .findByToken(token)
                 .orElseThrow(
-                        () -> new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.NOT_FOUND)
+                        () -> {
+                            log.error("Failed to verify token: {}. Token not found.", token);
+                            return new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.NOT_FOUND);
+                        }
                 );
 
         // check expiration
         if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
+            log.error("Failed to verify token: {}. Token expired.", token);
             throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.EXPIRED);
         }
 
         // check if token is already used
         if (accountToken.isUsed()) {
+            log.error("Failed to verify token: {}. Token used.", token);
             throw new AccountVerificationTokenUsedException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.USED);
         }
 
+        log.debug("Token: {} successfully validated.", token);
         return accountToken;
     }
 
@@ -108,6 +125,7 @@ public class AccountVerificationService {
      * @param customer The customer to send a welcome message to.
      */
     public void sendAccountVerifiedEmail(Customer customer) {
+        log.debug("Sending email notifying account is verified for customerId: {}", customer.getId());
         emailSenderService.send(
                 customer.getEmail(),
                 "Welcome to Photogram!",
@@ -124,13 +142,18 @@ public class AccountVerificationService {
      * @throws AccountVerificationNotPendingException If the account is not pending for verification.
      */
     public AccountToken generateVerificationToken(String email) {
+        log.debug("Generating verification token for: {}", email);
         // retrieve the customer by email
         Account account = accountRepository.findByCustomer_Email(email).orElseThrow(
-                () -> new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND)
+                () -> {
+                    log.error("Failed to generate verification token. Account for: {} not found.", email);
+                    return new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND);
+                }
         );
 
         // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
+            log.error("Failed to generate verification token. Account for: {} is not awaiting verification.", email);
             throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE);
         }
 
@@ -148,6 +171,7 @@ public class AccountVerificationService {
                     .setCreatedAt(Instant.now())
                     .setExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
 
+        log.debug("Verification token: {} for: {} generated.", accountToken.getToken(), email);
         // save the token to the database
         return accountTokenRepository.save(
                 accountToken
@@ -161,7 +185,7 @@ public class AccountVerificationService {
      * @param token The token that will be used to verify the user's account.
      */
     public void sendAccountVerificationLinkEmail(String email, String token) {
-
+        log.debug("Sending email account verification link for email: {}", email);
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);

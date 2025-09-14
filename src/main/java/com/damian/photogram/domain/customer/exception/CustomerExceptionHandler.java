@@ -49,6 +49,7 @@ public class CustomerExceptionHandler {
 
     @ExceptionHandler(
             {
+                    CustomerEmailTakenException.class,
                     FollowAlreadyExistsException.class,
             }
     )

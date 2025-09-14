@@ -2,9 +2,9 @@ package com.damian.photogram.app.auth;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
-import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.account.exception.AccountSuspendedException;
@@ -63,14 +63,14 @@ public class AuthenticationService {
         // check if the account is disabled
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
             throw new AccountSuspendedException(
-                    Exceptions.AUTH.ACCOUNT_SUSPENDED
+                    Exceptions.ACCOUNT.SUSPENDED
             );
         }
 
         // check if the account is verified
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
             throw new AccountNotVerifiedException(
-                    Exceptions.AUTH.ACCOUNT_NOT_VERIFIED
+                    Exceptions.ACCOUNT.NOT_VERIFIED
             );
         }
 

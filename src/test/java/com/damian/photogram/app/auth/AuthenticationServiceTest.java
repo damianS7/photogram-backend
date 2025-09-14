@@ -3,9 +3,9 @@ package com.damian.photogram.app.auth;
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
-import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.account.exception.AccountSuspendedException;
@@ -79,7 +79,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
 
         // when
         when(authenticationManager.authenticate(any()))
-                .thenThrow(new BadCredentialsException(Exceptions.AUTH.BAD_CREDENTIALS));
+                .thenThrow(new BadCredentialsException(Exceptions.ACCOUNT.BAD_CREDENTIALS));
 
         BadCredentialsException exception = assertThrows(
                 BadCredentialsException.class,
@@ -87,7 +87,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.AUTH.BAD_CREDENTIALS, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.BAD_CREDENTIALS, exception.getMessage());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.AUTH.ACCOUNT_SUSPENDED, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.SUSPENDED, exception.getMessage());
     }
 
     @Test
@@ -149,6 +149,6 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.AUTH.ACCOUNT_NOT_VERIFIED, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.NOT_VERIFIED, exception.getMessage());
     }
 }

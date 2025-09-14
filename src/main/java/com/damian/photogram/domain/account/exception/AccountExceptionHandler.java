@@ -2,23 +2,26 @@ package com.damian.photogram.domain.account.exception;
 
 import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.core.exception.ApplicationException;
-import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// todo review
 @Order(1)
 @RestControllerAdvice
 public class AccountExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(AccountExceptionHandler.class);
+
     @ExceptionHandler(
             {
                     AccountVerificationTokenExpiredException.class,
             }
-    )
+    ) // 410
     public ResponseEntity<ApiResponse<String>> handleGone(ApplicationException ex) {
+        log.warn("Attempt to verify account with expired token.", ex);
         return ResponseEntity.status(HttpStatus.GONE)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.GONE));
     }
@@ -26,25 +29,22 @@ public class AccountExceptionHandler {
     @ExceptionHandler(
             {
                     AccountVerificationNotPendingException.class,
-                    CustomerEmailTakenException.class
+
             }
-    )
-    // Handle conflict (409)
+    ) // Handle conflict (409)
     public ResponseEntity<ApiResponse<String>> handleConflit(ApplicationException ex) {
+        log.warn("Attempt to verify account not awaiting verification.", ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
     }
 
     @ExceptionHandler(
             {
-                    AccountNotVerifiedException.class,
-                    AccountSuspendedException.class,
-                    AccountVerificationTokenMismatchException.class,
                     AccountVerificationTokenUsedException.class,
-                    AccountInvalidPasswordConfirmationException.class
-            }
+                    AccountInvalidPasswordConfirmationException.class}
     ) // 403
     public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
+        log.warn("Unauthorized account operation attempt.", ex);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
@@ -56,8 +56,8 @@ public class AccountExceptionHandler {
             }
     ) // 404
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
+        log.warn("Account resource not found.", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }
-
 }

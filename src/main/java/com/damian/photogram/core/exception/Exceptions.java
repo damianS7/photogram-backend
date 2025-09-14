@@ -3,15 +3,12 @@ package com.damian.photogram.core.exception;
 
 public class Exceptions {
 
-    public static class AUTH {
-        public static final String BAD_CREDENTIALS = "Invalid email or password.";
-        public static final String ACCOUNT_SUSPENDED = "Your account has been suspended.";
-        public static final String ACCOUNT_NOT_VERIFIED = "Your email is not verified.";
-    }
-
     public static class ACCOUNT {
+        public static final String BAD_CREDENTIALS = "Invalid email or password.";
         public static final String NOT_FOUND = "Account not found.";
         public static final String INVALID_PASSWORD = "Password does not match.";
+        public static final String SUSPENDED = "Account has been suspended.";
+        public static final String NOT_VERIFIED = "Account email is not verified.";
 
         public static class VERIFICATION {
             public static final String NOT_ELIGIBLE = "Account is not eligible for activation.";
@@ -22,7 +19,6 @@ public class Exceptions {
                 public static final String EXPIRED = "This token has expired.";
             }
         }
-
     }
 
     public static class CUSTOMER {

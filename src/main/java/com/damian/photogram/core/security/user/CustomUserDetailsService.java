@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .findByEmail(email)
                 .orElseThrow(
                         () -> new EmailNotFoundException(
-                                Exceptions.AUTH.BAD_CREDENTIALS
+                                Exceptions.ACCOUNT.BAD_CREDENTIALS
                         )
                 );
 
