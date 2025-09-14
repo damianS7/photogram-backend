@@ -26,3 +26,8 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+logging:
+  level:
+    root: INFO
+    com.damian.photogram: DEBUG
+    org.hibernate.SQL: DEBUG
