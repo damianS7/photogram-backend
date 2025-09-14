@@ -1,6 +1,7 @@
 package com.damian.photogram.core.image;
 
 import com.damian.photogram.AbstractServiceTest;
+import com.damian.photogram.ImageTestHelper;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
 import com.damian.photogram.core.image.service.ImageProcessingService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,12 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ImageProcessingServiceTest extends AbstractServiceTest {
@@ -68,39 +70,49 @@ public class ImageProcessingServiceTest extends AbstractServiceTest {
     @DisplayName("Should resize image file")
     void shouldResizeImageFile() throws IOException {
         // given
-        File file = new File(getClass().getResource("/images/4k-image.jpg").getFile());
-        File copy = Files.copy(
-                file.toPath(),
-                new File(file.getParent() + "/image-copy.jpg").toPath()
-        ).toFile();
+        MultipartFile givenMultipart = ImageTestHelper.createMockImage(
+                "file",
+                "file.jpg",
+                "jpg",
+                5000,
+                5000,
+                Color.BLUE
+        );
+
+        File givenFile = ImageTestHelper.multipartToFile(givenMultipart);
 
         // when
         File compressedFile = imageProcessingService.resizeImageFile(
-                copy, 1920, 1080
+                givenFile, 1920, 1080
         );
 
         // then
-        assertTrue(copy.length() > compressedFile.length());
-        Files.deleteIfExists(Path.of(copy.getAbsolutePath()));
+        assertTrue(givenMultipart.getBytes().length > compressedFile.length());
+        Files.deleteIfExists(Path.of(givenFile.getAbsolutePath()));
     }
 
     @Test
     @DisplayName("Should not resize image file when is within limits")
     void shouldNotResizeImageFileWhenIsWithinLimits() throws IOException {
         // given
-        File file = new File(getClass().getResource("/images/4k-image.jpg").getFile());
-        File copy = Files.copy(
-                file.toPath(),
-                new File(file.getParent() + "/image-copy.jpg").toPath()
-        ).toFile();
+        MultipartFile givenMultipart = ImageTestHelper.createMockImage(
+                "file",
+                "file.jpg",
+                "jpg",
+                5000,
+                5000,
+                Color.BLUE
+        );
+
+        File givenFile = ImageTestHelper.multipartToFile(givenMultipart);
 
         // when
-        File compressedFile = imageProcessingService.resizeImageFile(
-                copy, 9000, 9000
+        File compressedFile = imageProcessingService.shrinkImage(
+                givenFile, 9000, 9000
         );
 
         // then
-        assertEquals(copy.length(), compressedFile.length());
-        Files.deleteIfExists(Path.of(copy.getAbsolutePath()));
+        assertThat(givenMultipart.getBytes().length).isEqualTo(compressedFile.length());
+        Files.deleteIfExists(Path.of(givenFile.getAbsolutePath()));
     }
 }

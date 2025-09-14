@@ -1,7 +1,7 @@
 package com.damian.photogram.core.image.service;
 
-import com.damian.photogram.core.image.exception.ImageCompressionFailedException;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
+import com.damian.photogram.core.image.exception.ImageCompressionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -26,6 +27,16 @@ public class ImageProcessingService {
     private static final Logger log = LoggerFactory.getLogger(ImageProcessingService.class);
     private final int COMPRESSION_TRIGGER = 150 * 1024; // 500 kb
     private final float IMAGE_QUALITY = 0.7f; // compression quality (0.0f - 1.0f)
+
+    public File multipartToFile(MultipartFile multipartFile, File file) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(multipartFile.getBytes());
+            return file;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public BufferedImage multipartToBufferedImage(MultipartFile file) {
         try {
@@ -139,6 +150,22 @@ public class ImageProcessingService {
     }
 
     // RESIZE METHODS
+    public File shrinkImage(File image, int targetWidth, int targetHeight) {
+        MultipartFile multipartFile = new ImageMultipartAdapter(image);
+        return multipartToFile(
+                shrinkImage(multipartFile, targetWidth, targetHeight), image
+        );
+    }
+
+    public MultipartFile shrinkImage(MultipartFile image, int targetWidth, int targetHeight) {
+        BufferedImage bufferedImage = multipartToBufferedImage(image);
+
+        if (isImageResolutionExceeded(bufferedImage, targetWidth, targetHeight)) {
+            bufferedImage = resizeBufferedImage(bufferedImage, targetWidth, targetHeight);
+            return bufferedImageToMultipart(bufferedImage);
+        }
+        return image;
+    }
 
     public BufferedImage resizeBufferedImage(BufferedImage image, int targetWidth, int targetHeight) {
         final int currentWidth = image.getWidth();

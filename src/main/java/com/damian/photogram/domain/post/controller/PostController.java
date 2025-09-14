@@ -103,7 +103,6 @@ public class PostController {
     // endpoint to upload profile photo
     @PostMapping("/posts/photo")
     public ResponseEntity<?> uploadPostPhoto(
-            // username ...
             @RequestParam("file") MultipartFile file
     ) {
         String filename = postImageService.uploadImage(file);
