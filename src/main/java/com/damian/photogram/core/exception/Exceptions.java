@@ -56,6 +56,7 @@ public class Exceptions {
         public static final String TYPE_NOT_SUPPORTED = "Image type not supported.";
         public static final String EMPTY_FILE = "Image file is empty.";
         public static final String UPLOAD_FAILED = "Image upload failed.";
+        public static final String STORAGE_FAILED = "Image storage failed.";
     }
 
     public static class POSTS {
@@ -84,5 +85,8 @@ public class Exceptions {
         public static final String MAX_FOLLOWERS = "You have reached the maximum number of followers.";
     }
 
+    public static class OTHER {
+        public static final String IMAGE_TYPE_NOT_DETECTED = "Failed to detect image type.";
+    }
 
 }
