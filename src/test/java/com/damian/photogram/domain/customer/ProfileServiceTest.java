@@ -1,8 +1,8 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
@@ -12,19 +12,11 @@ import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.customer.service.ProfileService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -37,15 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ProfileServiceTest {
-
-    private final String RAW_PASSWORD = "123456";
+public class ProfileServiceTest extends AbstractServiceTest {
 
     @Mock
     private ProfileRepository profileRepository;
-
-    private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ProfileService profileService;
@@ -53,8 +40,6 @@ public class ProfileServiceTest {
 
     @BeforeEach
     void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-
         customer = Customer.create()
                            .setId(2L)
                            .setEmail("customer@test.com")
@@ -66,21 +51,6 @@ public class ProfileServiceTest {
                                    .setGender(CustomerGender.MALE)
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
                            );
-    }
-
-    @AfterEach
-    public void tearDown() {
-        profileRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        User user = new User(customer);
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
     }
 
     @Test

@@ -1,8 +1,8 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
@@ -11,23 +11,15 @@ import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.service.CustomerService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
@@ -38,38 +30,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class CustomerServiceTest {
+public class CustomerServiceTest extends AbstractServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
     private CustomerService customerService;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        customerRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        User user = new User(customer);
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
-    }
 
     @Test
     @DisplayName("Should get all customer")
@@ -127,7 +97,7 @@ public class CustomerServiceTest {
         );
 
         // then
-        assertTrue(exception.getMessage().contains("Customer not found"));
+        assertEquals(Exceptions.CUSTOMER.NOT_FOUND, exception.getMessage());
     }
 
     @Test
@@ -245,9 +215,7 @@ public class CustomerServiceTest {
         );
 
         // when
-        //        when(bCryptPasswordEncoder.matches(currentRawPassword, currentEncodedPassword)).thenReturn(true);
         when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
-
         customerService.updateEmail(updateRequest);
 
         // then

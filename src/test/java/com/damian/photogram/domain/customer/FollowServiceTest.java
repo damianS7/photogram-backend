@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.customer;
 
+import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.exception.FollowAlreadyExistsException;
 import com.damian.photogram.domain.customer.exception.FollowNotFoundException;
@@ -11,23 +11,14 @@ import com.damian.photogram.domain.customer.model.Follow;
 import com.damian.photogram.domain.customer.repository.CustomerRepository;
 import com.damian.photogram.domain.customer.repository.FollowRepository;
 import com.damian.photogram.domain.customer.service.FollowService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -36,8 +27,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class FollowServiceTest {
+public class FollowServiceTest extends AbstractServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
@@ -45,31 +35,8 @@ public class FollowServiceTest {
     @Mock
     private FollowRepository followRepository;
 
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
-
     @InjectMocks
     private FollowService followService;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        customerRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-    }
-
-    void setUpContext(Customer customer) {
-        User user = new User(customer);
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user);
-    }
 
     @Test
     @DisplayName("Should get followers paginated")

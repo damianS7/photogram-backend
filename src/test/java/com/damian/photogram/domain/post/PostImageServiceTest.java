@@ -1,11 +1,8 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
-import com.damian.photogram.core.image.exception.ImageEmptyFileException;
-import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
-import com.damian.photogram.core.image.service.ImageStorageService;
+import com.damian.photogram.ImageTestHelper;
+import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
@@ -20,13 +17,14 @@ import org.mockito.Mock;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 public class PostImageServiceTest extends AbstractServiceTest {
 
@@ -34,9 +32,8 @@ public class PostImageServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private ImageProcessingService imageProcessingService;
 
-    //    @Spy
     @Mock
     private ImageValidationService imageValidationService;
 
@@ -68,15 +65,13 @@ public class PostImageServiceTest extends AbstractServiceTest {
     void shouldUploadPostImage() {
         // given
         setUpContext(customer);
-        ImageMultipartAdapter givenFile = new ImageMultipartAdapter(
-                new File(getClass().getResource("/images/avatar.png").getFile())
-        );
+        MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
 
         String filename = "avatar.jpg";
 
         // when
-        when(givenFile.getInputStream()).thenReturn(givenFile.getInputStream());
         doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
+        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(givenFile);
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString())).thenReturn(filename);
 
         String filenameResult = postImageService.uploadImage(
@@ -88,82 +83,5 @@ public class PostImageServiceTest extends AbstractServiceTest {
         assertEquals(filename, filenameResult);
     }
 
-    @Test
-    @DisplayName("Should not upload post image when file is empty")
-    void shouldNotUploadPostImageWhenFileIsEmpty() {
-        // given
-        setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[0]
-        );
-
-        // when
-        doThrow(new ImageEmptyFileException(Exceptions.IMAGE.EMPTY_FILE))
-                .when(imageValidationService)
-                .validateImage(any(MultipartFile.class), any(Long.class), any(String[].class));
-
-        ImageEmptyFileException exception = assertThrows(
-                ImageEmptyFileException.class,
-                () -> postImageService.uploadImage(givenFile)
-        );
-
-        assertEquals(Exceptions.IMAGE.EMPTY_FILE, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should not upload post image when file is not a valid image type")
-    void shouldNotUploadPostImageWhenFileIsNotValidImageType() {
-        // given
-        setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[5]
-        );
-
-        // when
-        doThrow(new ImageTypeNotSupportedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED))
-                .when(imageValidationService)
-                .validateImage(any(MultipartFile.class), any(Long.class), any(String[].class));
-
-        ImageTypeNotSupportedException exception = assertThrows(
-                ImageTypeNotSupportedException.class,
-                () -> postImageService.uploadImage(givenFile)
-        );
-
-        assertEquals(Exceptions.IMAGE.TYPE_NOT_SUPPORTED, exception.getMessage());
-    }
-
-    // TODO
-
-    //    @Test
-    //    @DisplayName("Should not upload profile image when size exceeds limit")
-    //    void shouldNotUploadProfileImageWhenSizeExceedsLimit() {
-    //        // given
-    //        setUpContext(customer);
-    //        MultipartFile givenFile = new MockMultipartFile(
-    //                "file",
-    //                "photo.jpg",
-    //                "image/jpeg",
-    //                new byte[((int) profileImageService.getMaxImageSize()) + 1]
-    //        );
-    //
-    //        // when
-    //        ImageFileSizeExceededException exception = assertThrows(
-    //                ImageFileSizeExceededException.class,
-    //                () -> profileImageService.uploadImage(RAW_PASSWORD, givenFile)
-    //        );
-    //
-    //        // then
-    //        assertEquals(Exceptions.IMAGE.TOO_LARGE, exception.getMessage());
-    //        assertThat(givenFile.getSize()).isGreaterThan(profileImageService.getMaxImageSize());
-    //    }
-
-    // shouldNotUploadProfileImageWhenResolutionExceedsLimit
-    // shouldUploadAndCompressProfileImage
-    // shouldUploadAndResizeProfileImage
+    // TODO shouldGetImage
 }

@@ -30,13 +30,14 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+//@Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractIntegrationTest {
     @Container
     @ServiceConnection
-    public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
+    protected static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
 
     protected final String RAW_PASSWORD = "123456";
 

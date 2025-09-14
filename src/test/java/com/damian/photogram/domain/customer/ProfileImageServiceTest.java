@@ -1,6 +1,8 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractServiceTest;
+import com.damian.photogram.ImageTestHelper;
+import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
@@ -17,14 +19,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -47,16 +47,15 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     @Mock
     private ImageValidationService imageValidationService;
 
+    @Mock
+    private ImageProcessingService imageProcessingService;
+
     @InjectMocks
     private ProfileImageService profileImageService;
     private Customer customer;
 
     @BeforeEach
     void setUp() {
-        // TODO remove this?
-        passwordEncoder = new BCryptPasswordEncoder();
-        profileRepository.deleteAll();
-
         customer = Customer.create()
                            .setId(2L)
                            .setEmail("customer@test.com")
@@ -77,16 +76,14 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     @DisplayName("Should get profile image")
     void shouldGetProfileImage() throws IOException {
         // given
-        String filename = "image.jpg";
-        Path directoryPath = Paths.get(imageUploaderService.getCustomerUploadFolder(customer.getId()) + "/");
-        Files.createDirectories(directoryPath); // ensure path exists
-        Path filePath = directoryPath.resolve(filename);
-        Files.write(filePath, "test".getBytes()); // create dummy file
-        Resource r = new UrlResource(filePath.toUri());
+        File givenFile = ImageTestHelper.multipartToFile(
+                ImageTestHelper.createDefaultJpg()
+        );
+        Resource givenResource = new UrlResource(givenFile.toURI());
 
         // when
         when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getProfile()));
-        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(r);
+        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(givenResource);
         Resource resource = profileImageService.getProfileImage(customer.getId());
 
         // then
@@ -94,7 +91,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         assertTrue(resource.exists());
 
         // cleanup
-        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(Path.of(givenFile.getAbsolutePath()));
     }
 
     @Test
@@ -102,18 +99,13 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     void shouldUploadProfileImage() {
         // given
         setUpContext(customer);
-        MultipartFile givenFile = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[5]
-        );
-
+        MultipartFile givenFile = ImageTestHelper.createDefaultJpg();
         String filename = "avatar.jpg";
 
         // when
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
         doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
+        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(givenFile);
         when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(filename);
 
         String filenameResult = profileImageService.uploadProfileImage(

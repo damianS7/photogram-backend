@@ -1,12 +1,16 @@
 package com.damian.photogram;
 
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ImageTestHelper {
 
@@ -34,6 +38,16 @@ public class ImageTestHelper {
             return new MockMultipartFile(name, filename, "image/" + format, bytes);
         } catch (IOException e) {
             throw new RuntimeException("Error creando imagen mock", e);
+        }
+    }
+
+    public static File multipartToFile(MultipartFile image) {
+        try {
+            Path tempFile = Files.createTempFile("-", image.getOriginalFilename());
+            Files.write(tempFile, image.getBytes());
+            return tempFile.toFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
