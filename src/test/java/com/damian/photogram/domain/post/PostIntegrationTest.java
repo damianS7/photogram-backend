@@ -1,11 +1,13 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractIntegrationTest;
+import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
+import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.model.Post;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,20 +15,26 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.File;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostIntegrationTest extends AbstractIntegrationTest {
 
+    private static final Logger log = LoggerFactory.getLogger(PostIntegrationTest.class);
     private Customer customer;
 
     @BeforeAll
@@ -164,4 +172,81 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(MockMvcResultMatchers.status().is(204))
                 .andReturn();
     }
+
+    @Test
+    @DisplayName("Should upload post image")
+    void shouldUploadPostImage() throws Exception {
+        // given
+        loginWithCustomer(customer);
+
+        ImageMultipartAdapter givenFile = new ImageMultipartAdapter(
+                new File(getClass().getResource("/images/avatar.png").getFile())
+        );
+
+        MockMultipartFile givenImage = new MockMultipartFile(
+                "file",
+                "photo.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                givenFile.getInputStream()
+        );
+
+        // when
+        MvcResult result = mockMvc
+                .perform(
+                        multipart("/api/v1/posts/photo")
+                                .file(givenImage)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(201))
+                .andReturn();
+
+        // then
+        ImageUploadedDto imageUploadedDto = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                ImageUploadedDto.class
+        );
+
+        // then
+        assertThat(imageUploadedDto)
+                .isNotNull()
+                .extracting(ImageUploadedDto::photoFilename)
+                .isEqualTo(imageUploadedDto.photoFilename());
+    }
+
+    @Test
+    @DisplayName("Should upload post image")
+    void shouldNotUploadPostImageWhenNotImageIsEmpty() throws Exception {
+        // given
+        loginWithCustomer(customer);
+
+        MockMultipartFile givenImage = new MockMultipartFile(
+                "file",
+                "photo.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new byte[0]
+        );
+
+        // when
+        MvcResult result = mockMvc
+                .perform(
+                        multipart("/api/v1/posts/photo")
+                                .file(givenImage)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .param("currentPassword", this.RAW_PASSWORD)
+                                .with(request -> {
+                                    request.setMethod("POST");
+                                    return request;
+                                }))
+
+                .andDo(print())
+                .andExpect(status().is(400))
+                .andReturn();
+    }
+
 }

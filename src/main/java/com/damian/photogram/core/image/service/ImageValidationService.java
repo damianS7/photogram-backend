@@ -43,5 +43,6 @@ public class ImageValidationService {
         if (file.getSize() > maxFileSize) {
             throw new ImageFileSizeExceededException(Exceptions.IMAGE.TOO_LARGE);
         }
+        log.info("Image validated.");
     }
 }
