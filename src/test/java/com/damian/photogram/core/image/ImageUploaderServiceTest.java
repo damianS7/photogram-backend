@@ -1,4 +1,4 @@
-package com.damian.photogram.core;
+package com.damian.photogram.core.image;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.image.service.ImageStorageService;
@@ -56,6 +56,4 @@ public class ImageUploaderServiceTest extends AbstractServiceTest {
         assertEquals(filename, givenFile.getName());
         Files.deleteIfExists(Path.of(imageUploaderService.getCustomerUploadFolder(1L) + filename));
     }
-
-    // TODO shouldNotUploadImage
 }

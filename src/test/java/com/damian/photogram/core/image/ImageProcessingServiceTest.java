@@ -1,4 +1,4 @@
-package com.damian.photogram.core;
+package com.damian.photogram.core.image;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;

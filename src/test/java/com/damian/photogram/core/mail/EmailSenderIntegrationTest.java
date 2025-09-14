@@ -1,4 +1,4 @@
-package com.damian.photogram.core;
+package com.damian.photogram.core.mail;
 
 import com.damian.photogram.AbstractIntegrationTest;
 import com.damian.photogram.core.mail.service.EmailSenderService;
