@@ -1,4 +1,4 @@
-package com.damian.photogram.app.auth.exception;
+package com.damian.photogram.core.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
