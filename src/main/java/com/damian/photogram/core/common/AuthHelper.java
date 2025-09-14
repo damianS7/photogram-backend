@@ -1,7 +1,8 @@
 package com.damian.photogram.core.common;
 
-import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +13,7 @@ public class AuthHelper {
 
     public static void validatePassword(Customer customer, String rawPassword) {
         if (!bCryptPasswordEncoder.matches(rawPassword, customer.getAccount().getPassword())) {
-            throw new PasswordMismatchException(PasswordMismatchException.PASSWORD_MISMATCH);
+            throw new AccountInvalidPasswordConfirmationException(Exceptions.ACCOUNT.INVALID_PASSWORD);
         }
     }
 

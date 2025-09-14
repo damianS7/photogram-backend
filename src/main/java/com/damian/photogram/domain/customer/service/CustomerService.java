@@ -1,9 +1,9 @@
 package com.damian.photogram.domain.customer.service;
 
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.core.common.AuthHelper;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
@@ -157,7 +157,7 @@ public class CustomerService {
      *
      * @param request that contains the current password and the new email.
      * @return the customer updated
-     * @throws PasswordMismatchException if the password does not match
+     * @throws AccountInvalidPasswordConfirmationException if the password does not match
      */
     public Customer updateEmail(CustomerEmailUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext
