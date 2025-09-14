@@ -1,6 +1,6 @@
 package com.damian.photogram.app.notification;
 
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

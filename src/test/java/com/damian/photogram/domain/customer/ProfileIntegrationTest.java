@@ -2,12 +2,12 @@ package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractIntegrationTest;
 import com.damian.photogram.ImageTestHelper;
-import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
-import com.damian.photogram.domain.customer.dto.response.ProfileDto;
-import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.enums.AccountStatus;
+import com.damian.photogram.domain.user.customer.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.domain.user.customer.dto.response.ProfileDto;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

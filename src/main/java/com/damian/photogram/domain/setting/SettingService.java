@@ -2,7 +2,7 @@ package com.damian.photogram.domain.setting;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.AuthHelper;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
 import com.damian.photogram.domain.setting.dto.SettingsPatchRequest;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;

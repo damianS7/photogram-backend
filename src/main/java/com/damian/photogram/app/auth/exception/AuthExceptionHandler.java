@@ -2,8 +2,8 @@ package com.damian.photogram.app.auth.exception;
 
 import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.domain.account.exception.AccountNotVerifiedException;
-import com.damian.photogram.domain.account.exception.AccountSuspendedException;
+import com.damian.photogram.domain.user.account.exception.AccountNotVerifiedException;
+import com.damian.photogram.domain.user.account.exception.AccountSuspendedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;

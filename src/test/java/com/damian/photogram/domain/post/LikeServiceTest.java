@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
 import com.damian.photogram.domain.post.exception.PostAlreadyLikedException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;

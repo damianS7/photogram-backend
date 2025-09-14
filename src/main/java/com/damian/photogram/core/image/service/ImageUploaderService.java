@@ -1,7 +1,7 @@
 package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.common.AuthHelper;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;

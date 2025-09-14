@@ -5,7 +5,7 @@ import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
 import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
 import com.damian.photogram.domain.post.exception.CommentOwnershipException;

@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.setting;
 
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import jakarta.persistence.*;
 
 @Entity

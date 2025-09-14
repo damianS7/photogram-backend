@@ -1,11 +1,11 @@
 package com.damian.photogram.app.notification;
 
 import com.damian.photogram.app.notification.dto.NotificationEvent;
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.AuthHelper;
-import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.user.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -100,7 +100,10 @@ public class NotificationService {
                             "Notification not sent: Customer recipient with id={} not found.",
                             notificationEvent.recipientId()
                     );
-                    return new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND);
+                    return new CustomerNotFoundException(
+                            Exceptions.CUSTOMER.NOT_FOUND,
+                            notificationEvent.recipientId()
+                    );
                 });
 
         // create and save notification to the database

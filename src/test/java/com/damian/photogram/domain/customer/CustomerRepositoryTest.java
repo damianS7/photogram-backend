@@ -1,9 +1,9 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractRepositoryTest;
-import com.damian.photogram.domain.account.model.Account;
-import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.model.Account;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

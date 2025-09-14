@@ -2,14 +2,14 @@ package com.damian.photogram;
 
 
 import com.damian.photogram.app.notification.NotificationRepository;
-import com.damian.photogram.domain.account.repository.AccountRepository;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
-import com.damian.photogram.domain.customer.repository.FollowRepository;
-import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.follow.FollowRepository;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.setting.SettingRepository;
+import com.damian.photogram.domain.user.account.repository.AccountRepository;
+import com.damian.photogram.domain.user.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.user.customer.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

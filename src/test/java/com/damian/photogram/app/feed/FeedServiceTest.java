@@ -1,10 +1,10 @@
 package com.damian.photogram.app.feed;
 
 import com.damian.photogram.app.feed.dto.response.FeedDto;
-import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.FollowRepository;
-import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.follow.FollowRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.repository.ProfileRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

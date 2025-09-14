@@ -1,13 +1,13 @@
 package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
-import com.damian.photogram.domain.customer.dto.response.CustomerDto;
-import com.damian.photogram.domain.customer.dto.response.CustomerWithProfileDto;
-import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.enums.AccountStatus;
+import com.damian.photogram.domain.user.customer.dto.request.CustomerEmailUpdateRequest;
+import com.damian.photogram.domain.user.customer.dto.response.CustomerDto;
+import com.damian.photogram.domain.user.customer.dto.response.CustomerWithProfileDto;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

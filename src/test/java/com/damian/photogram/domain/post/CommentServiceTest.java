@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
 import com.damian.photogram.domain.post.exception.CommentOwnershipException;

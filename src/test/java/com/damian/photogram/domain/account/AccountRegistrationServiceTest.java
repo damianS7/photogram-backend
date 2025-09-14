@@ -1,13 +1,13 @@
 package com.damian.photogram.domain.account;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
-import com.damian.photogram.domain.account.model.AccountToken;
-import com.damian.photogram.domain.account.service.AccountRegistrationService;
-import com.damian.photogram.domain.account.service.AccountVerificationService;
-import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.service.CustomerService;
+import com.damian.photogram.domain.user.account.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.domain.user.account.model.AccountToken;
+import com.damian.photogram.domain.user.account.service.AccountRegistrationService;
+import com.damian.photogram.domain.user.account.service.AccountVerificationService;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.service.CustomerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

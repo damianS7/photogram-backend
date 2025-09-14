@@ -2,11 +2,11 @@ package com.damian.photogram.app.feed;
 
 import com.damian.photogram.app.feed.dto.response.FeedDto;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
-import com.damian.photogram.domain.customer.model.Profile;
-import com.damian.photogram.domain.customer.repository.FollowRepository;
-import com.damian.photogram.domain.customer.repository.ProfileRepository;
+import com.damian.photogram.domain.follow.FollowRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.customer.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.user.customer.model.Profile;
+import com.damian.photogram.domain.user.customer.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 
 
@@ -28,7 +28,7 @@ public class FeedService {
 
     public FeedDto getUserFeed(String username) {
         final Profile profile = profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND)
+                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, null)
         );
 
         return new FeedDto(

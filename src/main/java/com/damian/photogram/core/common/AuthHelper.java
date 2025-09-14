@@ -2,9 +2,9 @@ package com.damian.photogram.core.common;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
-import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.exception.AccountInvalidPasswordConfirmationException;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;

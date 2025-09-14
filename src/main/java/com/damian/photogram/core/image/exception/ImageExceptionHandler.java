@@ -24,7 +24,7 @@ public class ImageExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {
         log.warn("Image upload failed: empty file.", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(ApiResponse.error(Exceptions.IMAGE.INVALID, HttpStatus.BAD_REQUEST));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST));
     }
 
     @ExceptionHandler(
@@ -49,7 +49,7 @@ public class ImageExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
         log.warn("Image not found.", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body(ApiResponse.error(Exceptions.IMAGE.NOT_FOUND, HttpStatus.NOT_FOUND));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }
 
     @ExceptionHandler(
@@ -60,7 +60,7 @@ public class ImageExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
         log.warn("Image upload failed: file too large.", ex);
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                             .body(ApiResponse.error(Exceptions.IMAGE.TOO_LARGE, HttpStatus.PAYLOAD_TOO_LARGE));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
     }
 
     @ExceptionHandler(
@@ -72,7 +72,7 @@ public class ImageExceptionHandler {
         log.warn("Image upload failed: unsupported type.", ex);
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                              .body(ApiResponse.error(
-                                     Exceptions.IMAGE.TYPE_NOT_SUPPORTED,
+                                     ex.getMessage(),
                                      HttpStatus.UNSUPPORTED_MEDIA_TYPE
                              ));
     }

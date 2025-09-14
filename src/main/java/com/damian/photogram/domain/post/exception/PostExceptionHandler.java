@@ -50,7 +50,7 @@ public class PostExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleConflit(ApplicationException ex) {
         log.warn("Attempt to like a post twice.", ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                             .body(ApiResponse.error(Exceptions.POST.ALREADY_LIKED, HttpStatus.CONFLICT));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
     }
 
 
@@ -62,6 +62,6 @@ public class PostExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
         log.warn("Attempt to upload a post image too large.", ex);
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                             .body(ApiResponse.error(Exceptions.POST.IMAGE.TOO_LARGE, HttpStatus.PAYLOAD_TOO_LARGE));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
     }
 }

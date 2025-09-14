@@ -2,8 +2,8 @@ package com.damian.photogram.app.notification;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
-import com.damian.photogram.domain.customer.model.Customer;
-import com.damian.photogram.domain.customer.repository.CustomerRepository;
+import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

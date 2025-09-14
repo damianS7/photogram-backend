@@ -1,7 +1,7 @@
 package com.damian.photogram.domain.setting;
 
 import com.damian.photogram.AbstractServiceTest;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
 import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;

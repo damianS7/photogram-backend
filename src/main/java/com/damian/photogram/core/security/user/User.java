@@ -1,9 +1,9 @@
 package com.damian.photogram.core.security.user;
 
-import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.account.model.Account;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.enums.AccountStatus;
+import com.damian.photogram.domain.user.account.model.Account;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,10 +1,10 @@
 package com.damian.photogram.domain.setting;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.account.enums.AccountStatus;
-import com.damian.photogram.domain.customer.enums.CustomerGender;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.domain.customer.model.Customer;
+import com.damian.photogram.domain.user.account.enums.AccountStatus;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.setting.dto.SettingDto;
 import com.damian.photogram.domain.setting.dto.SettingUpdateRequest;
 import org.junit.jupiter.api.BeforeAll;
