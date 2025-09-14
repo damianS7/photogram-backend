@@ -2,12 +2,12 @@ package com.damian.photogram.domain.account;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.core.mail.service.EmailSenderService;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
@@ -102,14 +102,14 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
         );
 
         // when
-        PasswordMismatchException exception = assertThrows(
-                PasswordMismatchException.class,
+        AccountInvalidPasswordConfirmationException exception = assertThrows(
+                AccountInvalidPasswordConfirmationException.class,
                 () -> accountPasswordService.updatePassword(
                         updateRequest
                 )
         );
         // then
-        assertEquals(PasswordMismatchException.PASSWORD_MISMATCH, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.INVALID_PASSWORD, exception.getMessage());
     }
 
     @Test

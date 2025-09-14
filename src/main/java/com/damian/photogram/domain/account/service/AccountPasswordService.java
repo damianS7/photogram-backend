@@ -1,13 +1,13 @@
 package com.damian.photogram.domain.account.service;
 
-import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.PasswordMismatchException;
-import com.damian.photogram.core.mail.service.EmailSenderService;
 import com.damian.photogram.core.common.AuthHelper;
+import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.mail.service.EmailSenderService;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordResetSetRequest;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.enums.AccountTokenType;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.account.exception.AccountNotFoundException;
 import com.damian.photogram.domain.account.model.Account;
 import com.damian.photogram.domain.account.model.AccountToken;
@@ -55,8 +55,8 @@ public class AccountPasswordService {
      *
      * @param customerId the id of the customer to be updated
      * @param password   the new password to be set
-     * @throws CustomerNotFoundException if the customer does not exist
-     * @throws PasswordMismatchException if the password does not match
+     * @throws CustomerNotFoundException                   if the customer does not exist
+     * @throws AccountInvalidPasswordConfirmationException if the password does not match
      */
     public void updatePassword(Long customerId, String password) {
 
@@ -83,8 +83,8 @@ public class AccountPasswordService {
      * It updates the password of the current customer
      *
      * @param request the request body that contains the current password and the new password
-     * @throws CustomerNotFoundException if the customer does not exist
-     * @throws PasswordMismatchException if the password does not match
+     * @throws CustomerNotFoundException                   if the customer does not exist
+     * @throws AccountInvalidPasswordConfirmationException if the password does not match
      */
     public void updatePassword(AccountPasswordUpdateRequest request) {
         // we extract the email from the Customer stored in the SecurityContext

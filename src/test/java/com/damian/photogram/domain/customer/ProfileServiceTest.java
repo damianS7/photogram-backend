@@ -2,7 +2,7 @@ package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.PasswordMismatchException;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
@@ -102,13 +102,13 @@ public class ProfileServiceTest extends AbstractServiceTest {
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(customer.getProfile()));
-        PasswordMismatchException exception = assertThrows(
-                PasswordMismatchException.class,
+        AccountInvalidPasswordConfirmationException exception = assertThrows(
+                AccountInvalidPasswordConfirmationException.class,
                 () -> profileService.updateProfile(givenRequest)
         );
 
         // Then
-        assertEquals(PasswordMismatchException.PASSWORD_MISMATCH, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.INVALID_PASSWORD, exception.getMessage());
     }
 
     @Test

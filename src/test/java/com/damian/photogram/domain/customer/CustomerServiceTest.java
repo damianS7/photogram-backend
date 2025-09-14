@@ -2,8 +2,8 @@ package com.damian.photogram.domain.customer;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.PasswordMismatchException;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.domain.account.exception.AccountInvalidPasswordConfirmationException;
 import com.damian.photogram.domain.customer.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.CustomerEmailTakenException;
@@ -246,12 +246,12 @@ public class CustomerServiceTest extends AbstractServiceTest {
         );
 
         // when
-        PasswordMismatchException exception = assertThrows(
-                PasswordMismatchException.class,
+        AccountInvalidPasswordConfirmationException exception = assertThrows(
+                AccountInvalidPasswordConfirmationException.class,
                 () -> customerService.updateEmail(updateRequest)
         );
 
         // then
-        assertEquals(PasswordMismatchException.PASSWORD_MISMATCH, exception.getMessage());
+        assertEquals(Exceptions.ACCOUNT.INVALID_PASSWORD, exception.getMessage());
     }
 }
