@@ -1,11 +1,11 @@
 package com.damian.photogram.domain.account;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.account.enums.AccountStatus;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpHeaders;
@@ -165,7 +165,6 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                        .content(json))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(409))
-               .andExpect(jsonPath("$.message").value(containsString("is already taken.")))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 

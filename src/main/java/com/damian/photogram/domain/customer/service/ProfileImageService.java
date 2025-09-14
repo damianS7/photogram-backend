@@ -2,7 +2,7 @@ package com.damian.photogram.domain.customer.service;
 
 import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.exception.ImageTooLargeException;
 import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
@@ -51,7 +51,7 @@ public class ProfileImageService {
      * @param currentPassword the password of the current customer user
      * @param image           the uploaded image
      * @return image filename
-     * @throws ImageFileSizeExceededException if the image size exceeds the limit
+     * @throws ImageTooLargeException if the image size exceeds the limit
      */
     public String uploadProfileImage(String currentPassword, MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();

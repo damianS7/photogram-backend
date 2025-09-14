@@ -3,7 +3,7 @@ package com.damian.photogram.core.image;
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.image.exception.ImageEmptyFileException;
-import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.exception.ImageTooLargeException;
 import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
 import com.damian.photogram.core.image.service.ImageValidationService;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class ImageValidationServiceTest extends AbstractServiceTest {
         );
 
         // then
-        assertEquals(Exceptions.IMAGE.EMPTY_FILE, ex.getMessage());
+        assertEquals(Exceptions.IMAGE.EMPTY, ex.getMessage());
     }
 
     @Test
@@ -95,8 +95,8 @@ public class ImageValidationServiceTest extends AbstractServiceTest {
         );
 
         // when
-        ImageFileSizeExceededException ex = assertThrows(
-                ImageFileSizeExceededException.class,
+        ImageTooLargeException ex = assertThrows(
+                ImageTooLargeException.class,
                 () -> imageValidationService.validateImage(
                         givenImage, 1024 * 1024, new String[]{"image/jpg", "image/jpeg", "image/png"}
                 )

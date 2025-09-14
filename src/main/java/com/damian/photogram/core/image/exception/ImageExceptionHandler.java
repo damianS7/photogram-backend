@@ -2,6 +2,7 @@ package com.damian.photogram.core.image.exception;
 
 import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.core.exception.ApplicationException;
+import com.damian.photogram.core.exception.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// todo review
 @Order(1)
 @RestControllerAdvice
 public class ImageExceptionHandler {
@@ -22,29 +22,23 @@ public class ImageExceptionHandler {
             }
     ) // 400
     public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {
-        log.warn(ex.getMessage());
+        log.warn("Image upload failed: empty file.", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST));
+                             .body(ApiResponse.error(Exceptions.IMAGE.INVALID, HttpStatus.BAD_REQUEST));
     }
 
     @ExceptionHandler(
             {
                     ImageCompressionFailedException.class,
+                    ImageResizeFailedException.class,
+                    ImageFailedUploadException.class,
+                    ImageFailedStorageException.class
             }
-    ) // 500
-    public ResponseEntity<ApiResponse<String>> handleCompression(ApplicationException ex) {
+    )
+    public ResponseEntity<ApiResponse<String>> handleApplicationException(ApplicationException ex) {
+        log.error("Image upload failed.", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error("", HttpStatus.INTERNAL_SERVER_ERROR));
-    }
-
-    @ExceptionHandler(
-            {
-                    ImageResizeFailedException.class
-            }
-    ) // 500
-    public ResponseEntity<ApiResponse<String>> handleResize(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error("", HttpStatus.INTERNAL_SERVER_ERROR));
+                             .body(ApiResponse.error(Exceptions.IMAGE.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @ExceptionHandler(
@@ -53,39 +47,33 @@ public class ImageExceptionHandler {
             }
     ) // 404
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
+        log.warn("Image not found.", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
+                             .body(ApiResponse.error(Exceptions.IMAGE.NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
     @ExceptionHandler(
             {
-                    ImageFileSizeExceededException.class,
+                    ImageTooLargeException.class,
             }
     ) // 413 Payload Too Large
     public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
+        log.warn("Image upload failed: file too large.", ex);
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
+                             .body(ApiResponse.error(Exceptions.IMAGE.TOO_LARGE, HttpStatus.PAYLOAD_TOO_LARGE));
     }
 
     @ExceptionHandler(
             {
                     ImageTypeNotSupportedException.class
             }
-    )
+    ) // 415
     public ResponseEntity<ApiResponse<String>> invalidType(ApplicationException ex) {
+        log.warn("Image upload failed: unsupported type.", ex);
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNSUPPORTED_MEDIA_TYPE));
-    }
-
-    @ExceptionHandler(
-            {
-                    ImageFailedUploadException.class,
-                    ImageFailedStorageException.class
-            }
-    )
-    public ResponseEntity<ApiResponse<String>> handleApplicationException(ApplicationException ex) {
-        log.error("ImageExceptionHandler: INTERNAL_SERVER_ERROR ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+                             .body(ApiResponse.error(
+                                     Exceptions.IMAGE.TYPE_NOT_SUPPORTED,
+                                     HttpStatus.UNSUPPORTED_MEDIA_TYPE
+                             ));
     }
 }

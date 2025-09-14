@@ -2,7 +2,7 @@ package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.image.exception.ImageEmptyFileException;
-import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
+import com.damian.photogram.core.image.exception.ImageTooLargeException;
 import com.damian.photogram.core.image.exception.ImageTypeNotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class ImageValidationService {
     public void validateImage(MultipartFile file, long maxFileSize, String[] allowedImageTypes) {
         log.debug("Validating image file: {}", file.getOriginalFilename());
         if (file.isEmpty()) {
-            throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY_FILE);
+            throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY);
         }
 
         String contentType = file.getContentType();
@@ -41,7 +41,7 @@ public class ImageValidationService {
         }
 
         if (file.getSize() > maxFileSize) {
-            throw new ImageFileSizeExceededException(Exceptions.IMAGE.TOO_LARGE);
+            throw new ImageTooLargeException(Exceptions.IMAGE.TOO_LARGE);
         }
         log.info("Image validated.");
     }
