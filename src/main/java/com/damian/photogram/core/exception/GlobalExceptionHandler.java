@@ -2,13 +2,13 @@ package com.damian.photogram.core.exception;
 
 import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.core.common.ApiResponse;
-import com.damian.photogram.core.image.exception.*;
 import com.damian.photogram.domain.account.exception.*;
 import com.damian.photogram.domain.customer.exception.*;
 import com.damian.photogram.domain.post.exception.*;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
 import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // todo review
+@Order(99)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
@@ -46,40 +47,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    ImageEmptyFileException.class,
                     ProfileUpdateValidationException.class
             }
     ) // 400
     public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST));
-    }
-
-    // TODO
-    // handle compression and resize exceptions
-    // ImageCompressionException
-    // ImageResizeException
-    //@ExceptionHandler
-    // dont show internal details, just log them and send generic message to client
-
-    @ExceptionHandler(
-            {
-                    ImageCompressionFailedException.class,
-            }
-    ) // 500
-    public ResponseEntity<ApiResponse<String>> handleCompression(ApplicationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error("", HttpStatus.INTERNAL_SERVER_ERROR));
-    }
-
-    @ExceptionHandler(
-            {
-                    ImageResizeFailedException.class
-            }
-    ) // 500
-    public ResponseEntity<ApiResponse<String>> handleResize(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error("", HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -118,7 +91,6 @@ public class GlobalExceptionHandler {
             {
                     UsernameNotFoundException.class,
                     EmailNotFoundException.class,
-                    ImageNotFoundException.class,
                     EntityNotFoundException.class,
                     CustomerNotFoundException.class,
                     ProfileNotFoundException.class,
@@ -154,7 +126,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    ImageFileSizeExceededException.class,
                     PostImageFileSizeExceededException.class,
                     MaxUploadSizeExceededException.class,
             }
@@ -162,16 +133,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
-    }
-
-    @ExceptionHandler(
-            {
-                    ImageTypeNotSupportedException.class
-            }
-    )
-    public ResponseEntity<ApiResponse<String>> invalidType(ApplicationException ex) {
-        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNSUPPORTED_MEDIA_TYPE));
     }
 
     @ExceptionHandler(
@@ -188,7 +149,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             {
                     ApplicationException.class,
-                    ImageFailedUploadException.class
                     //                    RuntimeException.class
             }
     )
@@ -209,6 +169,4 @@ public class GlobalExceptionHandler {
                                      HttpStatus.INTERNAL_SERVER_ERROR
                              ));
     }
-
-
 }
