@@ -3,8 +3,8 @@ package com.damian.photogram.domain.post;
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
-import com.damian.photogram.domain.post.exception.CommentNotAuthorException;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
+import com.damian.photogram.domain.post.exception.CommentOwnershipException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
@@ -37,7 +37,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
     @InjectMocks
     private CommentService commentService;
-    
+
     @Test
     @DisplayName("Should get comments paginated")
     void shouldGetCommentsPaginated() {
@@ -244,7 +244,7 @@ public class CommentServiceTest extends AbstractServiceTest {
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         assertThrows(
-                CommentNotAuthorException.class,
+                CommentOwnershipException.class,
                 () -> commentService.deleteComment(comment.getId())
         );
 

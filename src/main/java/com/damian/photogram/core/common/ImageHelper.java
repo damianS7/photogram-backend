@@ -15,7 +15,7 @@ public class ImageHelper {
         try {
             contentType = Files.probeContentType(resource.getFile().toPath());
         } catch (IOException e) {
-            throw new RuntimeException(Exceptions.OTHER.IMAGE_TYPE_NOT_DETECTED);
+            throw new RuntimeException(Exceptions.IMAGE.TYPE_NOT_DETECTED);
         }
 
         if (contentType == null) {

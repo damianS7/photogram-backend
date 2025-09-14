@@ -37,7 +37,7 @@ public class CustomerDtoMapper {
     public static CustomerWithAllDataDto toCustomerWithAllDataDto(Customer customer) {
         ProfileDto profileDTO = Optional.of(ProfileDtoMapper.toProfileDto(customer.getProfile()))
                                         .orElseThrow(() -> new ProfileNotFoundException(
-                                                Exceptions.PROFILE.NOT_FOUND));
+                                                Exceptions.CUSTOMER.PROFILE.NOT_FOUND));
 
         return new CustomerWithAllDataDto(
                 customer.getId(),

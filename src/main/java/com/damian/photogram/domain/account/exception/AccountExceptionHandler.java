@@ -41,6 +41,7 @@ public class AccountExceptionHandler {
                     AccountSuspendedException.class,
                     AccountVerificationTokenMismatchException.class,
                     AccountVerificationTokenUsedException.class,
+                    AccountInvalidPasswordConfirmationException.class
             }
     ) // 403
     public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {

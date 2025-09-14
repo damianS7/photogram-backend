@@ -1,11 +1,11 @@
 package com.damian.photogram.domain.customer.service;
 
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.AuthHelper;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
-import com.damian.photogram.domain.customer.exception.ProfileUpdateValidationException;
+import com.damian.photogram.domain.customer.exception.ProfileUpdateException;
 import com.damian.photogram.domain.customer.helper.ProfileAuthorizationHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
@@ -48,7 +48,7 @@ public class ProfileService {
         return profileRepository
                 .findById(profileId)
                 .orElseThrow(
-                        () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
+                        () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND)
                 );
     }
 
@@ -79,7 +79,7 @@ public class ProfileService {
         Profile profile = profileRepository
                 .findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(
-                        Exceptions.PROFILE.NOT_FOUND));
+                        Exceptions.CUSTOMER.PROFILE.NOT_FOUND));
 
 
         // if the logged user is not admin
@@ -102,8 +102,8 @@ public class ProfileService {
                 case "avatarFilename" -> profile.setImageFilename((String) value);
                 case "gender" -> profile.setGender(CustomerGender.valueOf((String) value));
                 case "birthdate" -> profile.setBirthdate(LocalDate.parse((String) value));
-                default -> throw new ProfileUpdateValidationException(
-                        Exceptions.PROFILE.INVALID_FIELD
+                default -> throw new ProfileUpdateException(
+                        Exceptions.CUSTOMER.PROFILE.UPDATE_FAILED_INVALID_FIELD
                 );
             }
         });
@@ -119,13 +119,13 @@ public class ProfileService {
      * Check if the username given exists
      *
      * @param username the username to check
-     * @throws ProfileUpdateValidationException if the username is
+     * @throws ProfileNotFoundException if the username is not found
      */
-    public void usernameExists(String username) {
+    public void userProfileExists(String username) {
         profileRepository
                 .findByUsernameIgnoreCase(username)
                 .orElseThrow(
-                        () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
+                        () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND)
                 );
     }
 }

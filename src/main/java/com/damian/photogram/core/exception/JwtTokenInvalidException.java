@@ -3,8 +3,8 @@ package com.damian.photogram.core.exception;
 import org.springframework.security.core.AuthenticationException;
 
 // Remove and use ExpiredJwtException instead
-public class JwtInvalidTokenException extends AuthenticationException {
-    public JwtInvalidTokenException(String message) {
+public class JwtTokenInvalidException extends AuthenticationException {
+    public JwtTokenInvalidException(String message) {
         super(message);
     }
 }

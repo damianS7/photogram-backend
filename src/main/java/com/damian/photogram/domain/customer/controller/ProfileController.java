@@ -54,7 +54,7 @@ public class ProfileController {
             @PathVariable @NotBlank
             String username
     ) {
-        profileService.usernameExists(username);
+        profileService.userProfileExists(username);
 
         return ResponseEntity
                 .status(HttpStatus.OK).build();

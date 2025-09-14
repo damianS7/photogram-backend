@@ -1,11 +1,11 @@
 package com.damian.photogram.domain.post.service;
 
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
-import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Post;
@@ -79,7 +79,7 @@ public class PostImageService {
     public Resource getImage(Long postId) {
         // find the post
         Post post = postRepository.findById(postId).orElseThrow(
-                () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
+                () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND)
         );
 
         return imageStorageService.getImage(

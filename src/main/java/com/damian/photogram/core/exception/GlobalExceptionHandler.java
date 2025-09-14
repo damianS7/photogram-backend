@@ -1,14 +1,10 @@
 package com.damian.photogram.core.exception;
 
-import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.core.common.ApiResponse;
-import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
-import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -36,21 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(
             {
-                    PasswordMismatchException.class,
-                    SettingNotOwnerException.class
-            }
-    ) // 403
-    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
-    }
-
-    @ExceptionHandler(
-            {
-                    UsernameNotFoundException.class,
-                    EmailNotFoundException.class,
                     EntityNotFoundException.class,
-                    SettingNotFoundException.class,
             }
     ) // 404
     public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
@@ -67,7 +49,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
     }
-
 
     @ExceptionHandler(
             {

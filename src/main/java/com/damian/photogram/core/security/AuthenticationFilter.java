@@ -4,8 +4,8 @@ package com.damian.photogram.core.security;
 import com.damian.photogram.app.auth.exception.EmailNotFoundException;
 import com.damian.photogram.core.common.JwtUtil;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.exception.JwtInvalidTokenException;
 import com.damian.photogram.core.exception.JwtTokenExpiredException;
+import com.damian.photogram.core.exception.JwtTokenInvalidException;
 import com.damian.photogram.core.security.user.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -77,7 +77,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (!jwtUtil.isTokenValid(jwtToken)) {
             // token is invalid. 401
             authenticationEntryPoint.commence(
-                    request, response, new JwtInvalidTokenException(Exceptions.JWT.INVALID_TOKEN)
+                    request, response, new JwtTokenInvalidException(Exceptions.JWT.TOKEN.INVALID)
             );
             return;
         }
@@ -85,7 +85,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (jwtUtil.isTokenExpired(jwtToken)) {
             // If the token has expired, then we need to send back a 401.
             authenticationEntryPoint.commence(
-                    request, response, new JwtTokenExpiredException(Exceptions.JWT.TOKEN_EXPIRED)
+                    request, response, new JwtTokenExpiredException(Exceptions.JWT.TOKEN.EXPIRED)
             );
             return;
         }

@@ -7,7 +7,7 @@ import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.customer.exception.ProfileNotOwnerException;
-import com.damian.photogram.domain.customer.exception.ProfileUpdateValidationException;
+import com.damian.photogram.domain.customer.exception.ProfileUpdateException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.model.Profile;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
@@ -132,7 +132,7 @@ public class ProfileServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.PROFILE.NOT_FOUND, exception.getMessage());
+        assertEquals(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, exception.getMessage());
     }
 
     @Test
@@ -159,7 +159,7 @@ public class ProfileServiceTest extends AbstractServiceTest {
         );
 
         // Then
-        assertEquals(Exceptions.PROFILE.NOT_OWNER, exception.getMessage());
+        assertEquals(Exceptions.CUSTOMER.PROFILE.NOT_OWNER, exception.getMessage());
     }
 
     @Test
@@ -178,12 +178,12 @@ public class ProfileServiceTest extends AbstractServiceTest {
 
         // when
         when(profileRepository.findById(customer.getProfile().getId())).thenReturn(Optional.of(customer.getProfile()));
-        ProfileUpdateValidationException exception = assertThrows(
-                ProfileUpdateValidationException.class,
+        ProfileUpdateException exception = assertThrows(
+                ProfileUpdateException.class,
                 () -> profileService.updateProfile(givenRequest)
         );
 
         // Then
-        assertEquals(Exceptions.PROFILE.INVALID_FIELD, exception.getMessage());
+        assertEquals(Exceptions.CUSTOMER.PROFILE.UPDATE_FAILED_INVALID_FIELD, exception.getMessage());
     }
 }

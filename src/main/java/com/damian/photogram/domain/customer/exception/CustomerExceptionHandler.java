@@ -2,7 +2,6 @@ package com.damian.photogram.domain.customer.exception;
 
 import com.damian.photogram.core.common.ApiResponse;
 import com.damian.photogram.core.exception.ApplicationException;
-import com.damian.photogram.core.exception.PasswordMismatchException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CustomerExceptionHandler {
     @ExceptionHandler(
             {
-                    PasswordMismatchException.class,
                     FollowersLimitExceededException.class,
                     FollowYourselfNotAllowedException.class,
                     ProfileNotOwnerException.class,
@@ -41,7 +39,7 @@ public class CustomerExceptionHandler {
 
     @ExceptionHandler(
             {
-                    ProfileUpdateValidationException.class
+                    ProfileUpdateException.class
             }
     ) // 400
     public ResponseEntity<ApiResponse<String>> handleBadRequest(ApplicationException ex) {

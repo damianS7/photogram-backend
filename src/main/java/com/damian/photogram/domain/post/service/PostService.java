@@ -1,14 +1,14 @@
 package com.damian.photogram.domain.post.service;
 
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.image.service.ImageStorageService;
-import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.customer.repository.ProfileRepository;
 import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
-import com.damian.photogram.domain.post.exception.PostNotAuthorException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
+import com.damian.photogram.domain.post.exception.PostOwnershipException;
 import com.damian.photogram.domain.post.helper.PostHelper;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
@@ -75,19 +75,19 @@ public class PostService {
      *
      * @param id the id of the post to be deleted.
      * @throws PostNotFoundException  if the post does not exist.
-     * @throws PostNotAuthorException if the current customer is not the author of the post.
+     * @throws PostOwnershipException if the current customer is not the author of the post.
      */
     public void deletePost(Long id) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // check if the post exists
         Post post = postRepository.findById(id).orElseThrow(
-                () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
+                () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND)
         );
 
         // check if the current customer is the owner of the post.
         if (!post.isAuthor(currentCustomer)) {
-            throw new PostNotAuthorException(Exceptions.POSTS.NOT_AUTHOR);
+            throw new PostOwnershipException(Exceptions.POST.NOT_AUTHOR);
         }
 
         // path to the folder where the image is stored.

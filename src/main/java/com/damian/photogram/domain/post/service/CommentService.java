@@ -3,12 +3,12 @@ package com.damian.photogram.domain.post.service;
 import com.damian.photogram.app.notification.NotificationService;
 import com.damian.photogram.app.notification.NotificationType;
 import com.damian.photogram.app.notification.dto.NotificationEvent;
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.AuthHelper;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.CommentCreateRequest;
-import com.damian.photogram.domain.post.exception.CommentNotAuthorException;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
+import com.damian.photogram.domain.post.exception.CommentOwnershipException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
@@ -47,7 +47,7 @@ public class CommentService {
     public Page<Comment> getPostComments(Long postId, Pageable pageable) {
         // check if the post exists
         if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException(Exceptions.POSTS.NOT_FOUND);
+            throw new PostNotFoundException(Exceptions.POST.NOT_FOUND);
         }
 
         return commentRepository.findAllByPostId(postId, pageable);
@@ -66,7 +66,7 @@ public class CommentService {
 
         // find the post
         Post post = postRepository.findById(postId).orElseThrow(
-                () -> new PostNotFoundException(Exceptions.POSTS.NOT_FOUND)
+                () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND)
         );
 
         // create the comment
@@ -83,19 +83,19 @@ public class CommentService {
      *
      * @param id the id of the comment to delete
      * @throws CommentNotFoundException  if the comment does not exist
-     * @throws CommentNotAuthorException if the customer is not the author of the comment
+     * @throws CommentOwnershipException if the customer is not the author of the comment
      */
     public void deleteComment(Long id) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // find the comment
         Comment comment = commentRepository.findById(id).orElseThrow(
-                () -> new CommentNotFoundException(Exceptions.POSTS.NOT_FOUND)
+                () -> new CommentNotFoundException(Exceptions.POST.NOT_FOUND)
         );
 
         // check if the customer is the author of the comment.
         if (!comment.isAuthor(currentCustomer)) {
-            throw new CommentNotAuthorException(Exceptions.COMMENT.NOT_AUTHOR);
+            throw new CommentOwnershipException(Exceptions.POST.COMMENT.NOT_AUTHOR);
         }
 
         // delete the comment

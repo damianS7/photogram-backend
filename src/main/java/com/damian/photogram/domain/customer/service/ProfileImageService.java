@@ -1,12 +1,12 @@
 package com.damian.photogram.domain.customer.service;
 
+import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.image.exception.ImageFileSizeExceededException;
 import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
-import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.customer.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.customer.exception.ProfilePhotoNotFoundException;
 import com.damian.photogram.domain.customer.model.Customer;
@@ -95,12 +95,12 @@ public class ProfileImageService {
     public Resource getProfileImage(Long customerId) {
         // find the customer profile
         Profile profile = profileRepository.findByCustomer_Id(customerId).orElseThrow(
-                () -> new ProfileNotFoundException(Exceptions.PROFILE.NOT_FOUND)
+                () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND)
         );
 
         // check if the customer has a profile photo filename stored in db
         if (profile.getImageFilename() == null) {
-            throw new ProfilePhotoNotFoundException(Exceptions.PROFILE.IMAGE.NOT_FOUND);
+            throw new ProfilePhotoNotFoundException(Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND);
         }
 
         // return the image as resource

@@ -1,11 +1,11 @@
 package com.damian.photogram.app.auth;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.domain.customer.enums.UserRole;
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.common.JwtUtil;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.customer.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.customer.enums.CustomerGender;
+import com.damian.photogram.domain.customer.enums.UserRole;
 import com.damian.photogram.domain.customer.model.Customer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -119,7 +119,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .content(jsonRequest))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN_EXPIRED))
+               .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN.EXPIRED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -152,7 +152,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .content(jsonRequest))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value(Exceptions.JWT.INVALID_TOKEN))
+               .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN.INVALID))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 

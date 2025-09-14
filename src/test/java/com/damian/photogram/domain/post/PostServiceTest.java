@@ -4,8 +4,8 @@ import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.domain.customer.model.Customer;
 import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
-import com.damian.photogram.domain.post.exception.PostNotAuthorException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
+import com.damian.photogram.domain.post.exception.PostOwnershipException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.post.service.PostService;
@@ -142,7 +142,7 @@ public class PostServiceTest extends AbstractServiceTest {
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
         assertThrows(
-                PostNotAuthorException.class,
+                PostOwnershipException.class,
                 () -> postService.deletePost(post.getId())
         );
 
