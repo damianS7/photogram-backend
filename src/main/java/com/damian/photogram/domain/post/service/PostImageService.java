@@ -6,10 +6,10 @@ import com.damian.photogram.core.image.service.ImageProcessingService;
 import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
-import com.damian.photogram.domain.user.customer.model.Customer;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +22,6 @@ public class PostImageService {
     private final PostRepository postRepository;
     private final ImageValidationService imageValidationService;
     private final ImageProcessingService imageProcessingService;
-    private final long COMPRESS_SIZE_TRIGGER = 250L * 1024; // 250 kb
     private final long MAX_IMAGE_SIZE = 5L * 1024 * 1024; // 2 MB
     private final int MAX_WIDTH = 1920; // 1920px
     private final int MAX_HEIGHT = 1080; // 1080px

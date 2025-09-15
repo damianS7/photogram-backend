@@ -41,10 +41,21 @@ public class AccountExceptionHandler {
     @ExceptionHandler(
             {
                     AccountVerificationTokenUsedException.class,
-                    AccountInvalidPasswordConfirmationException.class}
+            }
     ) // 403
-    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
-        log.warn("Unauthorized account operation attempt.", ex);
+    public ResponseEntity<ApiResponse<String>> handleAuthorization(AccountVerificationTokenUsedException ex) {
+        log.error("Failed to verify account due to used token for customerId: {}", ex.getCustomerId());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
+    }
+
+    @ExceptionHandler(
+            {
+                    AccountInvalidPasswordConfirmationException.class
+            }
+    ) // 403
+    public ResponseEntity<ApiResponse<String>> handleAuthorization(AccountInvalidPasswordConfirmationException ex) {
+        log.debug("Failed to validate password for customerId: {}", ex.getCustomerId());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }

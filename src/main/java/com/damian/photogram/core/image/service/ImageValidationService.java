@@ -24,17 +24,23 @@ public class ImageValidationService {
         this.validateImage(file, MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES);
     }
 
-    // validations for file uploaded photos
+    /**
+     * Run validations before uploading the file.
+     *
+     * @param file              The file to validate
+     * @param maxFileSize       Max file size allowed
+     * @param allowedImageTypes Types allowed
+     */
     public void validateImage(MultipartFile file, long maxFileSize, String[] allowedImageTypes) {
         log.debug("Validating image file: {}", file.getOriginalFilename());
+
         if (file.isEmpty()) {
             throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY);
         }
 
         String contentType = file.getContentType();
-        boolean imageTypeAllowed = Arrays
-                .stream(allowedImageTypes)
-                .anyMatch(ct -> ct.equalsIgnoreCase(contentType));
+        boolean imageTypeAllowed = Arrays.stream(allowedImageTypes)
+                                         .anyMatch(ct -> ct.equalsIgnoreCase(contentType));
 
         if (!imageTypeAllowed) {
             throw new ImageTypeNotSupportedException(Exceptions.IMAGE.TYPE_NOT_SUPPORTED);
@@ -43,6 +49,7 @@ public class ImageValidationService {
         if (file.getSize() > maxFileSize) {
             throw new ImageTooLargeException(Exceptions.IMAGE.TOO_LARGE);
         }
-        log.info("Image validated.");
+        
+        log.debug("Image validated.");
     }
 }

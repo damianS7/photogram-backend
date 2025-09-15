@@ -2,7 +2,6 @@ package com.damian.photogram.core.image;
 
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.ImageTestHelper;
-import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
 import com.damian.photogram.core.image.service.ImageProcessingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ public class ImageProcessingServiceTest extends AbstractServiceTest {
     @DisplayName("Should compress image multipart file")
     void shouldCompressImageMultipartFile() {
         // given
-        MultipartFile file = new ImageMultipartAdapter(
+        MultipartFile file = new MultipartImageAdapter(
                 new File(getClass().getResource("/images/avatar.png").getFile())
         );
 
@@ -48,7 +47,7 @@ public class ImageProcessingServiceTest extends AbstractServiceTest {
     @DisplayName("Should compress image multipart file")
     void shouldOptimizeImageMultipartFile() throws IOException {
         // given
-        MultipartFile file = new ImageMultipartAdapter(
+        MultipartFile file = new MultipartImageAdapter(
                 new File(getClass().getResource("/images/4k-image.jpg").getFile())
         );
 

@@ -2,6 +2,8 @@ package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.common.AuthHelper;
 import com.damian.photogram.domain.user.customer.model.Customer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,8 +15,8 @@ import java.util.UUID;
  */
 @Service
 public class ImageUploaderService {
-    // root folder for uploads
     public static final String ROOT_UPLOAD_FOLDER = "uploads/images/customers/";
+    private static final Logger log = LoggerFactory.getLogger(ImageUploaderService.class);
     private final ImageStorageService imageStorageService;
 
     public ImageUploaderService(
@@ -33,6 +35,7 @@ public class ImageUploaderService {
     public String uploadImage(MultipartFile file, String folder, String filename) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
         String path = getCustomerUploadFolder(currentCustomer.getId()) + folder;
+        log.debug("Uploading file: {} to: {}", filename, path);
 
         final String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         if (extension != null && !filename.endsWith(extension)) {
@@ -41,7 +44,7 @@ public class ImageUploaderService {
 
         // saving file
         imageStorageService.storeImage(file, path, filename);
-
+        log.debug("Uploaded file: {} to: {}", filename, path);
         return filename;
     }
 

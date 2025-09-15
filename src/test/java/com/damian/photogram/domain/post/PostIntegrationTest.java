@@ -1,15 +1,15 @@
 package com.damian.photogram.domain.post;
 
 import com.damian.photogram.AbstractIntegrationTest;
-import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
-import com.damian.photogram.domain.user.account.enums.AccountStatus;
-import com.damian.photogram.domain.user.customer.enums.CustomerGender;
-import com.damian.photogram.domain.user.customer.enums.UserRole;
-import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.core.image.MultipartImageAdapter;
 import com.damian.photogram.domain.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.domain.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.user.account.enums.AccountStatus;
+import com.damian.photogram.domain.user.customer.enums.CustomerGender;
+import com.damian.photogram.domain.user.customer.enums.UserRole;
+import com.damian.photogram.domain.user.customer.model.Customer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -179,7 +179,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        ImageMultipartAdapter givenFile = new ImageMultipartAdapter(
+        MultipartImageAdapter givenFile = new MultipartImageAdapter(
                 new File(getClass().getResource("/images/avatar.png").getFile())
         );
 

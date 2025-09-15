@@ -1,6 +1,6 @@
 package com.damian.photogram.core.image.service;
 
-import com.damian.photogram.core.image.adapter.ImageMultipartAdapter;
+import com.damian.photogram.core.image.MultipartImageAdapter;
 import com.damian.photogram.core.image.exception.ImageCompressionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class ImageProcessingService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             ImageIO.write(image, "jpg", baos);
-            return new ImageMultipartAdapter(
+            return new MultipartImageAdapter(
                     "image",
                     "image.jpg",
                     "image/jpeg",
@@ -81,13 +81,13 @@ public class ImageProcessingService {
     /**
      * Optimize an image by resizing and compressing it if necessary.
      *
-     * @param file
-     * @param maxWidth
-     * @param maxHeight
-     * @return
+     * @param file      Image to optimize.
+     * @param maxWidth  Max width wanted for the file.
+     * @param maxHeight Max height wanted for the file.
+     * @return MultipartFile Image optimized.
      */
     public MultipartFile optimizeImage(MultipartFile file, int maxWidth, int maxHeight) {
-        log.info("Optimizing image with size: {} bytes", file.getSize());
+        log.debug("Optimizing image: {} with size: {} bytes", file.getOriginalFilename(), file.getSize());
         BufferedImage image = multipartToBufferedImage(file);
 
         // Resize if the image exceeds the maximum dimensions
@@ -101,13 +101,14 @@ public class ImageProcessingService {
             file = compressImage(file);
         }
 
+        log.debug("Optimization successfully ended.");
         return file;
     }
 
     // COMPRESS METHODS
 
     public byte[] compressImage(BufferedImage image) {
-        log.info("Compressing image with size: {} bytes", image.getData().getDataBuffer().getSize());
+        log.debug("Compressing image with size: {} bytes", image.getData().getDataBuffer().getSize());
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ImageOutputStream output = ImageIO.createImageOutputStream(baos)) {
 
@@ -121,7 +122,7 @@ public class ImageProcessingService {
             jpgWriter.write(null, new IIOImage(image, null, null), jpgWriteParam);
             jpgWriter.dispose();
 
-            log.info("Image compressed successfully into {} bytes", baos.size());
+            log.debug("Image compressed successfully into {} bytes", baos.size());
             return baos.toByteArray();
         } catch (IOException e) {
             throw new ImageCompressionFailedException(e.getMessage());
@@ -134,7 +135,7 @@ public class ImageProcessingService {
                     ImageIO.read(multipartFile.getInputStream())
             );
 
-            return new ImageMultipartAdapter(
+            return new MultipartImageAdapter(
                     multipartFile.getName(),
                     multipartFile.getOriginalFilename(),
                     "image/jpeg",
@@ -146,12 +147,12 @@ public class ImageProcessingService {
     }
 
     public MultipartFile compressImage(File file) {
-        return compressImage(new ImageMultipartAdapter(file));
+        return compressImage(new MultipartImageAdapter(file));
     }
 
     // RESIZE METHODS
     public File shrinkImage(File image, int targetWidth, int targetHeight) {
-        MultipartFile multipartFile = new ImageMultipartAdapter(image);
+        MultipartFile multipartFile = new MultipartImageAdapter(image);
         return multipartToFile(
                 shrinkImage(multipartFile, targetWidth, targetHeight), image
         );

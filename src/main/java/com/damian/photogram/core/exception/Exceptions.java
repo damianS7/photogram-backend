@@ -92,4 +92,8 @@ public class Exceptions {
         public static final String NOT_OWNER = "You are not allowed to access this resource.";
         public static final String NOT_FOUND = "Resource not found.";
     }
+
+    public static class FEED {
+        public static final String USER_PROFILE_NOT_FOUND = "Profile not found for this user.";
+    }
 }

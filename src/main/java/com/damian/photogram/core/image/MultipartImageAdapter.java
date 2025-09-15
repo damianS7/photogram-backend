@@ -1,34 +1,43 @@
-package com.damian.photogram.core.image.adapter;
+package com.damian.photogram.core.image;
 
+import com.damian.photogram.core.common.ImageHelper;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
-public class ImageFileAdapter implements MultipartFile {
+public class MultipartImageAdapter implements MultipartFile {
     private final String name;
     private final String originalFilename;
     private final String contentType;
     private final byte[] content;
 
-    public ImageFileAdapter(String name, String originalFilename, String contentType, byte[] content) {
+    public MultipartImageAdapter(String name, String originalFilename, String contentType, byte[] content) {
         this.name = name;
         this.originalFilename = originalFilename;
         this.contentType = contentType;
         this.content = content;
     }
 
-    public ImageFileAdapter(MultipartFile multipartFile) throws IOException {
+    public MultipartImageAdapter(MultipartFile multipartFile) {
         this.name = multipartFile.getName();
         this.originalFilename = multipartFile.getOriginalFilename();
         this.contentType = multipartFile.getContentType();
-        this.content = multipartFile.getBytes();
+        try {
+            this.content = multipartFile.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public ImageFileAdapter(File file) throws IOException {
+    public MultipartImageAdapter(File file) {
         this.name = file.getName();
         this.originalFilename = file.getName();
-        this.contentType = "";
-        this.content = new FileInputStream(file).readAllBytes();
+        this.contentType = ImageHelper.getContentType(file);
+        try (FileInputStream fis = new FileInputStream(file)) {
+            this.content = fis.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override

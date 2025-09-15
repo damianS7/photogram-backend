@@ -1,8 +1,8 @@
 package com.damian.photogram.core.image.service;
 
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.image.exception.ImageFailedStorageException;
 import com.damian.photogram.core.image.exception.ImageNotFoundException;
+import com.damian.photogram.core.image.exception.ImageStorageFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -55,7 +55,7 @@ public class ImageStorageService {
      */
     public File storeImage(MultipartFile file, String path, String filename) {
         path = getRootStoragePath() + "/" + path;
-        log.info("Storing image to path: {}, with filename: {}", path, filename);
+        log.info("Storing image: {} within path: {}", filename, path);
 
         try {
             Path storePath = Paths.get(path);
@@ -64,32 +64,31 @@ public class ImageStorageService {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             return filePath.toFile();
         } catch (IOException e) {
-            throw new ImageFailedStorageException(Exceptions.IMAGE.STORAGE_FAILED, e);
+            throw new ImageStorageFailedException(Exceptions.IMAGE.STORAGE_FAILED, path);
         }
     }
 
     /**
      * Returns a resource for the given folder and filename.
      *
-     * @param pathToImage path where image is stored
-     * @param filename    name of the image
+     * @param path     path where image is stored
+     * @param filename name of the image
      * @return Resource object representing the image
      */
-    public Resource getImage(String pathToImage, String filename) {
-        pathToImage = getRootStoragePath() + "/" + pathToImage;
-        log.info("Fetching image from folder: {}, filename: {}", pathToImage, filename);
+    public Resource getImage(String path, String filename) {
+        path = getRootStoragePath() + "/" + path;
+        log.debug("Retrieving image from path: {}, with filename: {}", path, filename);
 
         Path filePath;
         try {
-            filePath = Paths.get(pathToImage).resolve(filename).normalize();
+            filePath = Paths.get(path).resolve(filename).normalize();
         } catch (InvalidPathException exception) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH);
+            throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH, path);
         }
 
         Resource resource = this.createResource(filePath);
-
         if (!resource.exists()) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path);
         }
 
         return resource;
@@ -98,17 +97,17 @@ public class ImageStorageService {
     /**
      * Delete an image from server storage
      *
-     * @param pathToImage folder where the image is
-     * @param filename    name of the image
+     * @param path     path where the image is
+     * @param filename name of the image
      */
-    public void deleteImage(String pathToImage, String filename) {
-        pathToImage = getRootStoragePath() + "/" + pathToImage;
-        log.info("Deleting image from folder: {}, filename: {}", pathToImage, filename);
+    public void deleteImage(String path, String filename) {
+        path = getRootStoragePath() + "/" + path;
         try {
-            Path pathToFile = Path.of(pathToImage + "/" + filename);
+            log.debug("Deleting image file: {} within: {}", filename, path);
+            Path pathToFile = Path.of(path + "/" + filename);
             Files.deleteIfExists(pathToFile);
         } catch (IOException e) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path);
         }
     }
 }

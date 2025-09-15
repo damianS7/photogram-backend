@@ -3,33 +3,44 @@ package com.damian.photogram.domain.post;
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.ImageTestHelper;
 import com.damian.photogram.core.image.service.ImageProcessingService;
+import com.damian.photogram.core.image.service.ImageStorageService;
 import com.damian.photogram.core.image.service.ImageUploaderService;
 import com.damian.photogram.core.image.service.ImageValidationService;
+import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.post.service.PostImageService;
 import com.damian.photogram.domain.user.customer.enums.CustomerGender;
 import com.damian.photogram.domain.user.customer.enums.UserRole;
 import com.damian.photogram.domain.user.customer.model.Customer;
-import com.damian.photogram.domain.post.service.PostImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PostImageServiceTest extends AbstractServiceTest {
 
     @Mock
+    private PostRepository postRepository;
+
+    @Mock
     private ImageUploaderService imageUploaderService;
+
+    @Mock
+    private ImageStorageService imageStorageService;
 
     @Mock
     private ImageProcessingService imageProcessingService;
@@ -83,5 +94,31 @@ public class PostImageServiceTest extends AbstractServiceTest {
         assertEquals(filename, filenameResult);
     }
 
-    // TODO shouldGetImage
+    @Test
+    @DisplayName("Should get post image")
+    void shouldGetPostImage() throws IOException {
+        // given
+        //        setUpContext(customer);
+        MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
+
+        Post givenPost = Post.create(customer)
+                             .setId(1L)
+                             .setPhotoFilename(givenFile.getOriginalFilename())
+                             .setDescription("qsdfsdf");
+
+        Resource givenResource = new ByteArrayResource(givenFile.getBytes());
+
+        // when
+        when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
+        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(givenResource);
+        Resource resource = postImageService.getImage(
+                givenPost.getId()
+        );
+
+        // then
+        assertNotNull(resource);
+        assertArrayEquals(givenFile.getBytes(), resource.getContentAsByteArray());
+        verify(postRepository, times(1)).findById(givenPost.getId());
+        verify(imageStorageService, times(1)).getImage(anyString(), anyString());
+    }
 }
