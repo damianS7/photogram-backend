@@ -1,13 +1,17 @@
 package com.damian.photogram.domain.account;
 
 import com.damian.photogram.AbstractIntegrationTest;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.account.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.domain.user.account.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.user.account.enums.AccountStatus;
 import com.damian.photogram.domain.user.customer.enums.CustomerGender;
 import com.damian.photogram.domain.user.customer.enums.UserRole;
 import com.damian.photogram.domain.user.customer.model.Customer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -40,14 +44,6 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
         customer.getProfile().setImageFilename("no photoPath");
 
         customerRepository.save(customer);
-    }
-
-    @AfterAll
-    void tearDown() {
-        profileRepository.deleteAll();
-        accountTokenRepository.deleteAll();
-        accountRepository.deleteAll();
-        customerRepository.deleteAll();
     }
 
     @Test
@@ -108,7 +104,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                                               .content(json))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(containsString("Validation error")))
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -136,7 +132,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                                               .content(json))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value("Validation error"))
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
                .andExpect(jsonPath("$.errors.email").value(containsString("Email must be a well-formed email address")))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -192,7 +188,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                        .content(json))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value("Validation error"))
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
                .andExpect(jsonPath("$.errors.password").value(containsString("Password must be at least")))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -256,7 +252,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value("Validation error"))
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
                .andExpect(jsonPath("$.errors.newPassword").value(containsString("Password must be at least")))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -279,7 +275,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                                               .content(objectMapper.writeValueAsString(updatePasswordRequest)))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value("Validation error"))
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
                .andExpect(jsonPath("$.errors.newPassword").value(containsString("must not be blank")))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }

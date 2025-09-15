@@ -29,7 +29,11 @@ public class GlobalExceptionHandler {
 
         log.warn("Validation failed: {} errors -> {}", errors.size(), errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(ApiResponse.error("Validation failed", errors, HttpStatus.BAD_REQUEST));
+                             .body(ApiResponse.error(
+                                     Exceptions.COMMON.VALIDATION_FAILED,
+                                     errors,
+                                     HttpStatus.BAD_REQUEST
+                             ));
     }
 
     @ExceptionHandler(EntityNotFoundException.class) // 404

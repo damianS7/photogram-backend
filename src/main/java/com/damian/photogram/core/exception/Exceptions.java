@@ -91,6 +91,7 @@ public class Exceptions {
     public static class COMMON {
         public static final String NOT_OWNER = "You are not allowed to access this resource.";
         public static final String NOT_FOUND = "Resource not found.";
+        public static final String VALIDATION_FAILED = "Validation failed.";
     }
 
     public static class FEED {
