@@ -40,8 +40,9 @@ public class NotificationService {
      * @return Page<Notification> a page of notifications
      */
     public Page<Notification> getNotifications(Pageable pageable) {
-        Customer customer = AuthHelper.getLoggedCustomer();
-        return notificationRepository.findAllByCustomerId(customer.getId(), pageable);
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Fetching notifications for customer id={}", currentCustomer.getId());
+        return notificationRepository.findAllByCustomerId(currentCustomer.getId(), pageable);
     }
 
     /**
@@ -50,7 +51,7 @@ public class NotificationService {
     @Transactional
     public void deleteNotifications() {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-
+        log.debug("Deleting notifications for customer id={}", currentCustomer.getId());
         // delete all notifications
         notificationRepository.deleteAllByCustomer_Id(currentCustomer.getId());
     }
@@ -62,17 +63,17 @@ public class NotificationService {
      * @return Flux<NotificationEvent> a stream of notifications
      */
     public Flux<NotificationEvent> getNotificationsForUser() {
-        Customer customer = AuthHelper.getLoggedCustomer();
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // create a sink for the user if not exists
         Sinks.Many<NotificationEvent> sink = userSinks.computeIfAbsent(
-                customer.getId(),
+                currentCustomer.getId(),
                 k -> Sinks.many().multicast().onBackpressureBuffer()
         );
 
         // remove when disconnect
         return sink.asFlux().doOnCancel(() -> {
-            userSinks.remove(customer.getId());
+            userSinks.remove(currentCustomer.getId());
         });
     }
 
@@ -82,13 +83,13 @@ public class NotificationService {
      * @param notificationEvent the notification event
      */
     public void publishNotification(NotificationEvent notificationEvent) {
-        Customer customer = AuthHelper.getLoggedCustomer();
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
 
         // if the receiverId is the same as senderId then do nothing
         // this is to prevent sending notifications to oneself
         // for example when a user likes or comment their own post
-        if (customer.getId().equals(notificationEvent.recipientId())) {
-            log.debug("Notification not sent: sender {} cannot notify himself.", customer.getId());
+        if (currentCustomer.getId().equals(notificationEvent.recipientId())) {
+            log.debug("Notification not sent: sender {} cannot notify himself.", currentCustomer.getId());
             return;
         }
 

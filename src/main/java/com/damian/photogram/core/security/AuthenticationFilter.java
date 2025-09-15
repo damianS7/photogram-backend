@@ -24,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * This class is a filter that handles the authentication of requests.
+ * This filter handles the authentication of every request.
  * It checks if the JWT is valid and if so, it sets the Authentication Object to the SecurityContext.
  */
 @Component
@@ -100,10 +100,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             try {
                 // Load the customer details from the database.
                 userDetails = customUserDetailsService.loadUserByEmail(email);
-            } catch (EmailNotFoundException e) {
+            } catch (EmailNotFoundException exception) {
                 // In case no such user exists by this email, then we sent 401
                 authenticationEntryPoint.commence(
-                        request, response, new EmailNotFoundException(e.getMessage())
+                        request, response, exception
                 );
                 return;
             }

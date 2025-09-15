@@ -66,9 +66,11 @@ public class Notification {
 
     @Override
     public String toString() {
-        return "Notification {" +
-               " id=" + id +
-               ", createdAt=" + createdAt +
+        return "Notification{" +
+               "id=" + id +
+               ",type=" + (getType() != null ? getType() : "null") +
+               ",message=" + (getMessage() != null ? getMessage() : "null") +
+               ",createdAt=" + createdAt +
                "}";
     }
 

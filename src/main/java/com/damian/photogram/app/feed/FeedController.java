@@ -2,7 +2,8 @@ package com.damian.photogram.app.feed;
 
 import com.damian.photogram.app.feed.dto.response.FeedDto;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 @RestController
 public class FeedController {
+    private static final Logger log = LoggerFactory.getLogger(FeedController.class);
     private final FeedService feedService;
 
-    @Autowired
     public FeedController(FeedService feedService) {
         this.feedService = feedService;
     }
@@ -26,6 +27,7 @@ public class FeedController {
             @PathVariable @NotNull
             String username
     ) {
+        log.debug("Received request for fetching feed for user: {}", username);
         final FeedDto feedDTO = feedService.getUserFeed(username);
 
         return ResponseEntity

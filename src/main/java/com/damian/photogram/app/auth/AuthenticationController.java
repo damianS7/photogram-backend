@@ -2,6 +2,8 @@ package com.damian.photogram.app.auth;
 
 import com.damian.photogram.app.auth.dto.AuthenticationRequest;
 import com.damian.photogram.app.auth.dto.AuthenticationResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1")
 public class AuthenticationController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
     private final AuthenticationService authenticationService;
 
     public AuthenticationController(
@@ -26,6 +29,7 @@ public class AuthenticationController {
             @Validated @RequestBody
             AuthenticationRequest request
     ) {
+        log.debug("Received login request for: {}", request.email());
         AuthenticationResponse authResponse = authenticationService.login(request);
 
         return ResponseEntity
@@ -38,6 +42,7 @@ public class AuthenticationController {
     @GetMapping("/auth/token/validate")
     public ResponseEntity<?> tokenValidation(
     ) {
+        log.debug("Received token validation request.");
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();

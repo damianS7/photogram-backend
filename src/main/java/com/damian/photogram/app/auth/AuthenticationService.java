@@ -8,6 +8,8 @@ import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.domain.user.account.enums.AccountStatus;
 import com.damian.photogram.domain.user.account.exception.AccountNotVerifiedException;
 import com.damian.photogram.domain.user.account.exception.AccountSuspendedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,8 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+/**
+ * Manages user authentication flow with login validation and token generation.
+ * Performs account status checks and enforces security policies.
+ */
 @Service
 public class AuthenticationService {
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
@@ -41,12 +48,14 @@ public class AuthenticationService {
         final String email = request.email();
         final String password = request.password();
         final Authentication auth;
+        log.info("Attempting authentication for user: {}", email);
 
         // Authenticate the user
         auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         email, password)
         );
+        log.info("User successfully authenticated: {}", email);
 
         // Get the authenticated user
         final User currentUser = ((User) auth.getPrincipal());
@@ -59,6 +68,7 @@ public class AuthenticationService {
                 claims,
                 email
         );
+        log.debug("JWT token generated for user: {}", email);
 
         // check if the account is disabled
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {
@@ -75,8 +85,7 @@ public class AuthenticationService {
         }
 
         // Return the customer data and the token
-        return new AuthenticationResponse(
-                token
-        );
+        log.info("Login successful for user: {}", email);
+        return new AuthenticationResponse(token);
     }
 }
