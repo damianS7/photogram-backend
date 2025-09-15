@@ -83,12 +83,12 @@ public class ImageStorageService {
         try {
             filePath = Paths.get(path).resolve(filename).normalize();
         } catch (InvalidPathException exception) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH, path);
+            throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH, path, filename);
         }
 
         Resource resource = this.createResource(filePath);
         if (!resource.exists()) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path);
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path, filename);
         }
 
         return resource;
@@ -107,7 +107,7 @@ public class ImageStorageService {
             Path pathToFile = Path.of(path + "/" + filename);
             Files.deleteIfExists(pathToFile);
         } catch (IOException e) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path);
+            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path, filename);
         }
     }
 }

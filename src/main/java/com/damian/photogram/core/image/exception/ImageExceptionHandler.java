@@ -59,7 +59,7 @@ public class ImageExceptionHandler {
 
     @ExceptionHandler(ImageNotFoundException.class) // 404
     public ResponseEntity<ApiResponse<String>> handleNotFound(ImageNotFoundException ex) {
-        log.warn("Image: {} not found.", ex.getImageName(), ex);
+        log.warn("Image: {} not found in: {}", ex.getImageName(), ex.getPath());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }

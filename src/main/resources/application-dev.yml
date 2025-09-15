@@ -43,8 +43,8 @@ spring:
       mail.smtp.starttls.enable: false
 logging:
   level:
-    root: DEBUG
+    root: INFO
     com.damian.photogram: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql: TRACE
