@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 public class FollowDtoMapper {
     public static FollowDto toFollowDto(Follow follow) {
         return new FollowDto(
-                follow.getFollowedCustomer().getId(),
-                follow.getFollowedCustomer().getProfile().getUsername(),
-                follow.getFollowedCustomer().getProfile().getImageFilename(),
                 follow.getFollowerCustomer().getId(),
                 follow.getFollowerCustomer().getProfile().getUsername(),
-                follow.getFollowerCustomer().getProfile().getImageFilename()
+                follow.getFollowerCustomer().getProfile().getImageFilename(),
+                follow.getFollowedCustomer().getId(),
+                follow.getFollowedCustomer().getProfile().getUsername(),
+                follow.getFollowedCustomer().getProfile().getImageFilename()
         );
     }
 

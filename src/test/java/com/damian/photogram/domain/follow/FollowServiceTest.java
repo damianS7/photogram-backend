@@ -3,7 +3,7 @@ package com.damian.photogram.domain.follow;
 import com.damian.photogram.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.follow.exception.FollowAlreadyExistsException;
-import com.damian.photogram.domain.follow.exception.FollowNotFoundException;
+import com.damian.photogram.domain.follow.exception.FollowBetweenUsersNotExistException;
 import com.damian.photogram.domain.follow.exception.FollowersLimitExceededException;
 import com.damian.photogram.domain.user.customer.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.customer.model.Customer;
@@ -103,7 +103,7 @@ public class FollowServiceTest extends AbstractServiceTest {
         when(customerRepository.existsById(currentCustomer.getId())).thenReturn(true);
         when(followRepository.findAllByFollowerCustomer_Id(currentCustomer.getId(), pageable))
                 .thenReturn(followPage);
-        Page<Follow> result = followService.getFollowed(pageable);
+        Page<Follow> result = followService.getFollowing(pageable);
 
         // then
         assertNotNull(result);
@@ -155,13 +155,13 @@ public class FollowServiceTest extends AbstractServiceTest {
         );
 
         setUpContext(followerCustomer);
-        short MAX_FOLLOWS = 3;
+        int MAX_FOLLOWS = 0;
 
         Field field = null;
         try {
             field = FollowService.class.getDeclaredField("MAX_FOLLOWS");
             field.setAccessible(true);
-            MAX_FOLLOWS = (short) field.get(followService); // null porque es static
+            MAX_FOLLOWS = (int) field.get(followService); // null porque es static
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -249,7 +249,7 @@ public class FollowServiceTest extends AbstractServiceTest {
 
         // when
         when(customerRepository.existsById(followedCustomer.getId())).thenReturn(true);
-        when(followRepository.findFollowRelationshipBetweenCustomers(followedCustomer.getId(), currentCustomer.getId()))
+        when(followRepository.findFollowRelationshipBetweenCustomers(currentCustomer.getId(), followedCustomer.getId()))
                 .thenReturn(Optional.of(givenFollow));
         doNothing().when(followRepository).deleteById(givenFollow.getId());
 
@@ -276,8 +276,8 @@ public class FollowServiceTest extends AbstractServiceTest {
                 anyLong(),
                 anyLong()
         )).thenReturn(Optional.empty());
-        FollowNotFoundException exception = assertThrows(
-                FollowNotFoundException.class,
+        FollowBetweenUsersNotExistException exception = assertThrows(
+                FollowBetweenUsersNotExistException.class,
                 () -> followService.unfollow(followedCustomer.getId())
         );
 

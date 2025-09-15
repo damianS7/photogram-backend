@@ -75,7 +75,7 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Page<Follow> followed = followService.getFollowed(customerId, pageable);
+        Page<Follow> followed = followService.getFollowing(customerId, pageable);
         Page<FollowDto> followedDTO = FollowDtoMapper.toFollowDtoPaged(followed);
 
         return ResponseEntity

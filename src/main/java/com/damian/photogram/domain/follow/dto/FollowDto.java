@@ -1,11 +1,14 @@
 package com.damian.photogram.domain.follow.dto;
 
+/**
+ * Response with follow info
+ */
 public record FollowDto(
-        Long followedCustomerId,
-        String followedCustomerUsername,
-        String followedCustomerProfileImageFilename,
         Long followerCustomerId,
         String followerCustomerUsername,
-        String followerCustomerProfileImageFilename
+        String followerCustomerProfileImageFilename,
+        Long followedCustomerId,
+        String followedCustomerUsername,
+        String followedCustomerProfileImageFilename
 ) {
 }

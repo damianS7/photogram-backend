@@ -17,14 +17,14 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("SELECT COUNT(c) > 0 FROM Follow c WHERE c.followedCustomer.id = :followedCustomerId AND c.followerCustomer.id = :followerCustomerId")
     boolean isFollowing(
-            @Param("followedCustomerId") Long followedCustomerId,
-            @Param("followerCustomerId") Long followerCustomerId
+            @Param("followerCustomerId") Long followerCustomerId,
+            @Param("followedCustomerId") Long followedCustomerId
     );
 
     @Query("SELECT c FROM Follow c WHERE c.followedCustomer.id = :followedCustomerId AND c.followerCustomer.id = :followerCustomerId")
     Optional<Follow> findFollowRelationshipBetweenCustomers(
-            @Param("followedCustomerId") Long followedCustomerId,
-            @Param("followerCustomerId") Long followerCustomerId
+            @Param("followerCustomerId") Long followerCustomerId,
+            @Param("followedCustomerId") Long followedCustomerId
     );
 
     @Query("SELECT COUNT(c) FROM Follow c WHERE c.followedCustomer.id = :customerId")

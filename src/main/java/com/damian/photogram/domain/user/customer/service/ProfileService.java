@@ -120,7 +120,7 @@ public class ProfileService {
      *
      * @param username the username to check
      * @throws ProfileNotFoundException if the username is not found
-     */ // TODO review this
+     */
     public void userProfileExists(String username) {
         profileRepository
                 .findByUsernameIgnoreCase(username)

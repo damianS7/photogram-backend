@@ -15,36 +15,37 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class FollowExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(FollowExceptionHandler.class);
 
-    @ExceptionHandler(
-            {
-                    FollowersLimitExceededException.class,
-                    FollowYourselfNotAllowedException.class,
-            }
-    ) // 403
-    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
-        log.warn("Follow operation not allowed.", ex);
+    @ExceptionHandler(FollowYourselfNotAllowedException.class) // 403
+    public ResponseEntity<ApiResponse<String>> handleFollowYourself(ApplicationException ex) {
+        log.warn("Following yourself is not allowed.", ex);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
-    @ExceptionHandler(
-            {
-                    FollowNotFoundException.class,
-            }
-    ) // 404
-    public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
-        log.warn("Follow not found.", ex);
+    @ExceptionHandler(FollowersLimitExceededException.class) // 403
+    public ResponseEntity<ApiResponse<String>> handleFollowerLimit(FollowersLimitExceededException ex) {
+        log.warn("customerId: {} reached max followers.", ex.getCustomerId(), ex);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
+    }
+
+    @ExceptionHandler(FollowNotFoundException.class) // 404
+    public ResponseEntity<ApiResponse<String>> handleNotFound(FollowNotFoundException ex) {
+        log.debug("Follow relationship not found.", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }
 
-    @ExceptionHandler(
-            {
-                    FollowAlreadyExistsException.class,
-            }
-    )// Handle conflict (409)
-    public ResponseEntity<ApiResponse<String>> handleConflit(ApplicationException ex) {
-        log.warn("Attempt to follow same user.", ex);
+    @ExceptionHandler(FollowBetweenUsersNotExistException.class) // 404
+    public ResponseEntity<ApiResponse<String>> handleFollowBetween(FollowBetweenUsersNotExistException ex) {
+        log.debug("customerId: {} is not following customerId: {}", ex.getFollowerId(), ex.getFollowedId(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
+    }
+
+    @ExceptionHandler(FollowAlreadyExistsException.class)// Handle conflict (409)
+    public ResponseEntity<ApiResponse<String>> handleAlreadyFollowing(FollowAlreadyExistsException ex) {
+        log.warn("customerId: {} already following customerId: {}", ex.getFollowerId(), ex.getFollowedId(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
     }
