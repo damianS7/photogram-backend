@@ -9,7 +9,10 @@ import com.damian.photogram.domain.user.account.enums.AccountStatus;
 import com.damian.photogram.domain.user.customer.enums.CustomerGender;
 import com.damian.photogram.domain.user.customer.enums.UserRole;
 import com.damian.photogram.domain.user.customer.model.Customer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -47,12 +50,6 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         customer.getProfile().setImageFilename("no photoPath");
 
         customerRepository.save(customer);
-    }
-
-    @AfterAll
-    void tearDown() {
-        profileRepository.deleteAll();
-        customerRepository.deleteAll();
     }
 
     @Test
@@ -181,7 +178,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                .andExpect(MockMvcResultMatchers.status().is(400))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.errors.email").value(containsString("must be a well-formed email address")))
-               .andExpect(jsonPath("$.message").value("Validation error"));
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED));
     }
 
     @Test
@@ -203,7 +200,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(400))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$.message").value(containsString("Validation error")));
+               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED));
     }
 
     @Test

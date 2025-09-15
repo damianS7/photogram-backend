@@ -83,6 +83,8 @@ public abstract class AbstractIntegrationTest {
 
     @AfterAll
     void tearDown() {
+        accountTokenRepository.deleteAll();
+        accountRepository.deleteAll();
         commentRepository.deleteAll();
         likeRepository.deleteAll();
         postRepository.deleteAll();
@@ -92,6 +94,7 @@ public abstract class AbstractIntegrationTest {
         profileRepository.deleteAll();
         customerRepository.deleteAll();
     }
+
 
     protected void loginWithCustomer(Customer customer) throws Exception {
         // given
