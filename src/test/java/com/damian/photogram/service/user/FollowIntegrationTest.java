@@ -1,12 +1,12 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.web.user.dto.response.FollowDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Follow;
+import com.damian.photogram.web.user.dto.response.FollowDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -75,7 +75,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("content");
+        JsonNode contentNode = root.get("message");
 
         FollowDto[] followDto = objectMapper.treeToValue(contentNode, FollowDto[].class);
 

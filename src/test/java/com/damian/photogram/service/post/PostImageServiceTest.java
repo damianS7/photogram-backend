@@ -2,15 +2,15 @@ package com.damian.photogram.service.post;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.util.ImageTestHelper;
-import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
-import com.damian.photogram.infrastructure.storage.ImageUploaderService;
-import com.damian.photogram.infrastructure.storage.ImageValidationService;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.infrastructure.storage.ImageProcessingService;
+import com.damian.photogram.infrastructure.storage.ImageStorageService;
+import com.damian.photogram.infrastructure.storage.ImageUploaderService;
+import com.damian.photogram.infrastructure.storage.ImageValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -97,12 +97,12 @@ public class PostImageServiceTest extends AbstractServiceTest {
     @DisplayName("Should get post image")
     void shouldGetPostImage() throws IOException {
         // given
-        //        setUpContext(customer);
+        setUpContext(customer);
         MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
 
         Post givenPost = Post.create(customer)
                              .setId(1L)
-                             .setPhotoFilename(givenFile.getOriginalFilename())
+                             .setImageFilename(givenFile.getOriginalFilename())
                              .setDescription("qsdfsdf");
 
         Resource givenResource = new ByteArrayResource(givenFile.getBytes());
@@ -119,5 +119,29 @@ public class PostImageServiceTest extends AbstractServiceTest {
         assertArrayEquals(givenFile.getBytes(), resource.getContentAsByteArray());
         verify(postRepository, times(1)).findById(givenPost.getId());
         verify(imageStorageService, times(1)).getImage(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("Should delete post image")
+    void shouldDeletePostImage() throws IOException {
+        // given
+        setUpContext(customer);
+        MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
+
+        Post givenPost = Post.create(customer)
+                             .setId(1L)
+                             .setImageFilename(givenFile.getOriginalFilename())
+                             .setDescription("qsdfsdf");
+
+        // when
+        when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
+        doNothing().when(imageStorageService).deleteImage(anyString(), anyString());
+        postImageService.deleteImage(
+                givenPost.getId()
+        );
+
+        // then
+        verify(postRepository, times(1)).findById(givenPost.getId());
+        verify(imageStorageService, times(1)).deleteImage(anyString(), anyString());
     }
 }

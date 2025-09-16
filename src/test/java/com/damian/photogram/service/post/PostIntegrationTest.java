@@ -1,8 +1,5 @@
 package com.damian.photogram.service.post;
 
-import com.damian.photogram.web.post.dto.request.PostCreateRequest;
-import com.damian.photogram.web.post.dto.response.ImageUploadedDto;
-import com.damian.photogram.web.post.dto.response.PostDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.user.enums.AccountStatus;
@@ -10,6 +7,9 @@ import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.infrastructure.storage.MultipartImageAdapter;
+import com.damian.photogram.web.post.dto.request.PostCreateRequest;
+import com.damian.photogram.web.post.dto.response.ImageUploadedDto;
+import com.damian.photogram.web.post.dto.response.PostDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +62,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         loginWithCustomer(customer);
 
         Post post = new Post(customer);
-        post.setPhotoFilename("demo.jpg");
+        post.setImageFilename("demo.jpg");
         post.setDescription("Hello world.");
         postRepository.save(post);
 
@@ -90,14 +90,14 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
                         PostDto::id,
                         PostDto::authorId,
                         PostDto::description,
-                        PostDto::photoFilename,
+                        PostDto::imageFilename,
                         PostDto::createdAt
                 )
                 .containsExactly(
                         postsDto[0].id(),
                         postsDto[0].authorId(),
                         postsDto[0].description(),
-                        postsDto[0].photoFilename(),
+                        postsDto[0].imageFilename(),
                         postsDto[0].createdAt()
 
                 );
@@ -140,14 +140,14 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
                         PostDto::id,
                         PostDto::authorId,
                         PostDto::description,
-                        PostDto::photoFilename,
+                        PostDto::imageFilename,
                         PostDto::createdAt
                 )
                 .containsExactly(
                         postDto.id(),
                         postDto.authorId(),
                         postDto.description(),
-                        postDto.photoFilename(),
+                        postDto.imageFilename(),
                         postDto.createdAt()
 
                 );
@@ -193,7 +193,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        multipart("/api/v1/posts/photo")
+                        multipart("/api/v1/posts/image")
                                 .file(givenImage)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
@@ -215,12 +215,12 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         // then
         assertThat(imageUploadedDto)
                 .isNotNull()
-                .extracting(ImageUploadedDto::photoFilename)
-                .isEqualTo(imageUploadedDto.photoFilename());
+                .extracting(ImageUploadedDto::imageFilename)
+                .isEqualTo(imageUploadedDto.imageFilename());
     }
 
     @Test
-    @DisplayName("Should upload post image")
+    @DisplayName("Should not upload post image when image is empty")
     void shouldNotUploadPostImageWhenNotImageIsEmpty() throws Exception {
         // given
         loginWithCustomer(customer);
@@ -235,7 +235,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        multipart("/api/v1/posts/photo")
+                        multipart("/api/v1/posts/image")
                                 .file(givenImage)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)

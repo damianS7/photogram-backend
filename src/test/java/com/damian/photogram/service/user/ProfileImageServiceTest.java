@@ -2,15 +2,15 @@ package com.damian.photogram.service.user;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.util.ImageTestHelper;
-import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
-import com.damian.photogram.infrastructure.storage.ImageUploaderService;
-import com.damian.photogram.infrastructure.storage.ImageValidationService;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.infrastructure.storage.ImageProcessingService;
+import com.damian.photogram.infrastructure.storage.ImageStorageService;
+import com.damian.photogram.infrastructure.storage.ImageUploaderService;
+import com.damian.photogram.infrastructure.storage.ImageValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -88,9 +86,6 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         // then
         assertNotNull(resource);
         assertTrue(resource.exists());
-
-        // cleanup
-        Files.deleteIfExists(Path.of(givenFile.getAbsolutePath()));
     }
 
     @Test

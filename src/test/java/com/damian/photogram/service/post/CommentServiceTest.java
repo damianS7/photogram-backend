@@ -1,8 +1,6 @@
 package com.damian.photogram.service.post;
 
 import com.damian.photogram.core.AbstractServiceTest;
-import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.web.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
 import com.damian.photogram.domain.post.exception.CommentOwnershipException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
@@ -10,6 +8,8 @@ import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.post.dto.request.CommentCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,14 +49,14 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         Comment comment1 = Comment.create(currentCustomer, post)
-                                  .setComment("comment 1");
+                                  .setMessage("comment 1");
 
         Comment comment2 = Comment.create(currentCustomer, post)
-                                  .setComment("comment 2");
+                                  .setMessage("comment 2");
 
         Set<Comment> commentList = Set.of(
                 comment1, comment2
@@ -89,7 +89,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -97,7 +97,7 @@ public class CommentServiceTest extends AbstractServiceTest {
         );
 
         Comment comment = Comment.create(currentCustomer, post)
-                                 .setComment(request.comment());
+                                 .setMessage(request.comment());
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
@@ -108,7 +108,7 @@ public class CommentServiceTest extends AbstractServiceTest {
         // then
         assertThat(result)
                 .isNotNull()
-                .extracting("comment")
+                .extracting("message")
                 .isEqualTo(request.comment());
         verify(postRepository, times(1)).findById(post.getId());
         verify(commentRepository, times(1)).save(any(Comment.class));
@@ -126,7 +126,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -156,7 +156,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         CommentCreateRequest request = new CommentCreateRequest(
@@ -165,7 +165,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Comment comment = Comment.create(currentCustomer, post)
                                  .setId(5L)
-                                 .setComment(request.comment());
+                                 .setMessage(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
@@ -188,7 +188,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
 
@@ -198,7 +198,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Comment comment = Comment.create(currentCustomer, post)
                                  .setId(5L)
-                                 .setComment(request.comment());
+                                 .setMessage(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.empty());
@@ -228,7 +228,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
 
@@ -238,7 +238,7 @@ public class CommentServiceTest extends AbstractServiceTest {
 
         Comment comment = Comment.create(author, post)
                                  .setId(5L)
-                                 .setComment(request.comment());
+                                 .setMessage(request.comment());
 
         // when
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));

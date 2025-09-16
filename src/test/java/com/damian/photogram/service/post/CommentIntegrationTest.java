@@ -1,7 +1,5 @@
 package com.damian.photogram.service.post;
 
-import com.damian.photogram.web.post.dto.request.CommentCreateRequest;
-import com.damian.photogram.web.post.dto.response.CommentDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
@@ -9,6 +7,8 @@ import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.post.dto.request.CommentCreateRequest;
+import com.damian.photogram.web.post.dto.response.CommentDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +60,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         postRepository.save(post);
 
         Comment comment1 = new Comment(customer, post);
-        comment1.setComment("Hello this is my post!");
+        comment1.setMessage("Hello this is my post!");
         commentRepository.save(comment1);
 
         // when
@@ -87,14 +87,14 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                         CommentDto::id,
                         CommentDto::postId,
                         CommentDto::username,
-                        CommentDto::content,
+                        CommentDto::message,
                         CommentDto::createdAt
                 )
                 .containsExactly(
                         comment1.getId(),
                         post.getId(),
                         comment1.getAuthor().getProfile().getUsername(),
-                        comment1.getComment(),
+                        comment1.getMessage(),
                         comment1.getCreatedAt().toString()
                 );
 
@@ -138,7 +138,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                         CommentDto::id,
                         CommentDto::postId,
                         CommentDto::username,
-                        CommentDto::content,
+                        CommentDto::message,
                         CommentDto::createdAt
                 )
                 .containsExactly(
@@ -156,13 +156,13 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-
         Post post = new Post(customer);
         post.setDescription("Hello world.");
         postRepository.save(post);
 
         Comment comment = new Comment(customer, post);
-        comment.setComment("hehehe");
+        comment.setMessage("hehehe");
+        comment.setMessage("hey");
         commentRepository.save(comment);
 
         // when

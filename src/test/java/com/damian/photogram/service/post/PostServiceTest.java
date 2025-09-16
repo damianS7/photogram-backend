@@ -1,13 +1,12 @@
 package com.damian.photogram.service.post;
 
 import com.damian.photogram.core.AbstractServiceTest;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
-import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.web.post.dto.request.PostCreateRequest;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.exception.PostOwnershipException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.post.dto.request.PostCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,7 +25,7 @@ public class PostServiceTest extends AbstractServiceTest {
     private PostRepository postRepository;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private PostImageService postImageService;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
@@ -46,11 +45,11 @@ public class PostServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         PostCreateRequest request = new PostCreateRequest(
-                post.getPhotoFilename(),
+                post.getImageFilename(),
                 post.getDescription()
         );
 
@@ -62,8 +61,8 @@ public class PostServiceTest extends AbstractServiceTest {
         // then
         assertThat(result)
                 .isNotNull()
-                .extracting("photoFilename", "description")
-                .containsExactly(request.photoFilename(), request.description());
+                .extracting("imageFilename", "description")
+                .containsExactly(request.imageFilename(), request.description());
         verify(postRepository, times(1)).save(any(Post.class));
     }
 
@@ -79,12 +78,12 @@ public class PostServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         // when
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        doNothing().when(imageStorageService).deleteImage(anyString(), anyString());
+        doNothing().when(postImageService).deleteImage(post.getId());
         postService.deletePost(post.getId());
 
         // then
@@ -104,7 +103,7 @@ public class PostServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         // when
@@ -135,7 +134,7 @@ public class PostServiceTest extends AbstractServiceTest {
 
         Post post = Post.create(author)
                         .setId(1L)
-                        .setPhotoFilename("image.jpg")
+                        .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
         // when

@@ -1,7 +1,5 @@
 package com.damian.photogram.service.notification;
 
-import com.damian.photogram.web.notification.dto.NotificationEvent;
-import com.damian.photogram.web.notification.dto.response.NotificationDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.core.util.JwtUtil;
@@ -11,6 +9,8 @@ import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.notification.dto.response.NotificationDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +96,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("content");
+        JsonNode contentNode = root.get("message");
 
         NotificationDto[] notificationsDto = objectMapper.treeToValue(contentNode, NotificationDto[].class);
 
