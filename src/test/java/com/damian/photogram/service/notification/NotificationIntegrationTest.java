@@ -96,7 +96,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("message");
+        JsonNode contentNode = root.get("content");
 
         NotificationDto[] notificationsDto = objectMapper.treeToValue(contentNode, NotificationDto[].class);
 
