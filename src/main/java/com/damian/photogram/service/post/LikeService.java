@@ -112,7 +112,12 @@ public class LikeService {
         Like like = likeRepository
                 .findByPostIdAndCustomerId(postId, currentCustomer.getId())
                 .orElseThrow(
-                        () -> new LikeNotFoundException(Exceptions.POST.LIKE.NOT_FOUND, postId, currentCustomer.getId())
+                        () -> new LikeNotFoundException(
+                                Exceptions.POST.LIKE.NOT_FOUND,
+                                null,
+                                postId,
+                                currentCustomer.getId()
+                        )
                 );
 
         likeRepository.deleteById(like.getId());

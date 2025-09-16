@@ -1,20 +1,11 @@
 package com.damian.photogram.domain.post.exception;
 
-import com.damian.photogram.core.exception.ApplicationException;
-
-public class CommentNotFoundException extends ApplicationException {
-    private final Long commentId;
-
+public class CommentNotFoundException extends CommentException {
     public CommentNotFoundException(String message) {
-        this(message, null);
+        this(message, null, null, null);
     }
 
-    public CommentNotFoundException(String message, Long commentId) {
-        super(message);
-        this.commentId = commentId;
-    }
-
-    public Long getCommentId() {
-        return commentId;
+    public CommentNotFoundException(String message, Long commentId, Long postId, Long customerId) {
+        super(message, commentId, postId, customerId);
     }
 }

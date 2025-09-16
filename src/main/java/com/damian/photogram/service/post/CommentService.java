@@ -99,12 +99,22 @@ public class CommentService {
 
         // find the comment
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new CommentNotFoundException(Exceptions.POST.COMMENT.NOT_FOUND, commentId)
+                () -> new CommentNotFoundException(
+                        Exceptions.POST.COMMENT.NOT_FOUND,
+                        commentId,
+                        null,
+                        currentCustomer.getId()
+                )
         );
 
         // check if the customer is the author of the comment.
         if (!comment.isAuthor(currentCustomer)) {
-            throw new CommentOwnershipException(Exceptions.POST.COMMENT.NOT_AUTHOR, currentCustomer.getId(), commentId);
+            throw new CommentOwnershipException(
+                    Exceptions.POST.COMMENT.NOT_AUTHOR,
+                    commentId,
+                    comment.getPost().getId(),
+                    currentCustomer.getId()
+            );
         }
 
         // delete the comment

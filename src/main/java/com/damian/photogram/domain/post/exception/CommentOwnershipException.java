@@ -1,26 +1,12 @@
 package com.damian.photogram.domain.post.exception;
 
-import com.damian.photogram.core.exception.ApplicationException;
-
-public class CommentOwnershipException extends ApplicationException {
-    private final Long commentId;
-    private final Long customerId;
-
+public class CommentOwnershipException extends CommentException {
     public CommentOwnershipException(String message) {
-        this(message, null, null);
+        this(message, null, null, null);
     }
 
-    public CommentOwnershipException(String message, Long commentId, Long customerId) {
-        super(message);
-        this.customerId = customerId;
-        this.commentId = commentId;
+    public CommentOwnershipException(String message, Long commentId, Long postId, Long customerId) {
+        super(message, commentId, postId, customerId);
     }
 
-    public Long getCommentId() {
-        return commentId;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
 }
