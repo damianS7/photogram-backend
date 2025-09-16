@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.post.model;
 
-import com.damian.photogram.domain.user.customer.model.Customer;
+import com.damian.photogram.domain.user.model.Customer;
 import jakarta.persistence.*;
 
 import java.time.Instant;

@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.setting.exception;
 
-import com.damian.photogram.core.common.ApiResponse;
+import com.damian.photogram.core.util.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;

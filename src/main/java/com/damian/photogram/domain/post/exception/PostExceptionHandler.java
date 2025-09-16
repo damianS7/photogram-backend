@@ -1,6 +1,6 @@
 package com.damian.photogram.domain.post.exception;
 
-import com.damian.photogram.core.common.ApiResponse;
+import com.damian.photogram.core.util.ApiResponse;
 import com.damian.photogram.core.exception.ApplicationException;
 import com.damian.photogram.core.exception.Exceptions;
 import org.slf4j.Logger;

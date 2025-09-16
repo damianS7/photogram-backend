@@ -1,6 +1,6 @@
 package com.damian.photogram.core.exception;
 
-import com.damian.photogram.core.common.ApiResponse;
+import com.damian.photogram.core.util.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

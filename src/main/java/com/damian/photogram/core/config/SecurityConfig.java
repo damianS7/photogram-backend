@@ -1,6 +1,6 @@
 package com.damian.photogram.core.config;
 
-import com.damian.photogram.core.security.user.CustomUserDetailsService;
+import com.damian.photogram.service.auth.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
