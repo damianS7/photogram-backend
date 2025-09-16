@@ -23,10 +23,10 @@ public class ProfileAuthorizationHelper {
      * @return ProfileAuthorizationHelper
      */
     public ProfileAuthorizationHelper checkOwner() {
-        if (!profile.getOwner().getId().equals(customer.getId())) {
+        if (!profile.belongsTo(customer)) {
             // banking card does not belong to this customer
             throw new ProfileNotOwnerException(
-                    Exceptions.CUSTOMER.PROFILE.NOT_OWNER
+                    Exceptions.CUSTOMER.PROFILE.NOT_OWNER, profile.getId(), customer.getId()
             );
         }
         return this;

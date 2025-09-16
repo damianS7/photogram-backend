@@ -140,30 +140,38 @@ public class FollowService {
     /**
      * Current customer will follow the specified customer.
      *
-     * @param customerId the id of the customer to follow
+     * @param customerToFollowId the id of the customer to follow
      * @return Follow the entity between the current customer and the specified customer.
      * @throws FollowersLimitExceededException   if the current customer has reached the maximum number of follows
      * @throws FollowYourselfNotAllowedException if the current customer is trying to follow itself
      * @throws CustomerNotFoundException         if the given customer does not exist
      * @throws FollowAlreadyExistsException      if the specified customer already follows the current customer
      */
-    public Follow follow(Long customerId) {
+    public Follow follow(Long customerToFollowId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("customer: {} attempt to follow customer: {}", currentCustomer.getId(), customerId);
+        log.debug("customer: {} attempt to follow customer: {}", currentCustomer.getId(), customerToFollowId);
 
         // check if the currentCustomer can add more following
         if (followRepository.countFollowersFromCustomer(currentCustomer.getId()) >= MAX_FOLLOWS) {
-            throw new FollowersLimitExceededException(Exceptions.FOLLOW.MAX_FOLLOWERS, customerId);
+            throw new FollowersLimitExceededException(
+                    Exceptions.FOLLOW.MAX_FOLLOWERS,
+                    currentCustomer.getId(),
+                    customerToFollowId
+            );
         }
 
         // check if the customer we want to add as a follow exists.
-        Customer customerToFollow = customerRepository.findById(customerId).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, customerId)
+        Customer customerToFollow = customerRepository.findById(customerToFollowId).orElseThrow(
+                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, customerToFollowId)
         );
 
         // check if currentCustomer and followedCustomer are not the same customer.
         if (currentCustomer.getId().equals(customerToFollow.getId())) {
-            throw new FollowYourselfNotAllowedException(Exceptions.FOLLOW.SELF_FOLLOW);
+            throw new FollowYourselfNotAllowedException(
+                    Exceptions.FOLLOW.SELF_FOLLOW,
+                    currentCustomer.getId(),
+                    customerToFollow.getId()
+            );
         }
 
         // check if customerToFollow is not already following by the currentCustomer
@@ -175,7 +183,7 @@ public class FollowService {
             );
         }
 
-        log.debug("customer: {} now follows customer: {}", currentCustomer.getId(), customerId);
+        log.debug("customer: {} now follows customer: {}", currentCustomer.getId(), customerToFollowId);
         // save the follow relationship in the database
         return followRepository.save(
                 Follow.create()

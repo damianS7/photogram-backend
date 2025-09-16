@@ -160,4 +160,9 @@ public class Profile {
         this.aboutMe = aboutMe;
         return this;
     }
+
+    // checks if given customer it is the owner of this profile.
+    public boolean belongsTo(Customer customer) {
+        return this.customer.getId().equals(customer.getId());
+    }
 }
