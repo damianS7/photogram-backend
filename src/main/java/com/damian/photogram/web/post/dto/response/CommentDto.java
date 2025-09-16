@@ -4,7 +4,7 @@ public record CommentDto(
         Long id,
         Long postId,
         String username,
-        String content,
+        String message,
         String createdAt
 ) {
 }

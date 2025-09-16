@@ -17,7 +17,7 @@ public class Post {
     private Customer author;
 
     @Column
-    private String photoFilename;
+    private String imageFilename;
 
     @Column
     private String description;
@@ -76,12 +76,12 @@ public class Post {
         return this;
     }
 
-    public String getPhotoFilename() {
-        return photoFilename;
+    public String getImageFilename() {
+        return imageFilename;
     }
 
-    public Post setPhotoFilename(String photoFilename) {
-        this.photoFilename = photoFilename;
+    public Post setImageFilename(String imageFilename) {
+        this.imageFilename = imageFilename;
         return this;
     }
 

@@ -21,7 +21,7 @@ public class Comment {
     private Post post;
 
     @Column
-    private String comment;
+    private String message;
 
     @Column
     private Instant createdAt;
@@ -71,7 +71,7 @@ public class Comment {
                " id=" + id +
                ", postId=" + post.getId() +
                ", authorId=" + author.getId() +
-               ", comment=" + comment +
+               ", message=" + message +
                ", createdAt=" + createdAt +
                "}";
     }
@@ -85,12 +85,12 @@ public class Comment {
         return this;
     }
 
-    public String getComment() {
-        return comment;
+    public String getMessage() {
+        return message;
     }
 
-    public Comment setComment(String comment) {
-        this.comment = comment;
+    public Comment setMessage(String message) {
+        this.message = message;
         return this;
     }
 

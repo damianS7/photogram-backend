@@ -1,7 +1,7 @@
 package com.damian.photogram.web.post.dto.mapper;
 
-import com.damian.photogram.web.post.dto.response.CommentDto;
 import com.damian.photogram.domain.post.model.Comment;
+import com.damian.photogram.web.post.dto.response.CommentDto;
 import org.springframework.data.domain.Page;
 
 import java.util.Set;
@@ -13,7 +13,7 @@ public class CommentDtoMapper {
                 comment.getId(),
                 comment.getPost().getId(),
                 comment.getAuthor().getProfile().getUsername(),
-                comment.getComment(),
+                comment.getMessage(),
                 comment.getCreatedAt().toString()
         );
     }

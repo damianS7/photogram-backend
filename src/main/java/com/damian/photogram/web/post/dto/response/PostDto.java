@@ -4,7 +4,7 @@ public record PostDto(
         Long id,
         Long authorId,
         String description,
-        String photoFilename,
+        String imageFilename,
         String createdAt
 ) {
 }

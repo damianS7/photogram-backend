@@ -1,8 +1,8 @@
 package com.damian.photogram.web.post.dto.mapper;
 
 
-import com.damian.photogram.web.post.dto.response.PostDto;
 import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.web.post.dto.response.PostDto;
 import org.springframework.data.domain.Page;
 
 import java.util.Set;
@@ -14,7 +14,7 @@ public class PostDtoMapper {
                 post.getId(),
                 post.getAuthor().getId(),
                 post.getDescription(),
-                post.getPhotoFilename(),
+                post.getImageFilename(),
                 post.getCreatedAt().toString()
         );
     }

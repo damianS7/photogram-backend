@@ -98,8 +98,8 @@ CREATE TABLE public.customer_follows (
 CREATE TABLE public.customer_posts (
     id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     customer_id int4 NOT NULL,
-    photo_filename varchar(255) NOT NULL,
-    description varchar(255) NOT NULL,
+    image_filename varchar(255) NOT NULL,
+    description text NOT NULL,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
     CONSTRAINT customer_posts_pkey PRIMARY KEY (id),
     CONSTRAINT customer_posts_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE
@@ -120,7 +120,7 @@ CREATE TABLE public.customer_post_comments (
     id int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     post_id int4 NOT NULL,
     customer_id int4 NOT NULL,
-    comment varchar(255) NOT NULL,
+    message text NOT NULL,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
     CONSTRAINT customer_post_comment_pkey PRIMARY KEY (id),
     CONSTRAINT customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
