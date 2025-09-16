@@ -1,8 +1,5 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.web.user.dto.request.AccountPasswordResetRequest;
-import com.damian.photogram.web.user.dto.request.AccountPasswordResetSetRequest;
-import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.user.enums.AccountTokenType;
@@ -15,6 +12,9 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.AccountRepository;
 import com.damian.photogram.domain.user.repository.AccountTokenRepository;
 import com.damian.photogram.infrastructure.mail.EmailSenderService;
+import com.damian.photogram.web.user.dto.request.AccountPasswordResetRequest;
+import com.damian.photogram.web.user.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -58,7 +58,6 @@ public class AccountPasswordService {
      * @throws AccountInvalidPasswordConfirmationException if the password does not match
      */
     public void updatePassword(Long customerId, String password) {
-        log.debug("Updating password for customerId: {}", customerId);
         // we get the CustomerAuth entity so we can save.
         Account customerAccount = accountRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> {
@@ -79,7 +78,7 @@ public class AccountPasswordService {
 
         // save the changes
         accountRepository.save(customerAccount);
-        log.debug("Successfully updated password for customerId: {}", customerId);
+        log.debug("Successfully updated password for customer: {}", customerId);
     }
 
     /**
@@ -107,7 +106,7 @@ public class AccountPasswordService {
      * @param request the request with the password to set
      */
     public void passwordResetWithToken(String token, AccountPasswordResetSetRequest request) {
-        log.debug("Resetting password using token: {}", token);
+        log.debug("Resetting password using token.");
         // verify the token
         final AccountToken accountToken = accountVerificationService.validateToken(token);
 
@@ -120,7 +119,7 @@ public class AccountPasswordService {
 
         // send the email notifying the customer that his password is successfully changed
         this.sendResetPasswordSuccessEmail(accountToken.getCustomer().getEmail());
-        log.debug("Resetting password successfully done.");
+        log.debug("Password reset successfully.");
     }
 
     /**
@@ -159,14 +158,13 @@ public class AccountPasswordService {
      * @param token   the token to be included in the email
      */
     public void sendResetPasswordEmail(String toEmail, String token) {
-        log.debug("Sending reset password email to: {} with token: {}", toEmail, token);
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);
         String link = url + "/accounts/reset-password/" + token;
         emailSenderService.send(
                 toEmail,
-                "Photogram password reset.",
+                "Photogram account: Password reset request.",
                 "Reset your password following this url: " + link
         );
     }
@@ -177,11 +175,10 @@ public class AccountPasswordService {
      * @param toEmail the customer's email address to send the email
      */
     public void sendResetPasswordSuccessEmail(String toEmail) {
-        log.debug("Sending email to: {}", toEmail);
         emailSenderService.send(
                 toEmail,
-                "Photogram password reset.",
-                "Your password has been reset successfully."
+                "Photogram account: password reset successfully.",
+                "Your password has been reset."
         );
     }
 }

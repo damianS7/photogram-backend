@@ -1,9 +1,11 @@
 package com.damian.photogram.domain.user.exception;
 
-import com.damian.photogram.core.exception.ApplicationException;
+public class AccountNotFoundException extends AccountException {
+    public AccountNotFoundException(String message, Long accountId, Long customerId) {
+        super(message, accountId, customerId);
+    }
 
-public class AccountNotFoundException extends ApplicationException {
     public AccountNotFoundException(String message) {
-        super(message);
+        this(message, null, null);
     }
 }

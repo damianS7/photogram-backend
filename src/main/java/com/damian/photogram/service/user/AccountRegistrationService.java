@@ -1,12 +1,15 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.domain.user.model.AccountToken;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountRegistrationService {
+    private static final Logger log = LoggerFactory.getLogger(AccountRegistrationService.class);
     private final AccountVerificationService accountVerificationService;
     private final CustomerService customerService;
 
@@ -25,6 +28,7 @@ public class AccountRegistrationService {
      * @return Customer The customer created
      */
     public Customer register(AccountRegistrationRequest request) {
+        log.debug("Registering a new customer");
         // It uses the customer service to create a new customer
         Customer registeredCustomer = customerService.createCustomer(request);
 
@@ -34,6 +38,7 @@ public class AccountRegistrationService {
         // send the account activation link
         accountVerificationService.sendAccountVerificationLinkEmail(request.email(), accountToken.getToken());
 
+        log.debug("Customer: {} with email:{} registered", registeredCustomer.getId(), registeredCustomer.getEmail());
         return registeredCustomer;
     }
 }

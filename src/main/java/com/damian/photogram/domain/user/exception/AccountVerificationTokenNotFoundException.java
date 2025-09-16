@@ -1,9 +1,7 @@
 package com.damian.photogram.domain.user.exception;
 
-import com.damian.photogram.core.exception.ApplicationException;
-
-public class AccountVerificationTokenNotFoundException extends ApplicationException {
-    public AccountVerificationTokenNotFoundException(String message) {
-        super(message);
+public class AccountVerificationTokenNotFoundException extends AccountTokenException {
+    public AccountVerificationTokenNotFoundException(String message, String token, Long accountId, Long customerId) {
+        super(message, token, accountId, customerId);
     }
 }

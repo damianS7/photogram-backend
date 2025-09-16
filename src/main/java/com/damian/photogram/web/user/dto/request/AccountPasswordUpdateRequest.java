@@ -4,6 +4,12 @@ package com.damian.photogram.web.user.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+/**
+ * Request used to set a new password.
+ *
+ * @param currentPassword this is the current password
+ * @param newPassword     this is the new password
+ */
 public record AccountPasswordUpdateRequest(
         @NotBlank(message = "Current password must not be blank")
         String currentPassword,

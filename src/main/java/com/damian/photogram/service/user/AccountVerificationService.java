@@ -65,7 +65,11 @@ public class AccountVerificationService {
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
             log.error("Failed to verify account. Account is not awaiting verification.");
-            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE);
+            throw new AccountVerificationNotPendingException(
+                    Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE,
+                    accountCustomer.getId(),
+                    accountCustomer.getCustomerId()
+            );
         }
 
         // mark the token as used
@@ -99,23 +103,37 @@ public class AccountVerificationService {
                 .orElseThrow(
                         () -> {
                             log.error("Failed to verify token: {}. Token not found.", token);
-                            return new AccountVerificationTokenNotFoundException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.NOT_FOUND);
+                            return new AccountVerificationTokenNotFoundException(
+                                    Exceptions.ACCOUNT.VERIFICATION.TOKEN.NOT_FOUND,
+                                    token,
+                                    null,
+                                    null
+                            );
                         }
                 );
 
         // check expiration
         if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
             log.error("Failed to verify token: {}. Token expired.", token);
-            throw new AccountVerificationTokenExpiredException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.EXPIRED);
+            throw new AccountVerificationTokenExpiredException(
+                    Exceptions.ACCOUNT.VERIFICATION.TOKEN.EXPIRED,
+                    token,
+                    accountToken.getCustomer().getAccount().getId(),
+                    accountToken.getCustomerId()
+            );
         }
 
         // check if token is already used
         if (accountToken.isUsed()) {
             log.error("Failed to verify token: {}. Token used.", token);
-            throw new AccountVerificationTokenUsedException(Exceptions.ACCOUNT.VERIFICATION.TOKEN.USED);
+            throw new AccountVerificationTokenUsedException(
+                    Exceptions.ACCOUNT.VERIFICATION.TOKEN.USED,
+                    token,
+                    accountToken.getCustomer().getAccount().getId(),
+                    accountToken.getCustomer().getId()
+            );
         }
 
-        log.debug("Token: {} successfully validated.", token);
         return accountToken;
     }
 
@@ -125,7 +143,6 @@ public class AccountVerificationService {
      * @param customer The customer to send a welcome message to.
      */
     public void sendAccountVerifiedEmail(Customer customer) {
-        log.debug("Sending email notifying account is verified for customerId: {}", customer.getId());
         emailSenderService.send(
                 customer.getEmail(),
                 "Welcome to Photogram!",
@@ -154,7 +171,11 @@ public class AccountVerificationService {
         // only account pending for verification can request the email
         if (!account.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
             log.error("Failed to generate verification token. Account for: {} is not awaiting verification.", email);
-            throw new AccountVerificationNotPendingException(Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE);
+            throw new AccountVerificationNotPendingException(
+                    Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE,
+                    account.getId(),
+                    account.getCustomerId()
+            );
         }
 
         // check if AccountToken exists orElse create a new one
@@ -185,7 +206,6 @@ public class AccountVerificationService {
      * @param token The token that will be used to verify the user's account.
      */
     public void sendAccountVerificationLinkEmail(String email, String token) {
-        log.debug("Sending email account verification link for email: {}", email);
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);
