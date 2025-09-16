@@ -1,8 +1,5 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.account;
 
-import com.damian.photogram.web.user.dto.request.AccountPasswordResetRequest;
-import com.damian.photogram.web.user.dto.request.AccountPasswordResetSetRequest;
-import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.enums.AccountTokenType;
@@ -15,6 +12,11 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.AccountRepository;
 import com.damian.photogram.domain.user.repository.AccountTokenRepository;
 import com.damian.photogram.infrastructure.mail.EmailSenderService;
+import com.damian.photogram.service.user.AccountPasswordService;
+import com.damian.photogram.service.user.AccountVerificationService;
+import com.damian.photogram.web.user.dto.request.AccountPasswordResetRequest;
+import com.damian.photogram.web.user.dto.request.AccountPasswordResetSetRequest;
+import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

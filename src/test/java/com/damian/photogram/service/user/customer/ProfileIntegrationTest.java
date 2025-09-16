@@ -1,13 +1,13 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.customer;
 
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
-import com.damian.photogram.web.user.dto.response.ProfileDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.util.ImageTestHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.web.user.dto.response.ProfileDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -187,7 +187,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // when
         MvcResult result = mockMvc
                 .perform(
-                        multipart("/api/v1/customers/profile/photo")
+                        multipart("/api/v1/customers/profile/image")
                                 .file(file)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
@@ -225,7 +225,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // when
         mockMvc
                 .perform(
-                        multipart("/api/v1/customers/profile/photo")
+                        multipart("/api/v1/customers/profile/image")
                                 .file(file)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
@@ -255,7 +255,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // when
         mockMvc
                 .perform(
-                        multipart("/api/v1/customers/profile/photo")
+                        multipart("/api/v1/customers/profile/image")
                                 .file(file)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
@@ -286,7 +286,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // when
         mockMvc
                 .perform(
-                        multipart("/api/v1/customers/profile/photo")
+                        multipart("/api/v1/customers/profile/image")
                                 .file(file)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)

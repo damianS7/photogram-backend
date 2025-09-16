@@ -1,4 +1,4 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.customer;
 
 import com.damian.photogram.core.AbstractRepositoryTest;
 import com.damian.photogram.domain.user.enums.CustomerGender;

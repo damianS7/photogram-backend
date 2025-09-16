@@ -1,4 +1,4 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.account;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.domain.user.enums.AccountStatus;
@@ -9,6 +9,7 @@ import com.damian.photogram.domain.user.model.AccountToken;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.AccountRepository;
 import com.damian.photogram.domain.user.repository.AccountTokenRepository;
+import com.damian.photogram.service.user.AccountVerificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

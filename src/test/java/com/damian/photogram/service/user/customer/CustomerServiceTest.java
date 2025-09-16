@@ -1,7 +1,5 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.customer;
 
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
-import com.damian.photogram.web.user.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.enums.CustomerGender;
@@ -10,6 +8,9 @@ import com.damian.photogram.domain.user.exception.CustomerEmailTakenException;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
+import com.damian.photogram.service.user.CustomerService;
+import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.web.user.dto.request.CustomerEmailUpdateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

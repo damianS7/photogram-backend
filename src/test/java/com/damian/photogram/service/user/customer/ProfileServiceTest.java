@@ -1,6 +1,5 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.customer;
 
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.enums.CustomerGender;
@@ -11,6 +10,8 @@ import com.damian.photogram.domain.user.exception.ProfileUpdateException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.service.user.ProfileService;
+import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

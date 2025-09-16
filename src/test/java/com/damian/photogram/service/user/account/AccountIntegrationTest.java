@@ -1,13 +1,13 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.account;
 
-import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.user.dto.request.AccountPasswordUpdateRequest;
+import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
