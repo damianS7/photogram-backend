@@ -1,9 +1,7 @@
 package com.damian.photogram.web.post.dto.mapper;
 
-import com.damian.photogram.web.post.dto.response.LikeDto;
-import com.damian.photogram.web.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.domain.post.model.Like;
-import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.web.post.dto.response.LikeDto;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,14 +12,6 @@ public class LikeDtoMapper {
                 like.getId(),
                 like.getPost().getId(),
                 like.getCustomer().getId()
-        );
-    }
-
-    public static PostLikeDataDto toPostLikeDto(Post post) {
-        return new PostLikeDataDto(
-                post.getId(),
-                true,
-                100L
         );
     }
 
