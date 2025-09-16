@@ -1,19 +1,15 @@
 package com.damian.photogram.core;
 
 
-import com.damian.photogram.web.auth.dto.AuthenticationRequest;
-import com.damian.photogram.web.auth.dto.AuthenticationResponse;
-import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.domain.notification.NotificationRepository;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.setting.SettingRepository;
-import com.damian.photogram.domain.user.repository.AccountRepository;
-import com.damian.photogram.domain.user.repository.AccountTokenRepository;
 import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.domain.user.repository.CustomerRepository;
-import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.domain.user.repository.*;
+import com.damian.photogram.web.auth.dto.AuthenticationRequest;
+import com.damian.photogram.web.auth.dto.AuthenticationResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
@@ -30,14 +26,14 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-//@Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractIntegrationTest {
     @Container
     @ServiceConnection
-    protected static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
+    protected static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
+            .withReuse(true);
 
     protected final String RAW_PASSWORD = "123456";
 
