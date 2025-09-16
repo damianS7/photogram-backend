@@ -1,14 +1,12 @@
 package com.damian.photogram.web.post.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record PostCreateRequest(
         @NotBlank(message = "Image filename cannot be empty")
-        String photoFilename,
+        String imageFilename,
 
-        // description can be empty
-        @NotNull(message = "Description cannot be null")
+        @NotBlank(message = "Description cannot be empty")
         String description
 ) {
 }
