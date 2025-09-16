@@ -2,10 +2,7 @@ package com.damian.photogram.service.post;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
-import com.damian.photogram.service.notification.NotificationService;
 import com.damian.photogram.domain.notification.NotificationType;
-import com.damian.photogram.web.notification.dto.NotificationEvent;
-import com.damian.photogram.web.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
 import com.damian.photogram.domain.post.exception.PostAlreadyLikedException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
@@ -14,6 +11,11 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.notification.NotificationService;
+import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.post.dto.response.PostLikeDataDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.util.Map;
 
 @Service
 public class LikeService {
+    private static final Logger log = LoggerFactory.getLogger(LikeService.class);
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final NotificationService notificationService;
@@ -44,10 +47,11 @@ public class LikeService {
      */
     public PostLikeDataDto getPostLikeData(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Customer: {} fetching like data from post: {}", currentCustomer.getId(), postId);
 
         // check if the post exists
         if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException(Exceptions.POST.NOT_FOUND);
+            throw new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId);
         }
 
         // get the like data for the specified post
@@ -69,15 +73,16 @@ public class LikeService {
      */
     public Like likePost(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Customer: {} like post: {}", currentCustomer.getId(), postId);
 
         // find the post to like
         Post post = postRepository.findById(postId).orElseThrow(
-                () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND)
+                () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId)
         );
 
         // check if post its already liked by the current customer
         if (likeRepository.isPostLikedByCustomer(postId, currentCustomer.getId())) {
-            throw new PostAlreadyLikedException(Exceptions.POST.ALREADY_LIKED);
+            throw new PostAlreadyLikedException(Exceptions.POST.ALREADY_LIKED, postId, currentCustomer.getId());
         }
 
         // save the like
@@ -96,32 +101,34 @@ public class LikeService {
      */
     public void unlike(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Customer: {} unlike post: {}", currentCustomer.getId(), postId);
 
         // check if the post exists
         if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException(Exceptions.POST.NOT_FOUND);
+            throw new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId);
         }
 
         // check if the like exists
         Like like = likeRepository
                 .findByPostIdAndCustomerId(postId, currentCustomer.getId())
                 .orElseThrow(
-                        () -> new LikeNotFoundException(Exceptions.POST.LIKE.NOT_FOUND)
+                        () -> new LikeNotFoundException(Exceptions.POST.LIKE.NOT_FOUND, postId, currentCustomer.getId())
                 );
 
         likeRepository.deleteById(like.getId());
     }
 
     /**
-     * It generates a notification for the like.
+     * It generates a notification for the like that it'll be sent to the owner of the post.
      *
      * @param like
      */
     public void sendLikeNotification(Like like) {
-        final String likerUsername = like.getCustomer().getProfile().getUsername();
+        final String likedByUsername = like.getCustomer().getProfile().getUsername();
+        log.debug("Sending like notification to post: {} from: {}", like.getPost().getId(), likedByUsername);
         Map<String, Object> metadata = Map.of(
                 "postId", like.getPost().getId(),
-                "username", likerUsername
+                "likedByUsername", likedByUsername
         );
 
         // create the notification event
@@ -129,7 +136,7 @@ public class LikeService {
                 like.getPost().getAuthor().getId(),
                 NotificationType.LIKE,
                 metadata,
-                likerUsername + " has liked your post.",
+                likedByUsername + " has liked your post.",
                 like.getCreatedAt().toString()
         );
 

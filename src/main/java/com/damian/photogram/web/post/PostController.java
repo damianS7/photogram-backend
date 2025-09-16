@@ -1,16 +1,18 @@
 package com.damian.photogram.web.post;
 
+import com.damian.photogram.core.util.ImageHelper;
+import com.damian.photogram.domain.post.model.Post;
+import com.damian.photogram.service.post.PostImageService;
+import com.damian.photogram.service.post.PostService;
 import com.damian.photogram.web.post.dto.mapper.PostDtoMapper;
 import com.damian.photogram.web.post.dto.request.PostCreateRequest;
 import com.damian.photogram.web.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.web.post.dto.response.PostDto;
-import com.damian.photogram.service.post.PostImageService;
-import com.damian.photogram.service.post.PostService;
-import com.damian.photogram.core.util.ImageHelper;
-import com.damian.photogram.domain.post.model.Post;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/v1")
 @RestController
 public class PostController {
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     private final PostService postService;
     private final PostImageService postImageService;
 
@@ -50,6 +53,7 @@ public class PostController {
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
+        log.debug("Received request to fetch all posts from username: {}", username);
         Page<Post> posts = postService.getPostsByUsername(username, pageable);
         Page<PostDto> postsDTO = PostDtoMapper.toPostDtoPaginated(posts);
 
@@ -64,6 +68,7 @@ public class PostController {
             @Validated @RequestBody
             PostCreateRequest request
     ) {
+        log.debug("Received request to create a post.");
         Post post = postService.createPost(request);
         PostDto postDTO = PostDtoMapper.toPostDtoPaginated(post);
 
@@ -73,24 +78,26 @@ public class PostController {
     }
 
     // endpoint to delete a post from the logged.
-    @DeleteMapping("/posts/{id}")
+    @DeleteMapping("/posts/{postId}")
     public ResponseEntity<?> deletePost(
             @PathVariable @NotNull @Positive
-            Long id
+            Long postId
     ) {
-        postService.deletePost(id);
+        log.debug("Received request to delete a post: {}", postId);
+        postService.deletePost(postId);
 
         return ResponseEntity
                 .noContent()
                 .build();
     }
 
-    // endpoint to get a post photo
-    @GetMapping("/posts/{postId}/photo")
-    public ResponseEntity<?> getPostPhoto(
+    // endpoint to get the post image
+    @GetMapping("/posts/{postId}/image")
+    public ResponseEntity<?> getPostImage(
             @PathVariable @NotNull @Positive
             Long postId
     ) {
+        log.debug("Received request to fetch the image from post: {}", postId);
         Resource resource = postImageService.getImage(postId);
         String contentType = ImageHelper.getContentType(resource);
         return ResponseEntity
@@ -100,11 +107,12 @@ public class PostController {
                 .body(resource);
     }
 
-    // endpoint to upload profile photo
-    @PostMapping("/posts/photo")
-    public ResponseEntity<?> uploadPostPhoto(
+    // endpoint to upload a post image
+    @PostMapping("/posts/image")
+    public ResponseEntity<?> uploadPostImage(
             @RequestParam("file") MultipartFile file
     ) {
+        log.debug("Received request to upload the image for a post.");
         String filename = postImageService.uploadImage(file);
         ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(filename);
 

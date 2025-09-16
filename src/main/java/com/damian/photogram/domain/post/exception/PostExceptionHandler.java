@@ -1,8 +1,6 @@
 package com.damian.photogram.domain.post.exception;
 
 import com.damian.photogram.core.util.ApiResponse;
-import com.damian.photogram.core.exception.ApplicationException;
-import com.damian.photogram.core.exception.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -16,52 +14,45 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class PostExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(PostExceptionHandler.class);
 
-    @ExceptionHandler(
-            {
-                    PostOwnershipException.class,
-                    CommentOwnershipException.class
-            }
-    ) // 403
-    public ResponseEntity<ApiResponse<String>> handleAuthorization(ApplicationException ex) {
-        log.warn("Unauthorized attempt to access.", ex);
+    @ExceptionHandler(PostOwnershipException.class) // 403
+    public ResponseEntity<ApiResponse<String>> handlePostOwnership(PostOwnershipException ex) {
+        log.warn("Unauthorized operation with post: {} by customer: {}", ex.getPostId(), ex.getCustomerId(), ex);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                             .body(ApiResponse.error(Exceptions.COMMON.NOT_OWNER, HttpStatus.FORBIDDEN));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
-    @ExceptionHandler(
-            {
-                    PostNotFoundException.class,
-                    LikeNotFoundException.class,
-                    CommentNotFoundException.class,
-            }
-    ) // 404
-    public ResponseEntity<ApiResponse<String>> handleNotFound(ApplicationException ex) {
-        log.warn("Attempt to access invalid resources.", ex);
+    @ExceptionHandler(CommentOwnershipException.class) // 403
+    public ResponseEntity<ApiResponse<String>> handleCommentOwnership(CommentOwnershipException ex) {
+        log.warn("Unauthorized operation with comment: {} by customer: {}", ex.getCommentId(), ex.getCustomerId(), ex);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
+    }
+
+    @ExceptionHandler(PostNotFoundException.class) // 404
+    public ResponseEntity<ApiResponse<String>> handlePostNotFound(PostNotFoundException ex) {
+        log.warn("Post: {} not found.", ex.getPostId(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body(ApiResponse.error(Exceptions.COMMON.NOT_FOUND, HttpStatus.NOT_FOUND));
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }
 
-    @ExceptionHandler(
-            {
-                    PostAlreadyLikedException.class,
-            }
-    )
-    // Handle conflict (409)
-    public ResponseEntity<ApiResponse<String>> handleConflit(ApplicationException ex) {
-        log.warn("Attempt to like a post twice.", ex);
+    @ExceptionHandler(LikeNotFoundException.class) // 404
+    public ResponseEntity<ApiResponse<String>> handleLikeNotFound(LikeNotFoundException ex) {
+        log.warn("Like: {} not found.", ex.getPostId(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class) // 404
+    public ResponseEntity<ApiResponse<String>> handleCommentNotFound(CommentNotFoundException ex) {
+        log.warn("Comment: {} not found.", ex.getCommentId(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
+    }
+
+    @ExceptionHandler(PostAlreadyLikedException.class)// Handle conflict (409)
+    public ResponseEntity<ApiResponse<String>> handlePostAlreadyLiked(PostAlreadyLikedException ex) {
+        log.warn("Post: {} already liked by customer: {}", ex.getPostId(), ex.getCustomerId(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT));
-    }
-
-
-    @ExceptionHandler(
-            {
-                    PostImageTooLargeException.class,
-            }
-    ) // 413 Payload Too Large
-    public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
-        log.warn("Attempt to upload a post image too large.", ex);
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE));
     }
 }
