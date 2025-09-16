@@ -1,15 +1,17 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
+import com.damian.photogram.domain.user.exception.ProfileNotOwnerException;
 import com.damian.photogram.domain.user.exception.ProfileUpdateException;
-import com.damian.photogram.domain.user.helper.ProfileAuthorizationHelper;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 
 @Service
 public class ProfileService {
+    private static final Logger log = LoggerFactory.getLogger(ProfileService.class);
     private final ProfileRepository profileRepository;
 
     public ProfileService(
@@ -45,6 +48,7 @@ public class ProfileService {
      * @throws ProfileNotFoundException if the profile is not found
      */
     public Profile getProfile(Long profileId) {
+        log.debug("Getting profile: {}", profileId);
         return profileRepository
                 .findById(profileId)
                 .orElseThrow(
@@ -74,20 +78,26 @@ public class ProfileService {
      */
     public Profile updateProfile(Long profileId, ProfileUpdateRequest request) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("customer: {} updating profile: {}", currentCustomer.getId(), profileId);
 
         // find the profile we want to modify
         Profile profile = profileRepository
                 .findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(
-                        Exceptions.CUSTOMER.PROFILE.NOT_FOUND, profileId, currentCustomer.getId()));
+                        Exceptions.CUSTOMER.PROFILE.NOT_FOUND, profileId, currentCustomer.getId())
+                );
 
 
         // if the logged user is not admin
         if (!AuthHelper.isAdmin(currentCustomer)) {
             // we make sure that this profile belongs to the customer logged
-            ProfileAuthorizationHelper
-                    .authorize(currentCustomer, profile)
-                    .checkOwner();
+            if (!profile.belongsTo(currentCustomer)) {
+                throw new ProfileNotOwnerException(
+                        Exceptions.CUSTOMER.PROFILE.NOT_OWNER,
+                        profileId,
+                        currentCustomer.getId()
+                );
+            }
 
             // we validate the password before updating the profile
             AuthHelper.validatePassword(currentCustomer, request.currentPassword());
@@ -103,7 +113,7 @@ public class ProfileService {
                 case "gender" -> profile.setGender(CustomerGender.valueOf((String) value));
                 case "birthdate" -> profile.setBirthdate(LocalDate.parse((String) value));
                 default -> throw new ProfileUpdateException(
-                        Exceptions.CUSTOMER.PROFILE.UPDATE_FAILED_INVALID_FIELD, currentCustomer.getId(), profileId
+                        Exceptions.CUSTOMER.PROFILE.UPDATE_FAILED_INVALID_FIELD, profileId, currentCustomer.getId()
                 );
             }
         });
@@ -122,10 +132,15 @@ public class ProfileService {
      * @throws ProfileNotFoundException if the username is not found
      */
     public void userProfileExists(String username) {
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Customer: {} checking if username: {} exists", currentCustomer.getId(), username);
         profileRepository
                 .findByUsernameIgnoreCase(username)
                 .orElseThrow(
-                        () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND)
+                        () -> {
+                            log.warn("Failed to find a profile with username: {}", username);
+                            return new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, null, null);
+                        }
                 );
     }
 }

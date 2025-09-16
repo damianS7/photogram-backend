@@ -1,12 +1,12 @@
 package com.damian.photogram.service.feed;
 
-import com.damian.photogram.web.feed.dto.response.FeedDto;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.user.model.Profile;
+import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.web.feed.dto.response.FeedDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class FeedService {
     public FeedDto getUserFeed(String username) {
         final Profile profile = profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
                 () -> {
-                    log.error("Failed to fetch profile for username: {}", username);
-                    return new ProfileNotFoundException(Exceptions.FEED.USER_PROFILE_NOT_FOUND);
+                    log.warn("Failed to fetch profile with username: {}", username);
+                    return new ProfileNotFoundException(Exceptions.FEED.USER_PROFILE_NOT_FOUND, null, null);
                 }
         );
 

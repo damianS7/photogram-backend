@@ -1,17 +1,19 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.infrastructure.storage.exception.ImageTooLargeException;
-import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
-import com.damian.photogram.infrastructure.storage.ImageUploaderService;
-import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.user.exception.ProfileImageNotFoundException;
 import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.infrastructure.storage.ImageProcessingService;
+import com.damian.photogram.infrastructure.storage.ImageStorageService;
+import com.damian.photogram.infrastructure.storage.ImageUploaderService;
+import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.infrastructure.storage.exception.ImageTooLargeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileImageService {
 
     public static final String PROFILE_IMAGE_FOLDER = "";
+    private static final Logger log = LoggerFactory.getLogger(ProfileImageService.class);
     private final ProfileRepository profileRepository;
     private final ImageUploaderService imageUploaderService;
     private final ImageStorageService imageStorageService;
@@ -55,6 +58,7 @@ public class ProfileImageService {
      */
     public String uploadProfileImage(String currentPassword, MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Uploading customer: {} profile image", currentCustomer.getId());
 
         // validate password
         AuthHelper.validatePassword(currentCustomer, currentPassword);
@@ -93,6 +97,7 @@ public class ProfileImageService {
      * @throws ProfileImageNotFoundException if the customer profile photo does not exist in the db
      */
     public Resource getProfileImage(Long customerId) {
+        log.debug("Getting customer: {} profile image", customerId);
         // find the customer profile
         Profile profile = profileRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, null, customerId)
@@ -100,7 +105,11 @@ public class ProfileImageService {
 
         // check if the customer has a profile photo filename stored in db
         if (profile.getImageFilename() == null) {
-            throw new ProfileImageNotFoundException(Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND, profile.getId());
+            throw new ProfileImageNotFoundException(
+                    Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND,
+                    profile.getId(),
+                    customerId
+            );
         }
 
         // return the image as resource
