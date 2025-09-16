@@ -2,10 +2,12 @@ package com.damian.photogram.web.user;
 
 import com.damian.photogram.domain.user.model.Follow;
 import com.damian.photogram.service.user.FollowService;
-import com.damian.photogram.web.user.dto.response.FollowDto;
 import com.damian.photogram.web.user.dto.mapper.FollowDtoMapper;
+import com.damian.photogram.web.user.dto.response.FollowDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 @RestController
 public class FollowController {
+    private static final Logger log = LoggerFactory.getLogger(FollowController.class);
     private final FollowService followService;
 
     @Autowired
@@ -31,6 +34,7 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
+        log.debug("Received request to get follow data about customer: {}", customerId);
         Follow follow = followService.getFollow(customerId);
         FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
 
@@ -45,6 +49,7 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
+        log.debug("Received request to get a list of followers");
         Page<Follow> follows = followService.getFollowers(pageable);
         Page<FollowDto> friendsDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
@@ -61,6 +66,7 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
+        log.debug("Received request to get a list of followers for the customer: {}", customerId);
         Page<Follow> follows = followService.getFollowers(customerId, pageable);
         Page<FollowDto> followersDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
@@ -77,6 +83,7 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
+        log.debug("Received request to get a list of users being follow from customer: {}", customerId);
         Page<Follow> followed = followService.getFollowing(customerId, pageable);
         Page<FollowDto> followedDTO = FollowDtoMapper.toFollowDtoPaged(followed);
 
@@ -91,6 +98,7 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
+        log.debug("Received request to follow customer: {}", customerId);
         Follow follow = followService.follow(customerId);
         followService.sendFollowNotification(follow);
         FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
@@ -106,6 +114,7 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
+        log.debug("Received request to unfollow customer: {}", customerId);
         followService.unfollow(customerId);
 
         return ResponseEntity

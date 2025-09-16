@@ -44,7 +44,6 @@ public class ImageUploaderService {
 
         // saving file
         imageStorageService.storeImage(file, path, filename);
-        log.debug("Uploaded file: {} to: {}", filename, path);
         return filename;
     }
 

@@ -17,7 +17,7 @@ public class EmailSenderService {
     }
 
     public void send(String to, String subject, String body) {
-        log.debug("Sending email to: {}", to);
+        log.debug("Sending email: {} to: {}", subject, to);
         final SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("no-reply@photogram.com");
         message.setTo(to);

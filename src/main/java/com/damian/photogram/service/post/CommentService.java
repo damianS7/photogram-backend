@@ -121,7 +121,7 @@ public class CommentService {
         final String authorUsername = comment.getAuthor().getProfile().getUsername();
         Map<String, Object> metadata = Map.of(
                 "postId", comment.getPost().getId(),
-                "author", authorUsername
+                "username", authorUsername
         );
 
         // create the notification event

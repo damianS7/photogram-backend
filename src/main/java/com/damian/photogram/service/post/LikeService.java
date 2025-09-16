@@ -128,7 +128,7 @@ public class LikeService {
         log.debug("Sending like notification to post: {} from: {}", like.getPost().getId(), likedByUsername);
         Map<String, Object> metadata = Map.of(
                 "postId", like.getPost().getId(),
-                "likedByUsername", likedByUsername
+                "username", likedByUsername
         );
 
         // create the notification event

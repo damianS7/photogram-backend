@@ -2,18 +2,14 @@ package com.damian.photogram.service.user;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
-import com.damian.photogram.domain.user.model.Follow;
-import com.damian.photogram.domain.user.repository.FollowRepository;
-import com.damian.photogram.domain.user.exception.FollowAlreadyExistsException;
-import com.damian.photogram.domain.user.exception.FollowBetweenUsersNotExistException;
-import com.damian.photogram.domain.user.exception.FollowYourselfNotAllowedException;
-import com.damian.photogram.domain.user.exception.FollowersLimitExceededException;
-import com.damian.photogram.service.notification.NotificationService;
 import com.damian.photogram.domain.notification.NotificationType;
-import com.damian.photogram.web.notification.dto.NotificationEvent;
-import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
+import com.damian.photogram.domain.user.exception.*;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.domain.user.model.Follow;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
+import com.damian.photogram.domain.user.repository.FollowRepository;
+import com.damian.photogram.service.notification.NotificationService;
+import com.damian.photogram.web.notification.dto.NotificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -97,7 +93,7 @@ public class FollowService {
      * @throws CustomerNotFoundException if the customer is not found
      */
     public Page<Follow> getFollowing(Long customerId, Pageable pageable) {
-        log.debug("Fetching all the customers being followed from customerId: {}", customerId);
+        log.debug("Fetching all the customers being followed by customerId: {}", customerId);
 
         // check if the customer exists
         if (!customerRepository.existsById(customerId)) {
@@ -153,6 +149,7 @@ public class FollowService {
      */
     public Follow follow(Long customerId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("customer: {} attempt to follow customer: {}", currentCustomer.getId(), customerId);
 
         // check if the currentCustomer can add more following
         if (followRepository.countFollowersFromCustomer(currentCustomer.getId()) >= MAX_FOLLOWS) {
@@ -178,7 +175,7 @@ public class FollowService {
             );
         }
 
-        log.debug("customerId: {} follow customerId: {}", currentCustomer.getId(), customerId);
+        log.debug("customer: {} now follows customer: {}", currentCustomer.getId(), customerId);
         // save the follow relationship in the database
         return followRepository.save(
                 Follow.create()
@@ -195,17 +192,15 @@ public class FollowService {
      * @throws CustomerNotFoundException if the customer does not exist
      */
     public void unfollow(Long customerId) {
-        // check if the customer exists
-        if (!customerRepository.existsById(customerId)) {
-            throw new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, customerId);
-        }
+        Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("customer: {} attempt to unfollow customer: {}", currentCustomer.getId(), customerId);
 
         // check if the follow exists
         Follow follow = this.getFollow(customerId);
 
         // delete the follow relationship from the database
         followRepository.deleteById(follow.getId());
-        log.debug("customerId: {} unfollow customerId: {}", follow.getFollowerCustomer().getId(), customerId);
+        log.debug("customer: {} unfollow customer: {}", follow.getFollowerCustomer().getId(), customerId);
     }
 
     /**

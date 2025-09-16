@@ -75,7 +75,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
         // then
         String json = result.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(json);
-        JsonNode contentNode = root.get("message");
+        JsonNode contentNode = root.get("content");
 
         FollowDto[] followDto = objectMapper.treeToValue(contentNode, FollowDto[].class);
 

@@ -1,7 +1,7 @@
 package com.damian.photogram.web.user.dto.response;
 
 /**
- * Response with follow info
+ * Response with follow info between two users
  */
 public record FollowDto(
         Long followerCustomerId,

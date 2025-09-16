@@ -1,7 +1,5 @@
 package com.damian.photogram.service.user;
 
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
-import com.damian.photogram.web.user.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.user.exception.AccountInvalidPasswordConfirmationException;
@@ -9,6 +7,10 @@ import com.damian.photogram.domain.user.exception.CustomerEmailTakenException;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
+import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.web.user.dto.request.CustomerEmailUpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +20,7 @@ import java.time.Instant;
 
 @Service
 public class CustomerService {
+    private static final Logger log = LoggerFactory.getLogger(CustomerService.class);
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -37,7 +40,7 @@ public class CustomerService {
      * @throws CustomerEmailTakenException if another user has the email
      */
     public Customer createCustomer(AccountRegistrationRequest request) {
-
+        log.debug("Creating customer");
         // check if the email is already taken
         if (emailExist(request.email())) {
             throw new CustomerEmailTakenException(
@@ -68,6 +71,7 @@ public class CustomerService {
      * @throws CustomerNotFoundException if the customer does not exist or if the logged user is not ADMIN
      */
     public boolean deleteCustomer(Long customerId) {
+        log.debug("Deleting customer: {}", customerId);
         // if the customer does not exist we throw an exception
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(
@@ -101,6 +105,7 @@ public class CustomerService {
      * @throws CustomerNotFoundException if the customer does not exist or if the logged user is not ADMIN
      */
     public Customer getCustomer(Long customerId) {
+        log.debug("Getting customer: {}", customerId);
         // if the customer does not exist we throw an exception
         return customerRepository.findById(customerId).orElseThrow(
                 () -> new CustomerNotFoundException(
@@ -135,6 +140,7 @@ public class CustomerService {
      * @throws CustomerNotFoundException if the password does not match, or if the customer does not exist
      */
     public Customer updateEmail(Long customerId, String email) {
+        log.debug("Updating customer: {} email: {}", customerId, email);
         // we get the Customer entity so we can save at the end
         Customer customer = customerRepository.findById(customerId).orElseThrow(
                 () -> new CustomerNotFoundException(
