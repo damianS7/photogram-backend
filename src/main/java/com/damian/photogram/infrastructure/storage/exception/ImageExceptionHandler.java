@@ -1,8 +1,8 @@
 package com.damian.photogram.infrastructure.storage.exception;
 
-import com.damian.photogram.core.util.ApiResponse;
 import com.damian.photogram.core.exception.ApplicationException;
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.util.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -40,16 +40,6 @@ public class ImageExceptionHandler {
     @ExceptionHandler(ImageUploadFailedException.class)
     public ResponseEntity<ApiResponse<String>> handleUploadFailed(ImageUploadFailedException ex) {
         log.error("Image upload failed at: {} failed.", ex.getPath(), ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(ApiResponse.error(
-                                     Exceptions.IMAGE.UPLOAD_FAILED,
-                                     HttpStatus.INTERNAL_SERVER_ERROR
-                             ));
-    }
-
-    @ExceptionHandler(ImageStorageFailedException.class)
-    public ResponseEntity<ApiResponse<String>> handleStorageFailed(ImageStorageFailedException ex) {
-        log.error("Image storage failed at: {} failed.", ex.getPath(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(ApiResponse.error(
                                      Exceptions.IMAGE.UPLOAD_FAILED,

@@ -77,7 +77,6 @@ public class Exceptions {
         public static final String EMPTY = "Image file is empty.";
         public static final String INVALID = "Image is not valid.";
         public static final String UPLOAD_FAILED = "Image upload failed.";
-        public static final String STORAGE_FAILED = "Image storage failed.";
         public static final String TYPE_NOT_DETECTED = "Image type could not be detected.";
     }
 
@@ -92,6 +91,12 @@ public class Exceptions {
         public static final String NOT_OWNER = "You are not allowed to access this resource.";
         public static final String NOT_FOUND = "Resource not found.";
         public static final String VALIDATION_FAILED = "Validation failed.";
+    }
+
+    public static class STORAGE {
+        public static final String NOT_FOUND = "File not found.";
+        public static final String INVALID_PATH = "Path is invalid.";
+        public static final String FAILED = "File storage failed.";
     }
 
     public static class FEED {

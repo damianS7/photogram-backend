@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,16 +40,6 @@ public class GlobalExceptionHandler {
         log.warn("Entity not found: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class) // 413 Payload Too Large
-    public ResponseEntity<ApiResponse<String>> handleTooLarge(RuntimeException ex) {
-        log.warn("File upload too large: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                             .body(ApiResponse.error(
-                                     "Uploaded file exceeds maximum allowed size.",
-                                     HttpStatus.PAYLOAD_TOO_LARGE
-                             ));
     }
 
     @ExceptionHandler(Exception.class) // fallback

@@ -15,13 +15,24 @@ import java.nio.file.Path;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class LocalStorageServiceTest extends AbstractServiceTest {
+public class FileStorageServiceTest extends AbstractServiceTest {
 
     @InjectMocks
-    private LocalStorageService localStorageService;
+    private FileStorageService fileStorageService;
 
     @Test
-    @DisplayName("Should store image")
+    @DisplayName("Should get root storage path")
+    void shouldGetStoragePath() throws IOException {
+        System.out.println(
+                fileStorageService.getStoragePath(
+                        ImageUploaderService.getCustomerUploadFolder(
+                                1L)
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("Should store file")
     void shouldStoreFile() throws IOException {
         // given
         MultipartFile givenFile = new MockMultipartFile(
@@ -32,7 +43,7 @@ public class LocalStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        File storedFile = localStorageService.storeFile(
+        File storedFile = fileStorageService.storeFile(
                 givenFile, "", givenFile.getName()
         );
 
@@ -43,10 +54,10 @@ public class LocalStorageServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @DisplayName("Should get image")
+    @DisplayName("Should get file")
     void shouldGetFile() throws IOException {
         // given
-        File givenFile = localStorageService.storeFile(
+        File givenFile = fileStorageService.storeFile(
                 new MockMultipartFile(
                         "file.jpg",
                         "photo.jpg",
@@ -57,7 +68,7 @@ public class LocalStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        File file = localStorageService.getFile(
+        File file = fileStorageService.getFile(
                 "", givenFile.getName()
         );
 
@@ -68,10 +79,10 @@ public class LocalStorageServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete image")
+    @DisplayName("Should delete file")
     void shouldDeleteFile() throws IOException {
         // given
-        File givenFile = localStorageService.storeFile(
+        File givenFile = fileStorageService.storeFile(
                 new MockMultipartFile(
                         "file.jpg",
                         "photo.jpg",
@@ -82,7 +93,7 @@ public class LocalStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        localStorageService.deleteFile(
+        fileStorageService.deleteFile(
                 "", givenFile.getName()
         );
 
