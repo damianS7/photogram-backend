@@ -7,7 +7,7 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.service.user.AccountRegistrationService;
 import com.damian.photogram.service.user.AccountVerificationService;
 import com.damian.photogram.service.user.CustomerService;
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.web.rest.user.dto.request.AccountRegistrationRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -2,8 +2,8 @@ package com.damian.photogram.service.setting;
 
 import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.web.setting.dto.SettingUpdateRequest;
-import com.damian.photogram.web.setting.dto.SettingsPatchRequest;
+import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.web.rest.setting.dto.SettingsPatchRequest;
 import com.damian.photogram.domain.setting.Setting;
 import com.damian.photogram.domain.setting.SettingRepository;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;

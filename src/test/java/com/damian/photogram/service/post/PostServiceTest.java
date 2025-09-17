@@ -6,7 +6,7 @@ import com.damian.photogram.domain.post.exception.PostOwnershipException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.web.post.dto.request.PostCreateRequest;
+import com.damian.photogram.web.rest.post.dto.request.PostCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

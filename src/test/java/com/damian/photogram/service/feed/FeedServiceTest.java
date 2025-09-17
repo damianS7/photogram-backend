@@ -1,6 +1,6 @@
 package com.damian.photogram.service.feed;
 
-import com.damian.photogram.web.feed.dto.response.FeedDto;
+import com.damian.photogram.web.rest.feed.dto.response.FeedDto;
 import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;

@@ -9,7 +9,7 @@ import com.damian.photogram.domain.user.exception.ProfileUpdateException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

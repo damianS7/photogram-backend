@@ -2,7 +2,7 @@ package com.damian.photogram.service.notification;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
-import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;

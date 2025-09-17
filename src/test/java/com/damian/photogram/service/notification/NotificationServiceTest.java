@@ -1,6 +1,6 @@
 package com.damian.photogram.service.notification;
 
-import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;

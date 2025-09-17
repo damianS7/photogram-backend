@@ -1,7 +1,7 @@
 package com.damian.photogram.service.setting;
 
-import com.damian.photogram.web.setting.dto.SettingUpdateRequest;
-import com.damian.photogram.web.setting.dto.response.SettingDto;
+import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.web.rest.setting.dto.response.SettingDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.setting.Setting;
 import com.damian.photogram.domain.user.enums.AccountStatus;

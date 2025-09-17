@@ -9,7 +9,7 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.web.post.dto.request.CommentCreateRequest;
+import com.damian.photogram.web.rest.post.dto.request.CommentCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -11,7 +11,7 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
 import com.damian.photogram.service.user.ProfileService;
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

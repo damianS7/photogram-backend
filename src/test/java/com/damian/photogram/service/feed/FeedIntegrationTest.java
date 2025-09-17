@@ -1,6 +1,6 @@
 package com.damian.photogram.service.feed;
 
-import com.damian.photogram.web.feed.dto.response.FeedDto;
+import com.damian.photogram.web.rest.feed.dto.response.FeedDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;

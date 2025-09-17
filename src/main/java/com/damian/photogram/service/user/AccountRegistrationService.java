@@ -2,7 +2,7 @@ package com.damian.photogram.service.user;
 
 import com.damian.photogram.domain.user.model.AccountToken;
 import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.web.user.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.web.rest.user.dto.request.AccountRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

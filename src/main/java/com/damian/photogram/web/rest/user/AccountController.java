@@ -1,0 +1,145 @@
+package com.damian.photogram.web.rest.user;
+
+import com.damian.photogram.core.util.ApiResponse;
+import com.damian.photogram.domain.user.model.Account;
+import com.damian.photogram.domain.user.model.AccountToken;
+import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.user.AccountPasswordService;
+import com.damian.photogram.service.user.AccountRegistrationService;
+import com.damian.photogram.service.user.AccountVerificationService;
+import com.damian.photogram.web.rest.user.dto.mapper.CustomerDtoMapper;
+import com.damian.photogram.web.rest.user.dto.request.*;
+import com.damian.photogram.web.user.dto.request.*;
+import com.damian.photogram.web.rest.user.dto.response.CustomerWithProfileDto;
+import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1")
+public class AccountController {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
+    private final AccountRegistrationService accountRegistrationService;
+    private final AccountPasswordService accountPasswordService;
+    private final AccountVerificationService accountVerificationService;
+
+    public AccountController(
+            AccountRegistrationService accountRegistrationService,
+            AccountPasswordService accountPasswordService,
+            AccountVerificationService accountVerificationService
+    ) {
+        this.accountRegistrationService = accountRegistrationService;
+        this.accountPasswordService = accountPasswordService;
+        this.accountVerificationService = accountVerificationService;
+    }
+
+    // endpoint for account registration
+    @PostMapping("/accounts/register")
+    public ResponseEntity<?> register(
+            @Validated @RequestBody
+            AccountRegistrationRequest request
+    ) {
+        log.debug("Received request to register.");
+        Customer registeredCustomer = accountRegistrationService.register(request);
+
+        CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(registeredCustomer);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(dto);
+    }
+
+    // endpoint to modify current customer password
+    @PatchMapping("/accounts/password")
+    public ResponseEntity<?> updatePassword(
+            @Validated @RequestBody
+            AccountPasswordUpdateRequest request
+    ) {
+        log.debug("Received request to update password.");
+        accountPasswordService.updatePassword(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    // endpoint for account verification
+    @GetMapping("/accounts/verification/{token:.+}")
+    public ResponseEntity<?> verifyAccount(
+            @PathVariable @NotBlank
+            String token
+    ) {
+        log.debug("Received request to verify account.");
+        // verification the account using the provided token
+        Account account = accountVerificationService.verifyAccount(token);
+
+        // send email to customer after account has been verificated
+        accountVerificationService.sendAccountVerifiedEmail(account.getOwner());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("Your account has been verified. You can now log in with your credentials."));
+    }
+
+    // endpoint for account to request for account verification email
+    @PostMapping("/accounts/resend-verification")
+    public ResponseEntity<?> resendVerification(
+            @Validated @RequestBody
+            AccountActivationResendRequest request
+    ) {
+        log.debug("Received request to resend verification token.");
+        // generate a new verification token
+        AccountToken accountToken = accountVerificationService.generateVerificationToken(request.email());
+
+        // send the account verification link
+        accountVerificationService.sendAccountVerificationLinkEmail(request.email(), accountToken.getToken());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("A verification link has been sent to your email."));
+    }
+
+    // endpoint to request for a reset password
+    @PostMapping("/accounts/reset-password")
+    public ResponseEntity<?> resetPasswordRequest(
+            @Validated @RequestBody
+            AccountPasswordResetRequest request
+    ) {
+        log.debug("Received request for password reset through email.");
+        // generate a new password reset token
+        AccountToken accountToken = accountPasswordService.generatePasswordResetToken(request);
+
+        // send the email with the link to reset the password
+        accountPasswordService.sendResetPasswordEmail(
+                accountToken.getCustomer().getEmail(),
+                accountToken.getToken()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("A password reset link has been sent to your email address."));
+    }
+
+    // endpoint to set a new password using token
+    @PostMapping("/accounts/reset-password/{token:.+}")
+    public ResponseEntity<?> resetPassword(
+            @PathVariable @NotBlank
+            String token,
+            @Validated @RequestBody
+            AccountPasswordResetSetRequest request
+    ) {
+        log.debug("Received request to set a new password through a token.");
+
+        // update the password using the token
+        accountPasswordService.passwordResetWithToken(token, request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success("Password reset successfully."));
+    }
+}

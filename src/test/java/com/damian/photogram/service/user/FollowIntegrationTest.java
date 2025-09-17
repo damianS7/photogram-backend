@@ -6,7 +6,7 @@ import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Follow;
-import com.damian.photogram.web.user.dto.response.FollowDto;
+import com.damian.photogram.web.rest.user.dto.response.FollowDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

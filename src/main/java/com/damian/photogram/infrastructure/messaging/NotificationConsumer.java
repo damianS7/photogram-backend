@@ -2,7 +2,7 @@ package com.damian.photogram.infrastructure.messaging;
 
 import com.damian.photogram.core.config.RabbitConfig;
 import com.damian.photogram.service.notification.NotificationService;
-import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 

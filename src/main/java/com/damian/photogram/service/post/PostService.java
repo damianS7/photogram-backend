@@ -9,7 +9,7 @@ import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
-import com.damian.photogram.web.post.dto.request.PostCreateRequest;
+import com.damian.photogram.web.rest.post.dto.request.PostCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

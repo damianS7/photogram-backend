@@ -6,7 +6,7 @@ import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
-import com.damian.photogram.web.feed.dto.response.FeedDto;
+import com.damian.photogram.web.rest.feed.dto.response.FeedDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

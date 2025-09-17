@@ -3,7 +3,7 @@ package com.damian.photogram.service.auth;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.util.JwtUtil;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.web.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;

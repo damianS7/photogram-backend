@@ -1,6 +1,6 @@
 package com.damian.photogram.service.setting;
 
-import com.damian.photogram.web.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.domain.setting.Setting;
 import com.damian.photogram.domain.setting.SettingRepository;

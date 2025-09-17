@@ -9,7 +9,7 @@ import com.damian.photogram.domain.user.model.Follow;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
 import com.damian.photogram.domain.user.repository.FollowRepository;
 import com.damian.photogram.service.notification.NotificationService;
-import com.damian.photogram.web.notification.dto.NotificationEvent;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

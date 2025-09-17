@@ -1,7 +1,7 @@
 package com.damian.photogram.service.post;
 
-import com.damian.photogram.web.post.dto.response.LikeDto;
-import com.damian.photogram.web.post.dto.response.PostLikeDataDto;
+import com.damian.photogram.web.rest.post.dto.response.LikeDto;
+import com.damian.photogram.web.rest.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.post.model.Like;
 import com.damian.photogram.domain.post.model.Post;
