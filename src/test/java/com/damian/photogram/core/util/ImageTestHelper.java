@@ -43,7 +43,7 @@ public class ImageTestHelper {
 
     public static File multipartToFile(MultipartFile image) {
         try {
-            Path tempFile = Files.createTempFile("-", image.getOriginalFilename());
+            Path tempFile = Files.createTempFile("mock-image-", image.getOriginalFilename());
             Files.write(tempFile, image.getBytes());
             return tempFile.toFile();
         } catch (IOException e) {
