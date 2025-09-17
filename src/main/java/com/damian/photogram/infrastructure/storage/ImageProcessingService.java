@@ -196,7 +196,7 @@ public class ImageProcessingService {
         return resizedImage;
     }
 
-    public MultipartFile resizeImageMultipart(MultipartFile file, int targetWidth, int targetHeight) {
+    public MultipartFile resizeImage(MultipartFile file, int targetWidth, int targetHeight) {
         BufferedImage image = multipartToBufferedImage(file);
         BufferedImage resizedImage = resizeBufferedImage(image, targetWidth, targetHeight);
 
@@ -208,7 +208,7 @@ public class ImageProcessingService {
         return bufferedImageToMultipart(resizedImage);
     }
 
-    public File resizeImageFile(File file, int targetWidth, int targetHeight) {
+    public File resizeImage(File file, int targetWidth, int targetHeight) {
         BufferedImage image = fileToBufferedImage(file);
         BufferedImage resizedImage = resizeBufferedImage(image, targetWidth, targetHeight);
 

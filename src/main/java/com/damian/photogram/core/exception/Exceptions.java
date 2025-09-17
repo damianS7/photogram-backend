@@ -1,6 +1,5 @@
 package com.damian.photogram.core.exception;
 
-
 public class Exceptions {
 
     public static class ACCOUNT {

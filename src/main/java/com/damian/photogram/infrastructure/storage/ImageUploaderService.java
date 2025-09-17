@@ -41,15 +41,15 @@ public class ImageUploaderService {
                 getCustomerUploadFolder(currentCustomer.getId()),
                 folder
         );
-        log.debug("Uploading file: {} to: {}", filename, path);
 
         final String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         if (extension != null && !filename.endsWith(extension)) {
             filename += "." + extension;
         }
 
+        log.debug("customer: {} uploading file: {} to: {}", currentCustomer.getId(), filename, path);
         // saving file
-        return fileStorageService.storeFile(file, String.valueOf(path), filename);
+        return fileStorageService.storeFile(file, path.toString(), filename);
     }
 
     /**

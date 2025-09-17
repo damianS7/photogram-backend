@@ -32,8 +32,6 @@ public class ImageValidationService {
      * @param allowedImageTypes Types allowed
      */
     public void validateImage(MultipartFile file, long maxFileSize, String[] allowedImageTypes) {
-        log.debug("Validating image file: {}", file.getOriginalFilename());
-
         if (file.isEmpty()) {
             throw new ImageEmptyFileException(Exceptions.IMAGE.EMPTY);
         }
@@ -50,6 +48,6 @@ public class ImageValidationService {
             throw new ImageTooLargeException(Exceptions.IMAGE.TOO_LARGE);
         }
 
-        log.debug("Image validated.");
+        log.debug("Image: {} validated.", file.getOriginalFilename());
     }
 }

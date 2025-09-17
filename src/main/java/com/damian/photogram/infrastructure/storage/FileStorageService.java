@@ -1,6 +1,7 @@
 package com.damian.photogram.infrastructure.storage;
 
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.infrastructure.storage.exception.FileStorageException;
 import com.damian.photogram.infrastructure.storage.exception.FileStorageFailedException;
 import com.damian.photogram.infrastructure.storage.exception.FileStorageNotFoundException;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
- * Service class for handling image storage and retrieval.
+ * Service class for handling file storage and retrieval.
  */
 @Service
 public class FileStorageService {
@@ -36,8 +37,8 @@ public class FileStorageService {
      * Creates a Resource from the given path.
      * Path must be a valid path to an existing file.
      *
-     * @param path the path of the image
-     * @return Resource object representing the image
+     * @param path the path of the file
+     * @return Resource object representing the file
      */
     public Resource createResource(Path path) {
         Resource resource;
@@ -67,24 +68,24 @@ public class FileStorageService {
     }
 
     /**
-     * Stores the given image file in the specified path with the provided filename.
+     * Stores the given file at the specified path with the provided filename.
      *
-     * @param file     the image file to be stored
+     * @param file     the file to be stored
      * @param path     the directory path where the image will be stored
-     * @param filename the name to be assigned to the stored image file
-     * @return File object representing the stored image
+     * @param filename the name to be assigned to the stored file
+     * @return File the stored file.
      */
     public File storeFile(MultipartFile file, String path, String filename) {
         Path filePath = getStoragePath(path).resolve(filename).normalize();
-        log.info("Storing image: {} within path: {}", filename, filePath.getParent());
-
         try {
             Files.createDirectories(filePath.getParent());
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            return filePath.toFile();
         } catch (IOException e) {
             throw new FileStorageFailedException(Exceptions.STORAGE.FAILED, path, filename);
         }
+
+        log.debug("Stored image: {} at: {}", filename, filePath.getParent());
+        return filePath.toFile();
     }
 
     /**
@@ -96,7 +97,7 @@ public class FileStorageService {
      */
     public File getFile(String path, String filename) {
         Path filePath = getStoragePath(path).resolve(filename).normalize();
-        log.debug("Retrieving file from path: {}, with filename: {}", filePath.getParent(), filename);
+        log.debug("Retrieving file: {} at: {}", filename, filePath.getParent());
         return filePath.toFile();
     }
 
@@ -104,19 +105,23 @@ public class FileStorageService {
      * Delete a file from server storage
      *
      * @param path     path where the file is
-     * @param filename name of the file
+     * @param filename name of the file to delete
      */
     public void deleteFile(String path, String filename) {
         Path filePath = getStoragePath(path).resolve(filename).normalize();
+
         try {
-            log.debug("Deleting file: {} within: {}", filename, filePath.getParent());
-            Files.deleteIfExists(filePath);
+            boolean fileDeleted = Files.deleteIfExists(filePath);
+            if (fileDeleted) {
+                log.debug("Deleted file: {} at: {}", filename, filePath.getParent());
+            }
         } catch (IOException e) {
-            throw new FileStorageNotFoundException(
+            throw new FileStorageException(
                     Exceptions.STORAGE.INVALID_PATH,
                     filePath.getParent().toString(),
                     filename
             );
         }
+
     }
 }
