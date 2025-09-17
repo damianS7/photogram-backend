@@ -10,10 +10,8 @@ import org.mockito.Mock;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,30 +24,38 @@ public class ImageUploaderServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private LocalStorageService localStorageService;
+    private FileStorageService fileStorageService;
+
+    @Test
+    @DisplayName("Should get upload path")
+    void shouldGetUploadPath() {
+        System.out.println(
+                ImageUploaderService.getCustomerUploadFolder(1L)
+        );
+    }
 
     @Test
     @DisplayName("Should upload image")
-    void shouldUploadImage() throws IOException {
+    void shouldUploadImage() {
         // given
-        setUpContext(
-                Customer.create()
-                        .setId(1L)
+        setUpContext(Customer.create()
+                             .setId(1L)
         );
+
         MultipartFile givenMultipart = ImageTestHelper.createDefaultJpg();
-        File givenFile = ImageTestHelper.multipartToFile(givenMultipart);
+        File tempFile = ImageTestHelper.multipartToFile(givenMultipart);
 
         // when
-        when(localStorageService.storeFile(any(), anyString(), anyString()))
-                .thenReturn(givenFile);
+        when(fileStorageService.storeFile(any(MultipartFile.class), anyString(), anyString()))
+                .thenReturn(tempFile);
 
-        String filename = imageUploaderService.uploadImage(
-                givenMultipart, "posts", givenFile.getName()
+        File uploadedImage = imageUploaderService.uploadImage(
+                givenMultipart, "posts", tempFile.getName()
         );
 
         // then
-        assertNotNull(filename);
-        assertEquals(filename, givenFile.getName());
-        Files.deleteIfExists(Path.of(imageUploaderService.getCustomerUploadFolder(1L) + filename));
+        assertNotNull(uploadedImage);
+        assertThat(uploadedImage.exists()).isTrue();
+        assertEquals(tempFile.length(), uploadedImage.length());
     }
 }

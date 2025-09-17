@@ -7,10 +7,10 @@ import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
-import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import com.damian.photogram.service.user.ProfileImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private LocalStorageService localStorageService;
+    private FileStorageService fileStorageService;
 
     @Mock
     private ImageValidationService imageValidationService;
@@ -81,8 +81,8 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
 
         // when
         when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getProfile()));
-        when(localStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
-        when(localStorageService.createResource(givenFile)).thenReturn(givenResource);
+        when(fileStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
+        when(fileStorageService.createResource(givenFile)).thenReturn(givenResource);
         Resource resource = profileImageService.getProfileImage(customer.getId());
 
         // then
@@ -95,22 +95,27 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     void shouldUploadProfileImage() {
         // given
         setUpContext(customer);
-        MultipartFile givenFile = ImageTestHelper.createDefaultJpg();
-        String filename = "avatar.jpg";
+        MultipartFile givenMultipart = ImageTestHelper.createDefaultJpg();
+        File tempFile = ImageTestHelper.multipartToFile(givenMultipart);
 
         // when
         when(profileRepository.save(any(Profile.class))).thenReturn(customer.getProfile());
         doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
-        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(givenFile);
-        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString(), anyString())).thenReturn(filename);
+        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(
+                givenMultipart);
+        when(imageUploaderService.uploadImage(
+                any(MultipartFile.class),
+                anyString(),
+                anyString()
+        )).thenReturn(tempFile);
 
-        String filenameResult = profileImageService.uploadProfileImage(
-                RAW_PASSWORD, givenFile
+        File uploadedImage = profileImageService.uploadProfileImage(
+                RAW_PASSWORD, givenMultipart
         );
 
         // then
-        assertNotNull(filenameResult);
-        assertEquals(filename, filenameResult);
+        assertNotNull(uploadedImage);
+        assertEquals(uploadedImage.length(), tempFile.length());
         verify(profileRepository, times(1)).save(any(Profile.class));
     }
 }

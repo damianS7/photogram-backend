@@ -44,7 +44,7 @@ public class FileStorageServiceTest extends AbstractServiceTest {
 
         // when
         File storedFile = fileStorageService.storeFile(
-                givenFile, "", givenFile.getName()
+                givenFile, ImageUploaderService.getCustomerUploadFolder(1L), givenFile.getName()
         );
 
         // then

@@ -13,7 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Service class for handling image storage and retrieval.
@@ -23,11 +26,10 @@ public class FileStorageService {
     private static final Logger log = LoggerFactory.getLogger(FileStorageService.class);
     private final String STORAGE_FOLDER = "storage";
 
-    public String getStoragePath(String path) {
+    public Path getStoragePath(String path) {
         return Paths.get(System.getProperty("user.dir"), STORAGE_FOLDER, path)
                     .toAbsolutePath()
-                    .normalize()
-                    .toString();
+                    .normalize();
     }
 
     /**
@@ -73,12 +75,11 @@ public class FileStorageService {
      * @return File object representing the stored image
      */
     public File storeFile(MultipartFile file, String path, String filename) {
-        log.info("Storing image: {} within path: {}", filename, path);
+        Path filePath = getStoragePath(path).resolve(filename).normalize();
+        log.info("Storing image: {} within path: {}", filename, filePath.getParent());
 
         try {
-            Path storePath = Paths.get(getStoragePath(path));
-            Files.createDirectories(storePath);
-            Path filePath = storePath.resolve(filename);
+            Files.createDirectories(filePath.getParent());
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             return filePath.toFile();
         } catch (IOException e) {
@@ -94,32 +95,28 @@ public class FileStorageService {
      * @return Resource object representing the file
      */
     public File getFile(String path, String filename) {
-        path = getStoragePath(path);
-        Path filePath = Paths.get(path).resolve(filename).normalize();
-        log.debug("Retrieving file from path: {}, with filename: {}", path, filename);
-
-
-        try {
-            return filePath.toFile();
-        } catch (InvalidPathException exception) {
-            throw new FileStorageNotFoundException(Exceptions.STORAGE.INVALID_PATH, path, filename);
-        }
+        Path filePath = getStoragePath(path).resolve(filename).normalize();
+        log.debug("Retrieving file from path: {}, with filename: {}", filePath.getParent(), filename);
+        return filePath.toFile();
     }
 
     /**
      * Delete a file from server storage
      *
-     * @param path     path where the image is
-     * @param filename name of the image
+     * @param path     path where the file is
+     * @param filename name of the file
      */
     public void deleteFile(String path, String filename) {
-        path = getStoragePath(path);
+        Path filePath = getStoragePath(path).resolve(filename).normalize();
         try {
-            log.debug("Deleting file: {} within: {}", filename, path);
-            Path pathToFile = Paths.get(path).resolve(filename).normalize();
-            Files.deleteIfExists(pathToFile);
+            log.debug("Deleting file: {} within: {}", filename, filePath.getParent());
+            Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            throw new FileStorageNotFoundException(Exceptions.STORAGE.INVALID_PATH, path, filename);
+            throw new FileStorageNotFoundException(
+                    Exceptions.STORAGE.INVALID_PATH,
+                    filePath.getParent().toString(),
+                    filename
+            );
         }
     }
 }

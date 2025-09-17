@@ -7,10 +7,10 @@ import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
-import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class PostImageServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private LocalStorageService localStorageService;
+    private FileStorageService fileStorageService;
 
     @Mock
     private ImageProcessingService imageProcessingService;
@@ -73,25 +73,30 @@ public class PostImageServiceTest extends AbstractServiceTest {
 
     @Test
     @DisplayName("Should upload post image")
-    void shouldUploadPostImage() {
+    void shouldUploadPostImage() throws IOException {
         // given
         setUpContext(customer);
-        MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
-
-        String filename = "avatar.jpg";
+        MockMultipartFile multipartFile = ImageTestHelper.createDefaultJpg();
+        File givenFile = ImageTestHelper.multipartToFile(
+                multipartFile
+        );
 
         // when
         doNothing().when(imageValidationService).validateImage(any(), any(Long.class), any(String[].class));
-        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(givenFile);
-        when(imageUploaderService.uploadImage(any(MultipartFile.class), anyString())).thenReturn(filename);
+        when(imageProcessingService.optimizeImage(any(), any(Integer.class), any(Integer.class))).thenReturn(
+                multipartFile);
+        when(imageUploaderService.uploadImage(
+                any(MultipartFile.class),
+                anyString()
+        )).thenReturn(givenFile);
 
-        String filenameResult = postImageService.uploadImage(
-                givenFile
+        File uploadedImage = postImageService.uploadImage(
+                multipartFile
         );
 
         // then
-        assertNotNull(filenameResult);
-        assertEquals(filename, filenameResult);
+        assertNotNull(uploadedImage);
+        assertEquals(givenFile.length(), uploadedImage.length());
     }
 
     @Test
@@ -111,8 +116,8 @@ public class PostImageServiceTest extends AbstractServiceTest {
 
         // when
         when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
-        when(localStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
-        when(localStorageService.createResource(givenFile)).thenReturn(givenResource);
+        when(fileStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
+        when(fileStorageService.createResource(givenFile)).thenReturn(givenResource);
         Resource resource = postImageService.getImage(
                 givenPost.getId()
         );
@@ -121,7 +126,7 @@ public class PostImageServiceTest extends AbstractServiceTest {
         assertNotNull(resource);
         assertArrayEquals(givenMultipartFile.getBytes(), resource.getContentAsByteArray());
         verify(postRepository, times(1)).findById(givenPost.getId());
-        verify(localStorageService, times(1)).getFile(anyString(), anyString());
+        verify(fileStorageService, times(1)).getFile(anyString(), anyString());
     }
 
     @Test
@@ -138,13 +143,13 @@ public class PostImageServiceTest extends AbstractServiceTest {
 
         // when
         when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
-        doNothing().when(localStorageService).deleteFile(anyString(), anyString());
+        doNothing().when(fileStorageService).deleteFile(anyString(), anyString());
         postImageService.deleteImage(
                 givenPost.getId()
         );
 
         // then
         verify(postRepository, times(1)).findById(givenPost.getId());
-        verify(localStorageService, times(1)).deleteFile(anyString(), anyString());
+        verify(fileStorageService, times(1)).deleteFile(anyString(), anyString());
     }
 }

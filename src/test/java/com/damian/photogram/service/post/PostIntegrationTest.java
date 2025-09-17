@@ -1,12 +1,12 @@
 package com.damian.photogram.service.post;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.ImageTestHelper;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
-import com.damian.photogram.infrastructure.storage.MultipartImageAdapter;
 import com.damian.photogram.web.rest.post.dto.request.PostCreateRequest;
 import com.damian.photogram.web.rest.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.web.rest.post.dto.response.PostDto;
@@ -23,7 +23,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.File;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,6 +159,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
         loginWithCustomer(customer);
 
         Post post = new Post(customer);
+        post.setImageFilename("image.jpg");
         post.setDescription("Hello world.");
         postRepository.save(post);
 
@@ -178,17 +178,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
     void shouldUploadPostImage() throws Exception {
         // given
         loginWithCustomer(customer);
-
-        MultipartImageAdapter givenFile = new MultipartImageAdapter(
-                new File(getClass().getResource("/images/avatar.png").getFile())
-        );
-
-        MockMultipartFile givenImage = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                givenFile.getInputStream()
-        );
+        MockMultipartFile givenImage = ImageTestHelper.createDefaultJpg();
 
         // when
         MvcResult result = mockMvc
