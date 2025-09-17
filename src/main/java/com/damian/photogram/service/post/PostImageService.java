@@ -6,10 +6,10 @@ import com.damian.photogram.domain.post.exception.PostNotFoundException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
-import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -17,16 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * This class handle the image upload for the post.
  */
 @Service
 public class PostImageService {
-    public static final String POST_IMAGE_FOLDER = "posts/"; // profile
+    public static final String POST_IMAGE_FOLDER = "posts"; // profile
     private static final Logger log = LoggerFactory.getLogger(PostImageService.class);
     private final ImageUploaderService imageUploaderService;
-    private final LocalStorageService localStorageService;
+    private final FileStorageService fileStorageService;
     private final PostRepository postRepository;
     private final ImageValidationService imageValidationService;
     private final ImageProcessingService imageProcessingService;
@@ -37,16 +38,23 @@ public class PostImageService {
 
     public PostImageService(
             ImageUploaderService imageUploaderService,
-            LocalStorageService localStorageService,
+            FileStorageService fileStorageService,
             PostRepository postRepository,
             ImageValidationService imageValidationService,
             ImageProcessingService imageProcessingService
     ) {
         this.imageUploaderService = imageUploaderService;
-        this.localStorageService = localStorageService;
+        this.fileStorageService = fileStorageService;
         this.postRepository = postRepository;
         this.imageValidationService = imageValidationService;
         this.imageProcessingService = imageProcessingService;
+    }
+
+    public String getPostImageFolder(Long customerId) {
+        return Paths.get(
+                ImageUploaderService.getCustomerUploadFolder(customerId),
+                POST_IMAGE_FOLDER
+        ).toString();
     }
 
     /**
@@ -55,7 +63,7 @@ public class PostImageService {
      * @param image MultipartFile
      * @return String the name of the uploaded file on the server.
      */
-    public String uploadImage(MultipartFile image) {
+    public File uploadImage(MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
         log.debug("Customer: {} uploading an image for post. ", currentCustomer.getId());
 
@@ -93,12 +101,12 @@ public class PostImageService {
                 () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId)
         );
 
-        File file = localStorageService.getFile(
-                ImageUploaderService.getCustomerUploadFolder(post.getAuthor().getId()) + POST_IMAGE_FOLDER,
+        File file = fileStorageService.getFile(
+                getPostImageFolder(post.getAuthor().getId()),
                 post.getImageFilename()
         );
 
-        return localStorageService.createResource(file);
+        return fileStorageService.createResource(file);
     }
 
     /**
@@ -115,8 +123,8 @@ public class PostImageService {
                 () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId)
         );
 
-        localStorageService.deleteFile(
-                ImageUploaderService.getCustomerUploadFolder(post.getAuthor().getId()) + POST_IMAGE_FOLDER,
+        fileStorageService.deleteFile(
+                getPostImageFolder(post.getAuthor().getId()),
                 post.getImageFilename()
         );
     }

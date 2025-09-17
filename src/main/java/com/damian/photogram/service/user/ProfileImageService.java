@@ -7,10 +7,10 @@ import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
-import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import com.damian.photogram.infrastructure.storage.exception.ImageTooLargeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 @Service
 public class ProfileImageService {
@@ -27,7 +28,7 @@ public class ProfileImageService {
     private static final Logger log = LoggerFactory.getLogger(ProfileImageService.class);
     private final ProfileRepository profileRepository;
     private final ImageUploaderService imageUploaderService;
-    private final LocalStorageService localStorageService;
+    private final FileStorageService fileStorageService;
     private final ImageProcessingService imageProcessingService;
     private final ImageValidationService imageValidationService;
     private final long COMPRESS_SIZE_TRIGGER = 250L * 1024; // 250 kb
@@ -37,17 +38,24 @@ public class ProfileImageService {
     private final String[] ALLOWED_IMAGE_TYPES = {"image/jpg", "image/jpeg", "image/png"};
 
     public ProfileImageService(
-            LocalStorageService localStorageService,
+            FileStorageService fileStorageService,
             ProfileRepository profileRepository,
             ImageUploaderService imageUploaderService,
             ImageProcessingService imageProcessingService,
             ImageValidationService imageValidationService
     ) {
-        this.localStorageService = localStorageService;
+        this.fileStorageService = fileStorageService;
         this.profileRepository = profileRepository;
         this.imageUploaderService = imageUploaderService;
         this.imageProcessingService = imageProcessingService;
         this.imageValidationService = imageValidationService;
+    }
+
+    public String getProfileImageFolder(Long customerId) {
+        return Paths.get(
+                ImageUploaderService.getCustomerUploadFolder(customerId),
+                PROFILE_IMAGE_FOLDER
+        ).toString();
     }
 
     /**
@@ -58,7 +66,7 @@ public class ProfileImageService {
      * @return image filename
      * @throws ImageTooLargeException if the image size exceeds the limit
      */
-    public String uploadProfileImage(String currentPassword, MultipartFile image) {
+    public File uploadProfileImage(String currentPassword, MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
         log.debug("Uploading customer: {} profile image", currentCustomer.getId());
 
@@ -77,17 +85,17 @@ public class ProfileImageService {
         image = imageProcessingService.optimizeImage(image, MAX_WIDTH, MAX_HEIGHT);
 
         // Upload the image
-        String filename = imageUploaderService.uploadImage(
+        File uploadedImage = imageUploaderService.uploadImage(
                 image,
                 PROFILE_IMAGE_FOLDER,
                 "avatar"
         );
 
         // update profile photo in db
-        currentCustomer.getProfile().setImageFilename(filename);
+        currentCustomer.getProfile().setImageFilename(uploadedImage.getName());
         profileRepository.save(currentCustomer.getProfile());
 
-        return filename;
+        return uploadedImage;
     }
 
     /**
@@ -114,13 +122,13 @@ public class ProfileImageService {
             );
         }
 
-        File file = localStorageService.getFile(
-                ImageUploaderService.getCustomerUploadFolder(customerId) + PROFILE_IMAGE_FOLDER,
+        File file = fileStorageService.getFile(
+                getProfileImageFolder(customerId),
                 profile.getImageFilename()
         );
-        
+
         // return the image as resource
-        return localStorageService.createResource(file);
+        return fileStorageService.createResource(file);
     }
 
     /**
