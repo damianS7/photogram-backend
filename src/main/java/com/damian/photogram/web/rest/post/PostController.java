@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 @RequestMapping("/api/v1")
@@ -113,8 +114,9 @@ public class PostController {
             @RequestParam("file") MultipartFile file
     ) {
         log.debug("Received request to upload the image for a post.");
-        String filename = postImageService.uploadImage(file);
-        ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(filename);
+        File uploadedImage = postImageService.uploadImage(file);
+
+        ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(uploadedImage.getName());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
