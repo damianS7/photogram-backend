@@ -25,4 +25,4 @@ replay_pid*
 /target/
 /.idea/
 /.env
-/uploads
+/storage
