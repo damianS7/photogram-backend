@@ -1,6 +1,7 @@
 package com.damian.photogram.core;
 
 
+import com.damian.photogram.core.util.JwtUtil;
 import com.damian.photogram.domain.notification.NotificationRepository;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.LikeRepository;
@@ -24,6 +25,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
+import java.util.HashMap;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
@@ -36,6 +39,9 @@ public abstract class AbstractIntegrationTest {
             .withReuse(true);
 
     protected final String RAW_PASSWORD = "123456";
+
+    @Autowired
+    protected JwtUtil jwtUtil;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -66,6 +72,7 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired
     protected BCryptPasswordEncoder bCryptPasswordEncoder;
+
     protected String token;
 
     @Autowired
@@ -91,8 +98,16 @@ public abstract class AbstractIntegrationTest {
         customerRepository.deleteAll();
     }
 
-
     protected void loginWithCustomer(Customer customer) throws Exception {
+        // given
+        final HashMap<String, Object> claims = new HashMap<>();
+        claims.put("email", customer.getEmail());
+        claims.put("role", customer.getRole());
+
+        token = jwtUtil.generateToken(claims, customer.getEmail());
+    }
+
+    protected void loginWithPost(Customer customer) throws Exception {
         // given
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
                 customer.getEmail(), "123456"
@@ -112,5 +127,6 @@ public abstract class AbstractIntegrationTest {
         );
 
         token = response.token();
+
     }
 }

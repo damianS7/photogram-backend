@@ -1,14 +1,14 @@
 package com.damian.photogram.service.setting;
 
-import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
-import com.damian.photogram.web.rest.setting.dto.SettingsPatchRequest;
+import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.setting.Setting;
 import com.damian.photogram.domain.setting.SettingRepository;
 import com.damian.photogram.domain.setting.exception.SettingNotFoundException;
 import com.damian.photogram.domain.setting.exception.SettingNotOwnerException;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.web.rest.setting.dto.SettingsPatchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class SettingService {
         this.settingRepository = settingRepository;
     }
 
-    // get all the settings for the logged customer
+    // get all the settings for the current customer
     public Set<Setting> getSettings() {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
         return settingRepository.findByCustomer_Id(currentCustomer.getId());
@@ -46,8 +46,15 @@ public class SettingService {
             throw new SettingNotOwnerException(Exceptions.SETTINGS.NOT_OWNER, currentCustomer.getId());
         }
 
-        log.debug("Updating settingId: {} by customerId: {}", setting.getId(), currentCustomer.getId());
         setting.setSettingValue(request.value());
+
+        log.debug(
+                "Updated setting: {} with value: {} by customer: {}",
+                setting.getSettingKey(),
+                setting.getSettingValue(),
+                currentCustomer.getId()
+        );
+        
         return settingRepository.save(setting);
     }
 
