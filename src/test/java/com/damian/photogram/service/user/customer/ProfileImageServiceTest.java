@@ -8,9 +8,9 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import com.damian.photogram.service.user.ProfileImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private LocalStorageService localStorageService;
 
     @Mock
     private ImageValidationService imageValidationService;
@@ -81,7 +81,8 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
 
         // when
         when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getProfile()));
-        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(givenResource);
+        when(localStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
+        when(localStorageService.createResource(givenFile)).thenReturn(givenResource);
         Resource resource = profileImageService.getProfileImage(customer.getId());
 
         // then

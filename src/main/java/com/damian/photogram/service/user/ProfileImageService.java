@@ -8,15 +8,17 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import com.damian.photogram.infrastructure.storage.exception.ImageTooLargeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 
 @Service
 public class ProfileImageService {
@@ -25,7 +27,7 @@ public class ProfileImageService {
     private static final Logger log = LoggerFactory.getLogger(ProfileImageService.class);
     private final ProfileRepository profileRepository;
     private final ImageUploaderService imageUploaderService;
-    private final ImageStorageService imageStorageService;
+    private final LocalStorageService localStorageService;
     private final ImageProcessingService imageProcessingService;
     private final ImageValidationService imageValidationService;
     private final long COMPRESS_SIZE_TRIGGER = 250L * 1024; // 250 kb
@@ -35,13 +37,13 @@ public class ProfileImageService {
     private final String[] ALLOWED_IMAGE_TYPES = {"image/jpg", "image/jpeg", "image/png"};
 
     public ProfileImageService(
-            ImageStorageService imageStorageService,
+            LocalStorageService localStorageService,
             ProfileRepository profileRepository,
             ImageUploaderService imageUploaderService,
             ImageProcessingService imageProcessingService,
             ImageValidationService imageValidationService
     ) {
-        this.imageStorageService = imageStorageService;
+        this.localStorageService = localStorageService;
         this.profileRepository = profileRepository;
         this.imageUploaderService = imageUploaderService;
         this.imageProcessingService = imageProcessingService;
@@ -112,11 +114,13 @@ public class ProfileImageService {
             );
         }
 
-        // return the image as resource
-        return imageStorageService.getImage(
+        File file = localStorageService.getFile(
                 ImageUploaderService.getCustomerUploadFolder(customerId) + PROFILE_IMAGE_FOLDER,
                 profile.getImageFilename()
         );
+        
+        // return the image as resource
+        return localStorageService.createResource(file);
     }
 
     /**

@@ -7,14 +7,16 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 
 /**
  * This class handle the image upload for the post.
@@ -24,7 +26,7 @@ public class PostImageService {
     public static final String POST_IMAGE_FOLDER = "posts/"; // profile
     private static final Logger log = LoggerFactory.getLogger(PostImageService.class);
     private final ImageUploaderService imageUploaderService;
-    private final ImageStorageService imageStorageService;
+    private final LocalStorageService localStorageService;
     private final PostRepository postRepository;
     private final ImageValidationService imageValidationService;
     private final ImageProcessingService imageProcessingService;
@@ -35,13 +37,13 @@ public class PostImageService {
 
     public PostImageService(
             ImageUploaderService imageUploaderService,
-            ImageStorageService imageStorageService,
+            LocalStorageService localStorageService,
             PostRepository postRepository,
             ImageValidationService imageValidationService,
             ImageProcessingService imageProcessingService
     ) {
         this.imageUploaderService = imageUploaderService;
-        this.imageStorageService = imageStorageService;
+        this.localStorageService = localStorageService;
         this.postRepository = postRepository;
         this.imageValidationService = imageValidationService;
         this.imageProcessingService = imageProcessingService;
@@ -91,10 +93,12 @@ public class PostImageService {
                 () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId)
         );
 
-        return imageStorageService.getImage(
+        File file = localStorageService.getFile(
                 ImageUploaderService.getCustomerUploadFolder(post.getAuthor().getId()) + POST_IMAGE_FOLDER,
                 post.getImageFilename()
         );
+
+        return localStorageService.createResource(file);
     }
 
     /**
@@ -111,7 +115,7 @@ public class PostImageService {
                 () -> new PostNotFoundException(Exceptions.POST.NOT_FOUND, postId)
         );
 
-        imageStorageService.deleteImage(
+        localStorageService.deleteFile(
                 ImageUploaderService.getCustomerUploadFolder(post.getAuthor().getId()) + POST_IMAGE_FOLDER,
                 post.getImageFilename()
         );

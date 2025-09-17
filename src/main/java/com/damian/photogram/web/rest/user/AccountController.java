@@ -9,7 +9,6 @@ import com.damian.photogram.service.user.AccountRegistrationService;
 import com.damian.photogram.service.user.AccountVerificationService;
 import com.damian.photogram.web.rest.user.dto.mapper.CustomerDtoMapper;
 import com.damian.photogram.web.rest.user.dto.request.*;
-import com.damian.photogram.web.user.dto.request.*;
 import com.damian.photogram.web.rest.user.dto.response.CustomerWithProfileDto;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;

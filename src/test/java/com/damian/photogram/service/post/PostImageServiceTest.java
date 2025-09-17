@@ -8,9 +8,9 @@ import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
-import com.damian.photogram.infrastructure.storage.ImageStorageService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.infrastructure.storage.LocalStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +21,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class PostImageServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private LocalStorageService localStorageService;
 
     @Mock
     private ImageProcessingService imageProcessingService;
@@ -98,27 +99,29 @@ public class PostImageServiceTest extends AbstractServiceTest {
     void shouldGetPostImage() throws IOException {
         // given
         setUpContext(customer);
-        MockMultipartFile givenFile = ImageTestHelper.createDefaultJpg();
+        MockMultipartFile givenMultipartFile = ImageTestHelper.createDefaultJpg();
+        File givenFile = ImageTestHelper.multipartToFile(givenMultipartFile);
 
         Post givenPost = Post.create(customer)
                              .setId(1L)
-                             .setImageFilename(givenFile.getOriginalFilename())
+                             .setImageFilename(givenMultipartFile.getOriginalFilename())
                              .setDescription("qsdfsdf");
 
-        Resource givenResource = new ByteArrayResource(givenFile.getBytes());
+        Resource givenResource = new ByteArrayResource(givenMultipartFile.getBytes());
 
         // when
         when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
-        when(imageStorageService.getImage(anyString(), anyString())).thenReturn(givenResource);
+        when(localStorageService.getFile(anyString(), anyString())).thenReturn(givenFile);
+        when(localStorageService.createResource(givenFile)).thenReturn(givenResource);
         Resource resource = postImageService.getImage(
                 givenPost.getId()
         );
 
         // then
         assertNotNull(resource);
-        assertArrayEquals(givenFile.getBytes(), resource.getContentAsByteArray());
+        assertArrayEquals(givenMultipartFile.getBytes(), resource.getContentAsByteArray());
         verify(postRepository, times(1)).findById(givenPost.getId());
-        verify(imageStorageService, times(1)).getImage(anyString(), anyString());
+        verify(localStorageService, times(1)).getFile(anyString(), anyString());
     }
 
     @Test
@@ -135,13 +138,13 @@ public class PostImageServiceTest extends AbstractServiceTest {
 
         // when
         when(postRepository.findById(givenPost.getId())).thenReturn(Optional.of(givenPost));
-        doNothing().when(imageStorageService).deleteImage(anyString(), anyString());
+        doNothing().when(localStorageService).deleteFile(anyString(), anyString());
         postImageService.deleteImage(
                 givenPost.getId()
         );
 
         // then
         verify(postRepository, times(1)).findById(givenPost.getId());
-        verify(imageStorageService, times(1)).deleteImage(anyString(), anyString());
+        verify(localStorageService, times(1)).deleteFile(anyString(), anyString());
     }
 }

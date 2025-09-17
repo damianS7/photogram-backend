@@ -26,7 +26,7 @@ public class ImageUploaderServiceTest extends AbstractServiceTest {
     private ImageUploaderService imageUploaderService;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private LocalStorageService localStorageService;
 
     @Test
     @DisplayName("Should upload image")
@@ -40,7 +40,7 @@ public class ImageUploaderServiceTest extends AbstractServiceTest {
         File givenFile = ImageTestHelper.multipartToFile(givenMultipart);
 
         // when
-        when(imageStorageService.storeImage(any(), anyString(), anyString()))
+        when(localStorageService.storeFile(any(), anyString(), anyString()))
                 .thenReturn(givenFile);
 
         String filename = imageUploaderService.uploadImage(

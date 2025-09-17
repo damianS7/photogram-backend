@@ -19,8 +19,8 @@ import java.nio.file.*;
  * Service class for handling image storage and retrieval.
  */
 @Service
-public class ImageStorageService {
-    private static final Logger log = LoggerFactory.getLogger(ImageStorageService.class);
+public class LocalStorageService {
+    private static final Logger log = LoggerFactory.getLogger(LocalStorageService.class);
     private final String ROOT_STORAGE_PATH = "uploads";
 
     public String getRootStoragePath() {
@@ -42,7 +42,19 @@ public class ImageStorageService {
             throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND);
         }
 
+        if (!resource.exists()) {
+            throw new ImageNotFoundException(
+                    Exceptions.IMAGE.NOT_FOUND,
+                    path.toString(),
+                    path.getFileName().toString()
+            );
+        }
+
         return resource;
+    }
+
+    public Resource createResource(File file) {
+        return this.createResource(file.toPath());
     }
 
     /**
@@ -53,7 +65,7 @@ public class ImageStorageService {
      * @param filename the name to be assigned to the stored image file
      * @return File object representing the stored image
      */
-    public File storeImage(MultipartFile file, String path, String filename) {
+    public File storeFile(MultipartFile file, String path, String filename) {
         path = getRootStoragePath() + "/" + path;
         log.info("Storing image: {} within path: {}", filename, path);
 
@@ -71,39 +83,33 @@ public class ImageStorageService {
     /**
      * Returns a resource for the given folder and filename.
      *
-     * @param path     path where image is stored
-     * @param filename name of the image
-     * @return Resource object representing the image
+     * @param path     path where file is stored
+     * @param filename name of the file
+     * @return Resource object representing the file
      */
-    public Resource getImage(String path, String filename) {
+    public File getFile(String path, String filename) {
         path = getRootStoragePath() + "/" + path;
-        log.debug("Retrieving image from path: {}, with filename: {}", path, filename);
+        log.debug("Retrieving file from path: {}, with filename: {}", path, filename);
 
         Path filePath;
         try {
             filePath = Paths.get(path).resolve(filename).normalize();
+            return filePath.toFile();
         } catch (InvalidPathException exception) {
             throw new ImageNotFoundException(Exceptions.IMAGE.INVALID_PATH, path, filename);
         }
-
-        Resource resource = this.createResource(filePath);
-        if (!resource.exists()) {
-            throw new ImageNotFoundException(Exceptions.IMAGE.NOT_FOUND, path, filename);
-        }
-
-        return resource;
     }
 
     /**
-     * Delete an image from server storage
+     * Delete a file from server storage
      *
      * @param path     path where the image is
      * @param filename name of the image
      */
-    public void deleteImage(String path, String filename) {
+    public void deleteFile(String path, String filename) {
         path = getRootStoragePath() + "/" + path;
         try {
-            log.debug("Deleting image file: {} within: {}", filename, path);
+            log.debug("Deleting file: {} within: {}", filename, path);
             Path pathToFile = Path.of(path + "/" + filename);
             Files.deleteIfExists(pathToFile);
         } catch (IOException e) {

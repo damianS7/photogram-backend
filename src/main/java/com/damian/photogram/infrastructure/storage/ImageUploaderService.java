@@ -17,12 +17,12 @@ import java.util.UUID;
 public class ImageUploaderService {
     public static final String ROOT_UPLOAD_FOLDER = "uploads/images/customers/";
     private static final Logger log = LoggerFactory.getLogger(ImageUploaderService.class);
-    private final ImageStorageService imageStorageService;
+    private final LocalStorageService localStorageService;
 
     public ImageUploaderService(
-            ImageStorageService imageStorageService
+            LocalStorageService localStorageService
     ) {
-        this.imageStorageService = imageStorageService;
+        this.localStorageService = localStorageService;
     }
 
     public static String getCustomerUploadFolder(Long customerId) {
@@ -43,7 +43,7 @@ public class ImageUploaderService {
         }
 
         // saving file
-        imageStorageService.storeImage(file, path, filename);
+        localStorageService.storeFile(file, path, filename);
         return filename;
     }
 

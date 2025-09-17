@@ -4,7 +4,6 @@ import com.damian.photogram.core.AbstractServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,14 +15,14 @@ import java.nio.file.Path;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ImageStorageServiceTest extends AbstractServiceTest {
+public class LocalStorageServiceTest extends AbstractServiceTest {
 
     @InjectMocks
-    private ImageStorageService imageStorageService;
+    private LocalStorageService localStorageService;
 
     @Test
     @DisplayName("Should store image")
-    void shouldStoreImage() throws IOException {
+    void shouldStoreFile() throws IOException {
         // given
         MultipartFile givenFile = new MockMultipartFile(
                 "file.jpg",
@@ -33,7 +32,7 @@ public class ImageStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        File storedFile = imageStorageService.storeImage(
+        File storedFile = localStorageService.storeFile(
                 givenFile, "", givenFile.getName()
         );
 
@@ -45,9 +44,9 @@ public class ImageStorageServiceTest extends AbstractServiceTest {
 
     @Test
     @DisplayName("Should get image")
-    void shouldGetImage() throws IOException {
+    void shouldGetFile() throws IOException {
         // given
-        File givenFile = imageStorageService.storeImage(
+        File givenFile = localStorageService.storeFile(
                 new MockMultipartFile(
                         "file.jpg",
                         "photo.jpg",
@@ -58,21 +57,21 @@ public class ImageStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        Resource storedFile = imageStorageService.getImage(
+        File file = localStorageService.getFile(
                 "", givenFile.getName()
         );
 
         // then
-        assertNotNull(storedFile);
-        assertThat(storedFile.exists()).isTrue();
+        assertNotNull(file);
+        assertThat(file.exists()).isTrue();
         Files.deleteIfExists(Path.of(givenFile.getAbsolutePath()));
     }
 
     @Test
     @DisplayName("Should delete image")
-    void shouldDeleteImage() throws IOException {
+    void shouldDeleteFile() throws IOException {
         // given
-        File givenFile = imageStorageService.storeImage(
+        File givenFile = localStorageService.storeFile(
                 new MockMultipartFile(
                         "file.jpg",
                         "photo.jpg",
@@ -83,7 +82,7 @@ public class ImageStorageServiceTest extends AbstractServiceTest {
         );
 
         // when
-        imageStorageService.deleteImage(
+        localStorageService.deleteFile(
                 "", givenFile.getName()
         );
 
