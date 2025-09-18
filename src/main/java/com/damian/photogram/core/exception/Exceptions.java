@@ -101,4 +101,8 @@ public class Exceptions {
     public static class FEED {
         public static final String USER_PROFILE_NOT_FOUND = "Profile not found for this user.";
     }
+
+    public static class NOTIFICATION {
+        public static final String SELF_NOTIFICATION = "You cannot notify yourself.";
+    }
 }
