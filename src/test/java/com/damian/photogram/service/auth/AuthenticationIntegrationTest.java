@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -63,7 +64,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .content(JsonHelper.toJson(request)))
                                   .andDo(print())
-                                  .andExpect(MockMvcResultMatchers.status().is(200))
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                                   .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 
@@ -93,7 +94,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(JsonHelper.toJson(request)))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -113,7 +114,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonHelper.toJson(request)))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(401))
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -184,7 +185,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonHelper.toJson(request)))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(400))
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -218,7 +219,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonHelper.toJson(request)))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(400))
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -259,7 +260,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .content(JsonHelper.toJson(request)))
                                   .andDo(print())
-                                  .andExpect(MockMvcResultMatchers.status().is(403))
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()))
                                   .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 

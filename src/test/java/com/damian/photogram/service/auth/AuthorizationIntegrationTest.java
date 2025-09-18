@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -73,7 +74,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .get("/api/v1/customers/profile")
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + givenToken))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(200))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -84,7 +85,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders
                        .get("/api/v1/customers/profile"))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -115,7 +116,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken)
                        .content(jsonRequest))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN.EXPIRED))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -144,7 +145,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
                        .content(jsonRequest))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                .andExpect(jsonPath("$.message").value(Exceptions.JWT.TOKEN.INVALID))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -163,7 +164,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                        .get("/api/v1/customers/me/profile")
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.UNAUTHORIZED.value()))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 }

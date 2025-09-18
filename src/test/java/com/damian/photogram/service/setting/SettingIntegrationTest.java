@@ -1,18 +1,20 @@
 package com.damian.photogram.service.setting;
 
-import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
-import com.damian.photogram.web.rest.setting.dto.response.SettingDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.setting.Setting;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.rest.setting.dto.SettingUpdateRequest;
+import com.damian.photogram.web.rest.setting.dto.response.SettingDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -66,12 +68,12 @@ public class SettingIntegrationTest extends AbstractIntegrationTest {
                         get("/api/v1/settings")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        SettingDto[] settings = objectMapper.readValue(
+        SettingDto[] settings = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 SettingDto[].class
         );
@@ -102,18 +104,19 @@ public class SettingIntegrationTest extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        SettingDto settings = objectMapper.readValue(
+        SettingDto settings = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 SettingDto.class
         );
 
         // then
-        assertThat(settings).isNotNull();
-        assertThat(settings).extracting("value").isEqualTo(request.value());
+        assertThat(settings).isNotNull()
+                            .extracting(SettingDto::value)
+                            .isEqualTo(request.value());
     }
 }

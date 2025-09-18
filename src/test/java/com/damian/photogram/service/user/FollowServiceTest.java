@@ -2,10 +2,10 @@ package com.damian.photogram.service.user;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.exception.FollowAlreadyExistsException;
 import com.damian.photogram.domain.user.exception.FollowBetweenUsersNotExistException;
 import com.damian.photogram.domain.user.exception.FollowersLimitExceededException;
-import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Follow;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
@@ -169,7 +169,7 @@ public class FollowServiceTest extends AbstractServiceTest {
         }
 
         // when
-        when(followRepository.countFollowersFromCustomer(followerCustomer.getId())).thenReturn((long) MAX_FOLLOWS + 1);
+        when(followRepository.countFollowers(followerCustomer.getId())).thenReturn((long) MAX_FOLLOWS + 1);
         FollowersLimitExceededException exception = assertThrows(
                 FollowersLimitExceededException.class,
                 () -> followService.follow(0L)

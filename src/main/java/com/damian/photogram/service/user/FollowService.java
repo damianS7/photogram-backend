@@ -152,7 +152,7 @@ public class FollowService {
         log.debug("customer: {} attempt to follow customer: {}", currentCustomer.getId(), customerToFollowId);
 
         // check if the currentCustomer can add more following
-        if (followRepository.countFollowersFromCustomer(currentCustomer.getId()) >= MAX_FOLLOWS) {
+        if (followRepository.countFollowers(currentCustomer.getId()) >= MAX_FOLLOWS) {
             throw new FollowersLimitExceededException(
                     Exceptions.FOLLOW.MAX_FOLLOWERS,
                     currentCustomer.getId(),
