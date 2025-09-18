@@ -42,7 +42,7 @@ public class FeedService {
     public FeedDto getUserFeed(String username) {
         final Profile profile = profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
                 () -> {
-                    log.warn("Failed to fetch profile with username: {}", username);
+                    log.warn("Failed to fetch profile user: {}", username);
                     return new ProfileNotFoundException(Exceptions.FEED.USER_PROFILE_NOT_FOUND, null, null);
                 }
         );
@@ -50,9 +50,9 @@ public class FeedService {
         return new FeedDto(
                 profile.getOwner().getId(),
                 profile.getUsername(),
-                postRepository.countByAuthorId(profile.getOwner().getId()),
-                followRepository.countFollowsFromCustomer(profile.getOwner().getId()),
-                followRepository.countFollowersFromCustomer(profile.getOwner().getId()),
+                postRepository.countPostsFromAuthor(profile.getOwner().getId()),
+                followRepository.countFollowing(profile.getOwner().getId()),
+                followRepository.countFollowers(profile.getOwner().getId()),
                 profile.getImageFilename(),
                 profile.getAboutMe()
         );
