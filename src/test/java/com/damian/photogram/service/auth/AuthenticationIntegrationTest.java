@@ -3,7 +3,7 @@ package com.damian.photogram.service.auth;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.ApiResponse;
-import com.damian.photogram.core.util.CommonHelper;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
@@ -61,14 +61,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                                           .post("/api/v1/auth/login")
                                           .contentType(MediaType.APPLICATION_JSON)
-                                          .content(CommonHelper.toJson(request)))
+                                          .content(JsonHelper.toJson(request)))
                                   .andDo(print())
                                   .andExpect(MockMvcResultMatchers.status().is(200))
                                   .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 
         // json to AuthenticationResponse
-        AuthenticationResponse response = CommonHelper.fromJson(
+        AuthenticationResponse response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 AuthenticationResponse.class
         );
@@ -91,7 +91,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders
                        .post("/api/v1/auth/login")
                        .contentType(MediaType.APPLICATION_JSON)
-                       .content(CommonHelper.toJson(request)))
+                       .content(JsonHelper.toJson(request)))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
@@ -111,14 +111,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                 .perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(CommonHelper.toJson(request)))
+                        .content(JsonHelper.toJson(request)))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(401))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // json to ApiResponse
-        ApiResponse<?> response = CommonHelper.fromJson(
+        ApiResponse<?> response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 new TypeReference<ApiResponse<?>>() {
                 }
@@ -147,14 +147,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                 .perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(CommonHelper.toJson(request)))
+                        .content(JsonHelper.toJson(request)))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(403))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // json to ApiResponse
-        ApiResponse<?> response = CommonHelper.fromJson(
+        ApiResponse<?> response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 new TypeReference<ApiResponse<?>>() {
                 }
@@ -182,14 +182,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                 .perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(CommonHelper.toJson(request)))
+                        .content(JsonHelper.toJson(request)))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(400))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // json to ApiResponse
-        ApiResponse<?> response = CommonHelper.fromJson(
+        ApiResponse<?> response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 new TypeReference<ApiResponse<?>>() {
                 }
@@ -216,14 +216,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
                 .perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(CommonHelper.toJson(request)))
+                        .content(JsonHelper.toJson(request)))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().is(400))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // json to ApiResponse
-        ApiResponse<?> response = CommonHelper.fromJson(
+        ApiResponse<?> response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 new TypeReference<ApiResponse<?>>() {
                 }
@@ -257,14 +257,14 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                                           .post("/api/v1/auth/login")
                                           .contentType(MediaType.APPLICATION_JSON)
-                                          .content(CommonHelper.toJson(request)))
+                                          .content(JsonHelper.toJson(request)))
                                   .andDo(print())
                                   .andExpect(MockMvcResultMatchers.status().is(403))
                                   .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 
         // json to ApiResponse
-        ApiResponse<?> response = CommonHelper.fromJson(
+        ApiResponse<?> response = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 new TypeReference<ApiResponse<?>>() {
                 }
