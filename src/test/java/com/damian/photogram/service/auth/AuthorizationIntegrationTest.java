@@ -1,12 +1,13 @@
 package com.damian.photogram.service.auth;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
-import com.damian.photogram.core.util.JwtUtil;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
+import com.damian.photogram.core.util.JwtUtil;
+import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,23 +37,25 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeAll
     void setUp() {
-        customer = new Customer();
-        customer.setEmail("customer@test.com");
-        customer.setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD));
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setPhone("123 123 123");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setImageFilename("no photoPath");
-
+        customer = Customer.create()
+                           .setEmail("customer@demo.com")
+                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(UserRole.CUSTOMER)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("images/avatar.jpg")
+                           );
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
 
-        admin = new Customer();
-        admin.setEmail("admin@test.com");
-        admin.setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD));
-        admin.setRole(UserRole.ADMIN);
-
+        admin = Customer.create()
+                        .setEmail("admin@test.com")
+                        .setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD))
+                        .setRole(UserRole.ADMIN);
+        admin.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(admin);
     }
 
@@ -60,7 +63,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should have access when token is valid")
     void shouldHaveAccessWhenTokenIsValid() throws Exception {
         // given
-        final String token = jwtUtil.generateToken(
+        final String givenToken = jwtUtil.generateToken(
                 customer.getEmail(),
                 new Date(System.currentTimeMillis() + 1000 * 60 * 60)
         );
@@ -68,7 +71,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         // when
         mockMvc.perform(MockMvcRequestBuilders
                        .get("/api/v1/customers/profile")
-                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                       .header(HttpHeaders.AUTHORIZATION, "Bearer " + givenToken))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(200))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
@@ -77,8 +80,6 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should not have access when not authenticated")
     void shouldNotHaveAccessWhenNotAuthenticated() throws Exception {
-        // given
-
         // when
         mockMvc.perform(MockMvcRequestBuilders
                        .get("/api/v1/customers/profile"))
@@ -99,10 +100,6 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         // given
         Map<String, Object> fields = new HashMap<>();
         fields.put("firstName", "alice");
-        fields.put("lastName", "white");
-        fields.put("phone", "999 999 999");
-        fields.put("birthdate", LocalDate.of(1989, 1, 1));
-        fields.put("gender", CustomerGender.FEMALE);
 
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 this.RAW_PASSWORD,
@@ -132,10 +129,6 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         // given
         Map<String, Object> fields = new HashMap<>();
         fields.put("firstName", "alice");
-        fields.put("lastName", "white");
-        fields.put("phone", "999 999 999");
-        fields.put("birthdate", LocalDate.of(1989, 1, 1));
-        fields.put("gender", CustomerGender.FEMALE);
 
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 this.RAW_PASSWORD,

@@ -1,15 +1,15 @@
 package com.damian.photogram.service.auth;
 
-import com.damian.photogram.web.auth.dto.AuthenticationRequest;
-import com.damian.photogram.web.auth.dto.AuthenticationResponse;
-import com.damian.photogram.service.auth.exception.AccountNotVerifiedException;
-import com.damian.photogram.service.auth.exception.AccountSuspendedException;
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.core.util.JwtUtil;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.auth.exception.AccountNotVerifiedException;
+import com.damian.photogram.service.auth.exception.AccountSuspendedException;
+import com.damian.photogram.web.auth.dto.AuthenticationRequest;
+import com.damian.photogram.web.auth.dto.AuthenticationResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -43,11 +43,11 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         Authentication authentication = mock(Authentication.class);
         String token = "jwt-token";
 
-        Customer customer = new Customer(
-                1L,
-                "alice@gmail.com",
-                "123456"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("alice@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         User user = new User(customer);
 
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
@@ -69,11 +69,10 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
     @DisplayName("should not login when invalid credentials")
     void shouldNotLoginWhenInvalidCredentials() {
         // given
-        Customer customer = new Customer(
-                1L,
-                "alice@gmail.com",
-                "1234"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("alice@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         AuthenticationRequest request = new AuthenticationRequest(customer.getEmail(), customer.getPassword());
 
@@ -97,11 +96,11 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         Authentication authentication = mock(Authentication.class);
         String token = "jwt-token";
 
-        Customer customer = new Customer(
-                1L,
-                "alice@gmail.com",
-                "123456"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("alice@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         User user = new User(customer);
         customer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
 
@@ -128,11 +127,11 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
         Authentication authentication = mock(Authentication.class);
         String token = "jwt-token";
 
-        Customer customer = new Customer(
-                1L,
-                "alice@gmail.com",
-                "123456"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("alice@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+        
         User user = new User(customer);
         customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
 

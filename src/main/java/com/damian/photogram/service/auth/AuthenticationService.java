@@ -1,13 +1,13 @@
 package com.damian.photogram.service.auth;
 
-import com.damian.photogram.web.auth.dto.AuthenticationRequest;
-import com.damian.photogram.web.auth.dto.AuthenticationResponse;
-import com.damian.photogram.service.auth.exception.AccountNotVerifiedException;
-import com.damian.photogram.service.auth.exception.AccountSuspendedException;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.security.user.User;
 import com.damian.photogram.core.util.JwtUtil;
 import com.damian.photogram.domain.user.enums.AccountStatus;
+import com.damian.photogram.service.auth.exception.AccountNotVerifiedException;
+import com.damian.photogram.service.auth.exception.AccountSuspendedException;
+import com.damian.photogram.web.auth.dto.AuthenticationRequest;
+import com.damian.photogram.web.auth.dto.AuthenticationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,14 +48,12 @@ public class AuthenticationService {
         final String email = request.email();
         final String password = request.password();
         final Authentication auth;
-        log.info("Attempting authentication for user: {}", email);
 
         // Authenticate the user
         auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         email, password)
         );
-        log.info("User successfully authenticated: {}", email);
 
         // Get the authenticated user
         final User currentUser = ((User) auth.getPrincipal());
@@ -68,7 +66,6 @@ public class AuthenticationService {
                 claims,
                 email
         );
-        log.debug("JWT token generated for user: {}", email);
 
         // check if the account is disabled
         if (currentUser.getAccount().getAccountStatus().equals(AccountStatus.SUSPENDED)) {

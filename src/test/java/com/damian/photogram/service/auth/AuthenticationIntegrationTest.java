@@ -1,19 +1,20 @@
 package com.damian.photogram.service.auth;
 
-import com.damian.photogram.web.auth.dto.AuthenticationRequest;
-import com.damian.photogram.web.auth.dto.AuthenticationResponse;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.exception.Exceptions;
-import com.damian.photogram.core.util.JwtUtil;
+import com.damian.photogram.core.util.ApiResponse;
+import com.damian.photogram.core.util.CommonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.auth.dto.AuthenticationRequest;
+import com.damian.photogram.web.auth.dto.AuthenticationResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,33 +23,28 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
-    private final String email = "customer@test.com";
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
     private Customer customer;
 
     @BeforeAll
     void setUp() {
-        customer = new Customer();
-        customer.setRole(UserRole.ADMIN);
-        customer.setEmail(this.email);
-        customer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
+        customer = Customer.create()
+                           .setEmail("customer@test.com")
+                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(UserRole.ADMIN)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("images/avatar.jpg")
+                           );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setPhone("123 123 123");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setImageFilename("no photoPath");
-
         customerRepository.save(customer);
     }
 
@@ -56,35 +52,30 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should login when valid credentials")
     void shouldLoginWhenValidCredentials() throws Exception {
         // given
-        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
-        customerRepository.save(customer);
-
         AuthenticationRequest request = new AuthenticationRequest(
-                this.email, this.RAW_PASSWORD
+                customer.getEmail(),
+                this.RAW_PASSWORD
         );
-
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
 
         // when
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                                           .post("/api/v1/auth/login")
                                           .contentType(MediaType.APPLICATION_JSON)
-                                          .content(jsonRequest))
+                                          .content(CommonHelper.toJson(request)))
                                   .andDo(print())
                                   .andExpect(MockMvcResultMatchers.status().is(200))
                                   .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 
         // json to AuthenticationResponse
-        AuthenticationResponse response = objectMapper.readValue(
+        AuthenticationResponse response = CommonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 AuthenticationResponse.class
         );
 
         // then
-        final String emailFromToken = jwtUtil.extractEmail(response.token());
-        assertThat(emailFromToken).isEqualTo(this.email);
+        assertThat(jwtUtil.extractEmail(response.token())).isEqualTo(customer.getEmail());
+        assertTrue(jwtUtil.isTokenValid(response.token()));
     }
 
     @Test
@@ -92,17 +83,15 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     void shouldNotLoginWhenInvalidCredentials() throws Exception {
         // given
         AuthenticationRequest request = new AuthenticationRequest(
-                this.email, "badPassword"
+                customer.getEmail(),
+                "badPassword"
         );
-
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
 
         // when
         mockMvc.perform(MockMvcRequestBuilders
                        .post("/api/v1/auth/login")
                        .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
+                       .content(CommonHelper.toJson(request)))
                .andDo(print())
                .andExpect(MockMvcResultMatchers.status().is(401))
                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
@@ -113,21 +102,30 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     void shouldNotLoginWhenEmailNotExist() throws Exception {
         // given
         AuthenticationRequest request = new AuthenticationRequest(
-                "nonemail@demo.com", "123456"
+                "nonemail@demo.com",
+                "123456"
         );
 
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/login")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(401))
-               .andExpect(jsonPath("$.message").value(Exceptions.ACCOUNT.BAD_CREDENTIALS))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CommonHelper.toJson(request)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(401))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // json to ApiResponse
+        ApiResponse<?> response = CommonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertEquals(Exceptions.ACCOUNT.BAD_CREDENTIALS, response.getMessage());
     }
 
     @Test
@@ -138,24 +136,36 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         givenCustomer.setEmail("disabled-customer@test.com");
         givenCustomer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
         givenCustomer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
-
         customerRepository.save(givenCustomer);
 
         AuthenticationRequest request = new AuthenticationRequest(
                 givenCustomer.getEmail(), "123456"
         );
 
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/login")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(403))
-               .andExpect(jsonPath("$.message").value(Exceptions.ACCOUNT.SUSPENDED))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CommonHelper.toJson(request)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(403))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // json to ApiResponse
+        ApiResponse<?> response = CommonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertEquals(Exceptions.ACCOUNT.SUSPENDED, response.getMessage());
+
+        // undo changes
+        givenCustomer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
+        customerRepository.save(givenCustomer);
     }
 
     @Test
@@ -163,22 +173,33 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     void shouldNotLoginWhenInvalidEmailFormat() throws Exception {
         // Given
         AuthenticationRequest request = new AuthenticationRequest(
-                "thisIsNotAnEmail", "123456"
+                "thisIsNotAnEmail",
+                "123456"
         );
 
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/login")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$.errors.email").value(containsString("must be a well-formed email address")))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED));
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CommonHelper.toJson(request)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(400))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // json to ApiResponse
+        ApiResponse<?> response = CommonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response.getErrors().get("email"))
+                .asString()
+                .contains("must be a well-formed email address");
+        assertEquals(Exceptions.COMMON.VALIDATION_FAILED, response.getMessage());
     }
 
     @Test
@@ -186,45 +207,74 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     void shouldNotLoginWhenNullFields() throws Exception {
         // Given
         AuthenticationRequest request = new AuthenticationRequest(
-                null, null
+                null,
+                null
         );
 
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/login")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED));
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CommonHelper.toJson(request)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(400))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // json to ApiResponse
+        ApiResponse<?> response = CommonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response.getErrors().get("password"))
+                .asString()
+                .contains("must not be blank");
+
+        assertThat(response.getErrors().get("email"))
+                .asString()
+                .contains("must not be blank");
+
+        assertEquals(Exceptions.COMMON.VALIDATION_FAILED, response.getMessage());
     }
 
     @Test
     @DisplayName("Should not login when account is not activated")
     void shouldNotLoginWhenAccountIsNotVerified() throws Exception {
-        // Given
+        // given
         customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
         customerRepository.save(customer);
 
         AuthenticationRequest request = new AuthenticationRequest(
-                email, RAW_PASSWORD
+                customer.getEmail(),
+                RAW_PASSWORD
         );
 
-        // request to json
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/auth/login")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(jsonRequest))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(403))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                                          .post("/api/v1/auth/login")
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content(CommonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(403))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
+
+        // json to ApiResponse
+        ApiResponse<?> response = CommonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        assertEquals(Exceptions.ACCOUNT.NOT_VERIFIED, response.getMessage());
+
+        // undo changes to customer
+        customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
+        customerRepository.save(customer);
     }
 
 }
