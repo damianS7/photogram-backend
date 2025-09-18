@@ -1,12 +1,15 @@
 package com.damian.photogram.service.notification;
 
-import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import com.damian.photogram.core.AbstractServiceTest;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;
 import com.damian.photogram.domain.notification.NotificationType;
+import com.damian.photogram.domain.notification.exception.NotificationSelfNotificationException;
+import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,6 +25,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -40,10 +45,10 @@ public class NotificationServiceTest extends AbstractServiceTest {
     @DisplayName("should get notifications")
     void shouldGetNotifications() {
         // given
-        Customer customer = new Customer(
-                1L, "publisher@demo.com", "1223456"
-        );
-
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("publisher@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(customer);
 
         // when
@@ -55,6 +60,7 @@ public class NotificationServiceTest extends AbstractServiceTest {
                         Notification.create(customer)
                 )
         );
+
         when(notificationRepository.findAllByCustomerId(customer.getId(), pageable)).thenReturn(page);
 
         Page<Notification> result = notificationService.getNotifications(pageable);
@@ -69,9 +75,10 @@ public class NotificationServiceTest extends AbstractServiceTest {
     @DisplayName("should delete notifications")
     void shouldDeleteNotifications() {
         // given
-        Customer customer = new Customer(
-                1L, "publisher@demo.com", "1223456"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("publisher@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         setUpContext(customer);
         notificationService.deleteNotifications();
@@ -82,9 +89,10 @@ public class NotificationServiceTest extends AbstractServiceTest {
     @DisplayName("should get notifications and removes sink on cancel")
     void shouldGetNotificationsAndRemovesSink() throws NoSuchFieldException, IllegalAccessException {
         // given
-        Customer customer = new Customer(
-                1L, "publisher@demo.com", "1223456"
-        );
+        Customer customer = Customer.create()
+                                    .setId(1L)
+                                    .setEmail("publisher@demo.com")
+                                    .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(customer);
 
         Flux<NotificationEvent> flux = notificationService.getNotificationsForUser();
@@ -107,14 +115,16 @@ public class NotificationServiceTest extends AbstractServiceTest {
     @DisplayName("should publish notification")
     void shouldPublishNotification() {
         // given
-        Customer publisher = new Customer(
-                1L, "publisher@demo.com", "1223456"
-        );
+        Customer publisher = Customer.create()
+                                     .setId(1L)
+                                     .setEmail("publisher@demo.com")
+                                     .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(publisher);
 
-        Customer recipient = new Customer(
-                2L, "recipient@demo.com", "1223456"
-        );
+        Customer recipient = Customer.create()
+                                     .setId(2L)
+                                     .setEmail("recipient@demo.com")
+                                     .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         Map<String, Object> metadata = Map.of(
                 "postId", 3L,
@@ -143,9 +153,11 @@ public class NotificationServiceTest extends AbstractServiceTest {
     @DisplayName("should not publish when publisher and recipient are the same")
     void shouldNotPublishNotificationWhenPublisherAndRecipientAreTheSame() {
         // given
-        Customer publisher = new Customer(
-                1L, "publisher@demo.com", "1223456"
-        );
+        Customer publisher = Customer.create()
+                                     .setId(1L)
+                                     .setEmail("publisher@demo.com")
+                                     .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(publisher);
 
         Map<String, Object> metadata = Map.of(
@@ -161,7 +173,47 @@ public class NotificationServiceTest extends AbstractServiceTest {
                 Instant.now().toString()
         );
         // when
-        notificationService.publishNotification(event);
+        NotificationSelfNotificationException exception = assertThrows(
+                NotificationSelfNotificationException.class,
+                () -> notificationService.publishNotification(event)
+        );
+
+        assertEquals(Exceptions.NOTIFICATION.SELF_NOTIFICATION, exception.getMessage());
+        verify(notificationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("should not publish when recipient not found")
+    void shouldNotPublishNotificationWhenRecipientNotFound() {
+        // given
+        Customer publisher = Customer.create()
+                                     .setId(1L)
+                                     .setEmail("publisher@demo.com")
+                                     .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
+        setUpContext(publisher);
+
+        Map<String, Object> metadata = Map.of(
+                "postId", 1L,
+                "username", "username"
+        );
+
+        NotificationEvent event = new NotificationEvent(
+                2L, // same as publisher
+                NotificationType.COMMENT,
+                metadata,
+                "msg",
+                Instant.now().toString()
+        );
+
+        // when
+        when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
+        CustomerNotFoundException exception = assertThrows(
+                CustomerNotFoundException.class,
+                () -> notificationService.publishNotification(event)
+        );
+
+        assertEquals(Exceptions.CUSTOMER.NOT_FOUND, exception.getMessage());
         verify(notificationRepository, never()).save(any());
     }
 

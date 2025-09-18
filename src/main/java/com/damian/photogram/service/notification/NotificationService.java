@@ -2,12 +2,13 @@ package com.damian.photogram.service.notification;
 
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
-import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;
+import com.damian.photogram.domain.notification.exception.NotificationSelfNotificationException;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
+import com.damian.photogram.web.rest.notification.dto.NotificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public class NotificationService {
      */
     public Page<Notification> getNotifications(Pageable pageable) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Fetching notifications for customer id={}", currentCustomer.getId());
+        log.debug("Fetching notifications for customer: {}", currentCustomer.getId());
         return notificationRepository.findAllByCustomerId(currentCustomer.getId(), pageable);
     }
 
@@ -53,9 +54,9 @@ public class NotificationService {
     @Transactional
     public void deleteNotifications() {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Deleting notifications for customer id={}", currentCustomer.getId());
         // delete all notifications
         notificationRepository.deleteAllByCustomer_Id(currentCustomer.getId());
+        log.debug("Deleted all notifications from customer: {}", currentCustomer.getId());
     }
 
     /**
@@ -86,13 +87,17 @@ public class NotificationService {
      */
     public void publishNotification(NotificationEvent notificationEvent) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
+        log.debug("Publishing Notification to customer: {}", notificationEvent.recipientId());
 
         // if the receiverId is the same as senderId then do nothing
         // this is to prevent sending notifications to oneself
         // for example when a user likes or comment their own post
         if (currentCustomer.getId().equals(notificationEvent.recipientId())) {
-            log.debug("Notification not sent: sender {} cannot notify himself.", currentCustomer.getId());
-            return;
+            log.debug("Notification failed: customer: {} tried to notify himself.", currentCustomer.getId());
+            throw new NotificationSelfNotificationException(
+                    Exceptions.NOTIFICATION.SELF_NOTIFICATION,
+                    currentCustomer.getId()
+            );
         }
 
         // find recipient customer who will receive the notification
@@ -100,7 +105,7 @@ public class NotificationService {
                 .findById(notificationEvent.recipientId())
                 .orElseThrow(() -> {
                     log.warn(
-                            "Notification not sent: Customer recipient with id={} not found.",
+                            "Notification failed: recipient: {} not found.",
                             notificationEvent.recipientId()
                     );
                     return new CustomerNotFoundException(
@@ -116,18 +121,18 @@ public class NotificationService {
                 .setMetadata(notificationEvent.metadata())
                 .setType(notificationEvent.type());
         notificationRepository.save(notification);
-        log.info(
-                "Notification for recipientId={} of type={} stored on db.",
-                notificationEvent.recipientId(),
-                notificationEvent.type()
-        );
 
+        log.debug(
+                "Notification ({}) to customer: {} stored on db.",
+                notificationEvent.type(),
+                notificationEvent.recipientId()
+        );
 
         // emit event to the recipient if connected
         var sink = userSinks.get(notificationEvent.recipientId());
         if (sink != null) {
             sink.tryEmitNext(notificationEvent);
-            log.debug("Notification emitted to connected user recipientId={}", notificationEvent.recipientId());
+            log.debug("Notification sent on real time to: {}", notificationEvent.recipientId());
         }
     }
 }

@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,7 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,18 +52,20 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeAll
     void setUp() {
-        customer = new Customer();
-        customer.setRole(UserRole.ADMIN);
-        customer.setEmail("customer@demo.com");
-        customer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
+        customer = Customer.create()
+                           .setEmail("customer@test.com")
+                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(UserRole.ADMIN)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setUsername("johnwick")
+                                   .setAboutMe("hello im john")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("images/avatar.jpg")
+                           );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setPhone("123 123 123");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setImageFilename("no photoPath");
-
         customerRepository.save(customer);
     }
 
@@ -80,6 +82,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
                                 "username", "alice"
                         )
                 );
+
         notificationRepository.save(notification);
 
         // when
@@ -89,7 +92,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
                                           .contentType(MediaType.APPLICATION_JSON)
                                           .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                                   .andDo(print())
-                                  .andExpect(MockMvcResultMatchers.status().is(200))
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                                   .andReturn();
 
@@ -117,6 +120,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
                                 "username", "alice"
                         )
                 );
+
         notificationRepository.save(notification);
 
         // when
@@ -126,22 +130,17 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
                        .contentType(MediaType.APPLICATION_JSON)
                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(204))
-               .andReturn();
-
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NO_CONTENT.value()));
     }
 
     @Test
     @DisplayName("Should get real time notifications for the logged user")
     void shouldGetRealTimeNotifications() throws Exception {
         // given
-        final String givenToken = jwtUtil.generateToken(
-                customer.getEmail(),
-                new Date(System.currentTimeMillis() + 1000 * 60 * 60)
-        );
+        loginWithCustomer(customer);
 
         NotificationEvent notificationEvent = new NotificationEvent(
-                1L,
+                customer.getId(),
                 NotificationType.LIKE,
                 Map.of("postId", 123),
                 "Message",
@@ -162,8 +161,8 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
 
         MvcResult result = mockMvc.perform(get("/api/v1/notifications/stream")
                                           .accept(MediaType.TEXT_EVENT_STREAM)
-                                          .header(HttpHeaders.AUTHORIZATION, "Bearer " + givenToken))
-                                  .andExpect(status().isOk())
+                                          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                                  .andExpect(status().is(HttpStatus.OK.value()))
                                   .andReturn();
 
         String rawResponse = result.getResponse().getContentAsString();
@@ -177,8 +176,12 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(notificationDto)
                 .isNotNull()
-                .extracting("type", "message", "metadata", "createdAt")
-                .containsExactly(
+                .extracting(
+                        NotificationDto::type,
+                        NotificationDto::message,
+                        NotificationDto::metadata,
+                        NotificationDto::createdAt
+                ).containsExactly(
                         notificationEvent.type(),
                         notificationEvent.message(),
                         notificationEvent.metadata(),
