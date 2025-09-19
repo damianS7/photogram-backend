@@ -49,6 +49,7 @@ public class ProfileService {
      */
     public Profile getProfile(Long profileId) {
         log.debug("Getting profile: {}", profileId);
+
         return profileRepository
                 .findById(profileId)
                 .orElseThrow(

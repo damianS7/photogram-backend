@@ -1,11 +1,15 @@
 package com.damian.photogram.service.user.customer;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.ImageTestHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
+import com.damian.photogram.infrastructure.storage.exception.FileStorageNotFoundException;
+import com.damian.photogram.service.user.ProfileImageService;
 import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.web.rest.user.dto.response.ProfileDto;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,24 +18,37 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ProfileIntegrationTest extends AbstractIntegrationTest {
+
+    @MockitoBean
+    private FileStorageService fileStorageService;
+
+    @MockitoBean
+    private ProfileImageService profileImageService;
 
     private Customer customerA;
     private Customer customerB;
@@ -48,7 +65,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                     .setLastName("Wick")
                                     .setGender(CustomerGender.MALE)
                                     .setBirthdate(LocalDate.of(1989, 1, 1))
-                                    .setImageFilename("images/avatar.jpg")
+                                    .setImageFilename("avatar.jpg")
                             );
         customerA.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerA);
@@ -144,36 +161,48 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should not update profile when is not yours")
-    void shouldNotUpdateProfileWhenIsNotYours() throws Exception {
+    @DisplayName("Should get profile image")
+    void shouldGetProfileImage() throws Exception {
         // given
-        loginWithCustomer(customerB);
+        loginWithCustomer(customerA);
 
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("firstName", "alice");
-        fields.put("lastName", "white");
+        MultipartFile imageMultipart = ImageTestHelper.createDefaultJpg();
+        File imageFile = ImageTestHelper.multipartToFile(imageMultipart);
+        Resource imageResource = new UrlResource(imageFile.toURI());
 
-        ProfileUpdateRequest givenRequest = new ProfileUpdateRequest(
-                this.RAW_PASSWORD,
-                fields
+        when(fileStorageService.getFile(anyString(), anyString())).thenReturn(imageFile);
+        when(fileStorageService.createResource(any(File.class))).thenReturn(imageResource);
+
+        mockMvc
+                .perform(
+                        get("/api/v1/customers/{id}/profile/image", customerA.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.IMAGE_JPEG))
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Should not get profile image when not exist")
+    void shouldNotGetProfileImageWhenNotExist() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        when(profileImageService.getProfileImage(anyLong())).thenThrow(
+                new FileStorageNotFoundException(Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND)
         );
 
-        String jsonRequest = objectMapper.writeValueAsString(givenRequest);
-
-        // when
-        MvcResult result = mockMvc
+        mockMvc
                 .perform(
-                        patch("/api/v1/admin/profiles/{id}", customerA.getProfile().getId())
+                        get("/api/v1/customers/{id}/profile/image", customerA.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                                .content(jsonRequest))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().is(403))
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
-
-        // then
-
-
     }
 
     @Test
@@ -207,6 +236,39 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         assertThat(resource).isNotNull();
         assertEquals(resource.contentLength(), file.getBytes().length);
         assertEquals(result.getResponse().getContentType(), file.getContentType());
+    }
+
+    @Test
+    @DisplayName("Should not update profile when is not yours")
+    void shouldNotUpdateProfileWhenIsNotYours() throws Exception {
+        // given
+        loginWithCustomer(customerB);
+
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("firstName", "alice");
+        fields.put("lastName", "white");
+
+        ProfileUpdateRequest givenRequest = new ProfileUpdateRequest(
+                this.RAW_PASSWORD,
+                fields
+        );
+
+        String jsonRequest = objectMapper.writeValueAsString(givenRequest);
+
+        // when
+        MvcResult result = mockMvc
+                .perform(
+                        patch("/api/v1/admin/profiles/{id}", customerA.getProfile().getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .content(jsonRequest))
+                .andDo(print())
+                .andExpect(status().is(403))
+                .andReturn();
+
+        // then
+
+
     }
 
     @Test

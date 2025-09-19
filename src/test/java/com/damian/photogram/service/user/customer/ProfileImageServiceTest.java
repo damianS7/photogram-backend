@@ -1,9 +1,12 @@
 package com.damian.photogram.service.user.customer;
 
 import com.damian.photogram.core.AbstractServiceTest;
+import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.ImageTestHelper;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
+import com.damian.photogram.domain.user.exception.ProfileImageNotFoundException;
+import com.damian.photogram.domain.user.exception.ProfileNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Profile;
 import com.damian.photogram.domain.user.repository.ProfileRepository;
@@ -77,6 +80,7 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         File givenFile = ImageTestHelper.multipartToFile(
                 ImageTestHelper.createDefaultJpg()
         );
+
         Resource givenResource = new UrlResource(givenFile.toURI());
 
         // when
@@ -88,6 +92,44 @@ public class ProfileImageServiceTest extends AbstractServiceTest {
         // then
         assertNotNull(resource);
         assertTrue(resource.exists());
+        assertEquals(givenFile.length(), resource.getFile().length());
+    }
+
+    @Test
+    @DisplayName("Should not get profile image when profile not found")
+    void shouldNotGetProfileImageWhenProfileNotFound() throws IOException {
+        // given
+
+        // when
+        when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.empty());
+
+        ProfileNotFoundException exception = assertThrows(
+                ProfileNotFoundException.class,
+                () -> profileImageService.getProfileImage(customer.getId())
+        );
+
+        // then
+        assertNotNull(exception);
+        assertEquals(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should not get profile image when profile image is null")
+    void shouldNotGetProfileImageWhenProfileImageIsNull() throws IOException {
+        // given
+        customer.getProfile().setImageFilename(null);
+
+        // when
+        when(profileRepository.findByCustomer_Id(customer.getId())).thenReturn(Optional.of(customer.getProfile()));
+
+        ProfileImageNotFoundException exception = assertThrows(
+                ProfileImageNotFoundException.class,
+                () -> profileImageService.getProfileImage(customer.getId())
+        );
+
+        // then
+        assertNotNull(exception);
+        assertEquals(Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND, exception.getMessage());
     }
 
     @Test

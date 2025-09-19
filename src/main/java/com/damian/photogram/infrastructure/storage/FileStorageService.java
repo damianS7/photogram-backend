@@ -71,7 +71,7 @@ public class FileStorageService {
      * Stores the given file at the specified path with the provided filename.
      *
      * @param file     the file to be stored
-     * @param path     the directory path where the image will be stored
+     * @param path     the directory path where the file will be stored
      * @param filename the name to be assigned to the stored file
      * @return File the stored file.
      */
@@ -84,7 +84,7 @@ public class FileStorageService {
             throw new FileStorageFailedException(Exceptions.STORAGE.FAILED, path, filename);
         }
 
-        log.debug("Stored image: {} at: {}", filename, filePath.getParent());
+        log.debug("Stored file: {} at: {}", filename, filePath.getParent());
         return filePath.toFile();
     }
 

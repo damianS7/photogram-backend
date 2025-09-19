@@ -107,7 +107,6 @@ public class ProfileImageService {
      * @throws ProfileImageNotFoundException if the customer profile photo does not exist in the db
      */
     public Resource getProfileImage(Long customerId) {
-        log.debug("Getting customer: {} profile image", customerId);
         // find the customer profile
         Profile profile = profileRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, null, customerId)
@@ -121,6 +120,8 @@ public class ProfileImageService {
                     customerId
             );
         }
+
+        log.debug("Getting customer: {} profile image: {}", customerId, profile.getImageFilename());
 
         File file = fileStorageService.getFile(
                 getProfileImageFolder(customerId),

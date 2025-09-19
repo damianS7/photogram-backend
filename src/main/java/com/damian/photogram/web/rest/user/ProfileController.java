@@ -43,7 +43,6 @@ public class ProfileController {
     // endpoint to get the current customer's profile
     @GetMapping("/customers/profile")
     public ResponseEntity<?> getCustomerProfile() {
-        log.debug("Received request for getting current customer profile");
         Profile profile = profileService.getProfile();
         ProfileDto profileDTO = ProfileDtoMapper.toProfileDto(profile);
 
@@ -58,7 +57,6 @@ public class ProfileController {
             @PathVariable @NotBlank
             String username
     ) {
-        log.debug("Received request for checking if username: {} exists", username);
         profileService.userProfileExists(username);
 
         return ResponseEntity
@@ -71,7 +69,6 @@ public class ProfileController {
             @Validated @RequestBody
             ProfileUpdateRequest request
     ) {
-        log.debug("Received request for updating(patch) profile");
         Profile profile = profileService.updateProfile(request);
         ProfileDto profileDTO = ProfileDtoMapper.toProfileDto(profile);
 
@@ -86,7 +83,6 @@ public class ProfileController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
-        log.debug("Received request getting customer: {} profile image", customerId);
         Resource resource = profileImageService.getProfileImage(customerId);
         String contentType = ImageHelper.getContentType(resource);
 
@@ -104,7 +100,6 @@ public class ProfileController {
             String currentPassword,
             @RequestParam("file") MultipartFile file
     ) {
-        log.debug("Received request for updating image profile");
         profileImageService.uploadProfileImage(currentPassword, file);
         Resource resource = profileImageService.getProfileImage();
         String contentType = ImageHelper.getContentType(resource);
