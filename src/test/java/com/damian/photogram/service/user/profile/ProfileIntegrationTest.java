@@ -1,15 +1,14 @@
 package com.damian.photogram.service.user.profile;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
-import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.ImageTestHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.infrastructure.storage.FileStorageService;
+import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.exception.FileStorageNotFoundException;
-import com.damian.photogram.service.user.ProfileImageService;
 import com.damian.photogram.web.rest.user.dto.request.ProfileUpdateRequest;
 import com.damian.photogram.web.rest.user.dto.response.ProfileDto;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,7 +34,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,7 +48,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
     private FileStorageService fileStorageService;
 
     @MockitoBean
-    private ProfileImageService profileImageService;
+    private ImageUploaderService imageUploaderService;
 
     private Customer customerA;
     private Customer customerB;
@@ -62,6 +62,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                             .setRole(UserRole.CUSTOMER)
                             .setProfile(profile -> profile
                                     .setFirstName("John")
+                                    .setUsername("John")
                                     .setLastName("Wick")
                                     .setGender(CustomerGender.MALE)
                                     .setBirthdate(LocalDate.of(1989, 1, 1))
@@ -112,6 +113,44 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         assertThat(profileDTO).isNotNull();
         assertEquals(profileDTO.firstName(), customerA.getProfile().getFirstName());
         assertEquals(profileDTO.lastName(), customerA.getProfile().getLastName());
+    }
+
+    @Test
+    @DisplayName("Should check if username profile exists")
+    void shouldCheckIfUsernameProfileExists() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        // when
+        mockMvc
+                .perform(
+                        get(
+                                "/api/v1/customers/profile/username/{username}/exists",
+                                customerA.getProfile().getUsername()
+                        )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.OK.value()));
+    }
+
+    @Test
+    @DisplayName("Should check if username profile not exists")
+    void shouldCheckIfUsernameProfileNotExists() throws Exception {
+        // given
+        loginWithCustomer(customerA);
+
+        // when
+        mockMvc
+                .perform(
+                        get(
+                                "/api/v1/customers/profile/username/{username}/exists",
+                                "non-existing-username"
+                        )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
     @Test
@@ -190,8 +229,8 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customerA);
 
-        when(profileImageService.getProfileImage(anyLong())).thenThrow(
-                new FileStorageNotFoundException(Exceptions.CUSTOMER.PROFILE.IMAGE.NOT_FOUND)
+        when(fileStorageService.getFile(anyString(), anyString())).thenThrow(
+                FileStorageNotFoundException.class
         );
 
         mockMvc
@@ -211,13 +250,24 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customerA);
 
-        MockMultipartFile file = ImageTestHelper.createDefaultJpg();
+        MockMultipartFile imageMultipart = ImageTestHelper.createDefaultJpg();
+        File imageFile = ImageTestHelper.multipartToFile(imageMultipart);
+        Resource imageResource = new UrlResource(imageFile.toURI());
+
+        when(fileStorageService.getFile(anyString(), anyString())).thenReturn(imageFile);
+        when(fileStorageService.createResource(any(File.class))).thenReturn(imageResource);
+
+        when(imageUploaderService.uploadImage(
+                any(MultipartFile.class),
+                anyString(),
+                anyString()
+        )).thenReturn(imageFile);
 
         // when
         MvcResult result = mockMvc
                 .perform(
                         multipart("/api/v1/customers/profile/image")
-                                .file(file)
+                                .file(imageMultipart)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
                                 .with(request -> {
@@ -234,8 +284,8 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
 
         // then
         assertThat(resource).isNotNull();
-        assertEquals(resource.contentLength(), file.getBytes().length);
-        assertEquals(result.getResponse().getContentType(), file.getContentType());
+        assertEquals(resource.contentLength(), imageMultipart.getBytes().length);
+        assertEquals(result.getResponse().getContentType(), imageMultipart.getContentType());
     }
 
     @Test
@@ -302,7 +352,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should upload image when size exceeds limit")
+    @DisplayName("Should not upload image when size exceeds limit")
     void shouldNotUploadImageWhenSizeExceedsLimit() throws Exception {
         // given
         loginWithCustomer(customerA);
