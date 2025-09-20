@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 
 public class JsonHelper {
-    protected static ObjectMapper objectMapper = new ObjectMapper();
+    protected static ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
+    //    mapper.registerModule(new JavaTimeModule());
+    //    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     public static String readValue(String json, String key) {
         try {
@@ -33,7 +37,7 @@ public class JsonHelper {
                     json,
                     type
             );
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
