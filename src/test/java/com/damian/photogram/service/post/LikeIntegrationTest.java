@@ -1,7 +1,5 @@
 package com.damian.photogram.service.post;
 
-import com.damian.photogram.web.rest.post.dto.response.LikeDto;
-import com.damian.photogram.web.rest.post.dto.response.PostLikeDataDto;
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.post.model.Like;
 import com.damian.photogram.domain.post.model.Post;
@@ -9,6 +7,8 @@ import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.web.rest.post.dto.response.LikeDto;
+import com.damian.photogram.web.rest.post.dto.response.PostLikeDataDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@test.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setFirstName("John")

@@ -63,7 +63,7 @@ public class FollowService {
      * @throws CustomerNotFoundException if the customer is not found
      */
     public Page<Follow> getFollowers(Long customerId, Pageable pageable) {
-        log.debug("Fetching followers from customerId: {}", customerId);
+        log.debug("Fetching followers from customer: {}", customerId);
 
         // check if the customer exists
         if (!customerRepository.existsById(customerId)) {
@@ -93,7 +93,7 @@ public class FollowService {
      * @throws CustomerNotFoundException if the customer is not found
      */
     public Page<Follow> getFollowing(Long customerId, Pageable pageable) {
-        log.debug("Fetching all the customers being followed by customerId: {}", customerId);
+        log.debug("Fetching all the customers being followed by customer: {}", customerId);
 
         // check if the customer exists
         if (!customerRepository.existsById(customerId)) {
@@ -109,13 +109,13 @@ public class FollowService {
      *
      * @param customerId the id of the customer to get the follow relationship
      * @return Follow the entity between the current customer, and the specified
-     * @throws FollowBetweenUsersNotExistException if the follow relationship does not exist
-     * @throws CustomerNotFoundException           if the given customer does not exist
+     * @throws FollowNotFoundException   if the follow relationship does not exist
+     * @throws CustomerNotFoundException if the given customer does not exist
      */
     public Follow getFollow(Long customerId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
         log.debug(
-                "Fetching follow entity between customerId: {} and customerId: {}",
+                "Fetching follow entity between customer: {} and customer: {}",
                 currentCustomer.getId(),
                 customerId
         );
@@ -129,7 +129,7 @@ public class FollowService {
         return followRepository
                 .findFollowRelationshipBetweenCustomers(currentCustomer.getId(), customerId)
                 .orElseThrow(
-                        () -> new FollowBetweenUsersNotExistException(
+                        () -> new FollowNotFoundException(
                                 Exceptions.FOLLOW.NOT_FOUND,
                                 currentCustomer.getId(),
                                 customerId

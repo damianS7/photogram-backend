@@ -54,7 +54,7 @@ public class NotificationIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@test.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.ADMIN)
                            .setProfile(profile -> profile
                                    .setFirstName("John")

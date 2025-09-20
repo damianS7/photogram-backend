@@ -71,7 +71,7 @@ public abstract class AbstractIntegrationTest {
     protected NotificationRepository notificationRepository;
 
     @Autowired
-    protected BCryptPasswordEncoder bCryptPasswordEncoder;
+    protected BCryptPasswordEncoder passwordEncoder;
 
     protected String token;
 

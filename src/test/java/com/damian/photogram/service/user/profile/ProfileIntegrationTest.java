@@ -58,7 +58,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
     void setUp() throws Exception {
         customerA = Customer.create()
                             .setEmail("customerA@test.com")
-                            .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                            .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                             .setRole(UserRole.CUSTOMER)
                             .setProfile(profile -> profile
                                     .setFirstName("John")
@@ -72,7 +72,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
 
         customerB = Customer.create()
                             .setEmail("customerB@test.com")
-                            .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD)
+                            .setPassword(passwordEncoder.encode(this.RAW_PASSWORD)
                             );
         customerB.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerB);
@@ -80,7 +80,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         customerAdmin = Customer.create()
                                 .setEmail("customerAdmin@test.com")
                                 .setRole(UserRole.ADMIN)
-                                .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD)
+                                .setPassword(passwordEncoder.encode(this.RAW_PASSWORD)
                                 );
         customerAdmin.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customerAdmin);

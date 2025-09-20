@@ -36,7 +36,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@test.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.ADMIN)
                            .setProfile(profile -> profile
                                    .setFirstName("John")
@@ -135,7 +135,7 @@ public class AuthenticationIntegrationTest extends AbstractIntegrationTest {
         // given
         Customer givenCustomer = new Customer();
         givenCustomer.setEmail("disabled-customer@test.com");
-        givenCustomer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
+        givenCustomer.setPassword(passwordEncoder.encode(this.RAW_PASSWORD));
         givenCustomer.getAccount().setAccountStatus(AccountStatus.SUSPENDED);
         customerRepository.save(givenCustomer);
 

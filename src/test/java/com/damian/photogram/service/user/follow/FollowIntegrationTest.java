@@ -1,6 +1,7 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.follow;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -33,7 +35,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@test.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setFirstName("John")
@@ -43,6 +45,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                    .setBirthdate(LocalDate.of(1989, 1, 1))
                                    .setImageFilename("images/avatar.jpg")
                            );
+
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(customer);
     }
@@ -53,13 +56,16 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        Customer customerFollower = new Customer(
-                "follow@test.com",
-                bCryptPasswordEncoder.encode("123456")
-        );
+        Customer customerFollower = Customer.create()
+                                            .setEmail("follower1@test.com")
+                                            .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         customerRepository.save(customerFollower);
+
         followRepository.save(
-                new Follow(customer, customerFollower)
+                Follow.create()
+                      .setFollowedCustomer(customer)
+                      .setFollowerCustomer(customerFollower)
         );
 
         // when
@@ -68,7 +74,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                         get("/api/v1/customers/followers")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -77,12 +83,15 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
         JsonNode root = objectMapper.readTree(json);
         JsonNode contentNode = root.get("content");
 
-        FollowDto[] followDto = objectMapper.treeToValue(contentNode, FollowDto[].class);
+        FollowDto[] followersDto = JsonHelper.fromJson(
+                contentNode.toString(),
+                FollowDto[].class
+        );
 
         // then
-        assertThat(followDto).isNotNull();
-        assertThat(followDto.length).isGreaterThanOrEqualTo(1);
-        assertThat(followDto[0].followedCustomerId()).isEqualTo(customer.getId());
+        assertThat(followersDto).isNotNull();
+        assertThat(followersDto.length).isGreaterThanOrEqualTo(1);
+        assertThat(followersDto[0].followedCustomerId()).isEqualTo(customer.getId());
     }
 
     @Test
@@ -93,7 +102,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
 
         Customer customerToBeFollowed = Customer.create()
                                                 .setEmail("customerToBeFollowed@test.com")
-                                                .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                                                .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                                                 .setRole(UserRole.CUSTOMER)
                                                 .setProfile(profile -> profile
                                                         .setFirstName("Donnie")
@@ -112,12 +121,12 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(201))
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        FollowDto followDto = objectMapper.readValue(
+        FollowDto followDto = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 FollowDto.class
         );
@@ -133,10 +142,10 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        Customer customerToBeFollowed = new Customer(
-                "follow@test.com",
-                bCryptPasswordEncoder.encode("123456")
-        );
+        Customer customerToBeFollowed = Customer.create()
+                                                .setEmail("customerToBeFollowed2@test.com")
+                                                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         customerRepository.save(customerToBeFollowed);
 
         Follow follow = new Follow(customerToBeFollowed, customer);
@@ -149,9 +158,8 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(409))
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CONFLICT.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -167,9 +175,8 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(404))
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NOT_FOUND.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -180,7 +187,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
 
         Customer customerFollowed = new Customer(
                 "follow@test.com",
-                bCryptPasswordEncoder.encode("123456")
+                passwordEncoder.encode("123456")
         );
         customerRepository.save(customerFollowed);
 
@@ -193,10 +200,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                         delete("/api/v1/customers/{id}/unfollow", customerFollowed.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(204))
-                .andReturn();
-
-        // then
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NO_CONTENT.value()));
     }
 
     @Test
@@ -207,7 +211,7 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
 
         Customer customerFriend = new Customer(
                 "follow@test.com",
-                bCryptPasswordEncoder.encode("123456")
+                passwordEncoder.encode("123456")
         );
         customerRepository.save(customerFriend);
 
@@ -217,9 +221,6 @@ public class FollowIntegrationTest extends AbstractIntegrationTest {
                         delete("/api/v1/customers/{id}/unfollow", 99L)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(404))
-                .andReturn();
-
-        // then
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NOT_FOUND.value()));
     }
 }

@@ -34,7 +34,7 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
         customer = new Customer();
         customer.setRole(UserRole.ADMIN);
         customer.setEmail(this.email);
-        customer.setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD));
+        customer.setPassword(passwordEncoder.encode(this.RAW_PASSWORD));
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customer.getProfile().setFirstName("John");
         customer.getProfile().setLastName("Wick");

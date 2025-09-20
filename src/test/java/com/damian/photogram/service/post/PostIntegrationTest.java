@@ -40,7 +40,7 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@test.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setFirstName("John")

@@ -40,7 +40,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     void setUp() {
         customer = Customer.create()
                            .setEmail("customer@demo.com")
-                           .setPassword(bCryptPasswordEncoder.encode(this.RAW_PASSWORD))
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
                            .setRole(UserRole.CUSTOMER)
                            .setProfile(profile -> profile
                                    .setFirstName("John")
@@ -54,7 +54,7 @@ public class AuthorizationIntegrationTest extends AbstractIntegrationTest {
 
         admin = Customer.create()
                         .setEmail("admin@test.com")
-                        .setPassword(bCryptPasswordEncoder.encode(RAW_PASSWORD))
+                        .setPassword(passwordEncoder.encode(RAW_PASSWORD))
                         .setRole(UserRole.ADMIN);
         admin.getAccount().setAccountStatus(AccountStatus.VERIFIED);
         customerRepository.save(admin);
