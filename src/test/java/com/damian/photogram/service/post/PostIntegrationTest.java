@@ -239,4 +239,6 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
                 .andReturn();
     }
 
+    // TODO shouldGetPostImage
+
 }
