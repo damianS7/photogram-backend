@@ -11,8 +11,6 @@ import com.damian.photogram.web.rest.post.dto.response.PostDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -33,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/v1")
 @RestController
 public class PostController {
-    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     private final PostService postService;
     private final PostImageService postImageService;
 
@@ -54,7 +51,6 @@ public class PostController {
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        log.debug("Received request to fetch all posts from username: {}", username);
         Page<Post> posts = postService.getPostsByUsername(username, pageable);
         Page<PostDto> postsDTO = PostDtoMapper.toPostDtoPaginated(posts);
 
@@ -69,7 +65,6 @@ public class PostController {
             @Validated @RequestBody
             PostCreateRequest request
     ) {
-        log.debug("Received request to create a post.");
         Post post = postService.createPost(request);
         PostDto postDTO = PostDtoMapper.toPostDtoPaginated(post);
 
@@ -84,7 +79,6 @@ public class PostController {
             @PathVariable @NotNull @Positive
             Long postId
     ) {
-        log.debug("Received request to delete a post: {}", postId);
         postService.deletePost(postId);
 
         return ResponseEntity
@@ -98,7 +92,6 @@ public class PostController {
             @PathVariable @NotNull @Positive
             Long postId
     ) {
-        log.debug("Received request to fetch the image from post: {}", postId);
         Resource resource = postImageService.getImage(postId);
         String contentType = ImageHelper.getContentType(resource);
         return ResponseEntity
@@ -113,7 +106,6 @@ public class PostController {
     public ResponseEntity<?> uploadPostImage(
             @RequestParam("file") MultipartFile file
     ) {
-        log.debug("Received request to upload the image for a post.");
         File uploadedImage = postImageService.uploadImage(file);
 
         ImageUploadedDto imageUploadedDTO = new ImageUploadedDto(uploadedImage.getName());

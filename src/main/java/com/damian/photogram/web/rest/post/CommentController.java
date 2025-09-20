@@ -7,8 +7,6 @@ import com.damian.photogram.web.rest.post.dto.request.CommentCreateRequest;
 import com.damian.photogram.web.rest.post.dto.response.CommentDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 @RestController
 public class CommentController {
-    private static final Logger log = LoggerFactory.getLogger(CommentController.class);
     private final CommentService commentService;
 
     @Autowired
@@ -38,7 +35,6 @@ public class CommentController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        log.debug("Received request to fetch comments for postId: {}", postId);
         Page<Comment> comments = commentService.getPostComments(postId, pageable);
         Page<CommentDto> commentsDTO = CommentDtoMapper.map(comments);
 
@@ -55,7 +51,6 @@ public class CommentController {
             @Validated @RequestBody
             CommentCreateRequest request
     ) {
-        log.debug("Received request to post a new comment on postId: {}", postId);
         Comment comment = commentService.addComment(postId, request);
         commentService.sendCommentNotification(comment);
         CommentDto commentDto = CommentDtoMapper.map(comment);
@@ -71,7 +66,6 @@ public class CommentController {
             @PathVariable @NotNull @Positive
             Long commentId
     ) {
-        log.debug("Received request to delete a comment with id: {}", commentId);
         commentService.deleteComment(commentId);
 
         return ResponseEntity

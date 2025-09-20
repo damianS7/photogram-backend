@@ -34,7 +34,6 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
-        log.debug("Received request to get follow data about customer: {}", customerId);
         Follow follow = followService.getFollow(customerId);
         FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
 
@@ -49,7 +48,6 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        log.debug("Received request to get a list of followers");
         Page<Follow> follows = followService.getFollowers(pageable);
         Page<FollowDto> friendsDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
@@ -66,7 +64,6 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        log.debug("Received request to get a list of followers for the customer: {}", customerId);
         Page<Follow> follows = followService.getFollowers(customerId, pageable);
         Page<FollowDto> followersDTO = FollowDtoMapper.toFollowDtoPaged(follows);
 
@@ -83,7 +80,6 @@ public class FollowController {
             @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        log.debug("Received request to get a list of users being follow from customer: {}", customerId);
         Page<Follow> followed = followService.getFollowing(customerId, pageable);
         Page<FollowDto> followedDTO = FollowDtoMapper.toFollowDtoPaged(followed);
 
@@ -98,7 +94,6 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
-        log.debug("Received request to follow customer: {}", customerId);
         Follow follow = followService.follow(customerId);
         followService.sendFollowNotification(follow);
         FollowDto followDto = FollowDtoMapper.toFollowDto(follow);
@@ -114,7 +109,6 @@ public class FollowController {
             @PathVariable @NotNull @Positive
             Long customerId
     ) {
-        log.debug("Received request to unfollow customer: {}", customerId);
         followService.unfollow(customerId);
 
         return ResponseEntity

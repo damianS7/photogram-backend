@@ -11,8 +11,6 @@ import com.damian.photogram.web.rest.user.dto.mapper.CustomerDtoMapper;
 import com.damian.photogram.web.rest.user.dto.request.*;
 import com.damian.photogram.web.rest.user.dto.response.CustomerWithProfileDto;
 import jakarta.validation.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 public class AccountController {
-
-    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
     private final AccountRegistrationService accountRegistrationService;
     private final AccountPasswordService accountPasswordService;
     private final AccountVerificationService accountVerificationService;
@@ -43,7 +39,6 @@ public class AccountController {
             @Validated @RequestBody
             AccountRegistrationRequest request
     ) {
-        log.debug("Received request to register.");
         Customer registeredCustomer = accountRegistrationService.register(request);
 
         CustomerWithProfileDto dto = CustomerDtoMapper.toCustomerWithProfileDto(registeredCustomer);
@@ -59,7 +54,6 @@ public class AccountController {
             @Validated @RequestBody
             AccountPasswordUpdateRequest request
     ) {
-        log.debug("Received request to update password.");
         accountPasswordService.updatePassword(request);
 
         return ResponseEntity
@@ -73,7 +67,6 @@ public class AccountController {
             @PathVariable @NotBlank
             String token
     ) {
-        log.debug("Received request to verify account.");
         // verification the account using the provided token
         Account account = accountVerificationService.verifyAccount(token);
 
@@ -91,7 +84,6 @@ public class AccountController {
             @Validated @RequestBody
             AccountActivationResendRequest request
     ) {
-        log.debug("Received request to resend verification token.");
         // generate a new verification token
         AccountToken accountToken = accountVerificationService.generateVerificationToken(request.email());
 
@@ -109,7 +101,6 @@ public class AccountController {
             @Validated @RequestBody
             AccountPasswordResetRequest request
     ) {
-        log.debug("Received request for password reset through email.");
         // generate a new password reset token
         AccountToken accountToken = accountPasswordService.generatePasswordResetToken(request);
 
@@ -132,8 +123,6 @@ public class AccountController {
             @Validated @RequestBody
             AccountPasswordResetSetRequest request
     ) {
-        log.debug("Received request to set a new password through a token.");
-
         // update the password using the token
         accountPasswordService.passwordResetWithToken(token, request);
 
