@@ -40,9 +40,10 @@ public class CustomerService {
      * @throws CustomerEmailTakenException if another user has the email
      */
     public Customer createCustomer(AccountRegistrationRequest request) {
-        log.debug("Creating customer");
+        log.debug("Creating customer with email: {}", request.email());
+
         // check if the email is already taken
-        if (emailExist(request.email())) {
+        if (customerRepository.existsByEmail(request.email())) {
             throw new CustomerEmailTakenException(
                     Exceptions.CUSTOMER.EMAIL_TAKEN, request.email()
             );
@@ -67,10 +68,9 @@ public class CustomerService {
      * Deletes a customer
      *
      * @param customerId the id of the customer to be deleted
-     * @return true if the customer was deleted
      * @throws CustomerNotFoundException if the customer does not exist or if the logged user is not ADMIN
      */
-    public boolean deleteCustomer(Long customerId) {
+    public void deleteCustomer(Long customerId) {
         log.debug("Deleting customer: {}", customerId);
         // if the customer does not exist we throw an exception
         if (!customerRepository.existsById(customerId)) {
@@ -81,9 +81,6 @@ public class CustomerService {
 
         // we delete the customer
         customerRepository.deleteById(customerId);
-
-        // if no exception is thrown we return true
-        return true;
     }
 
     /**
@@ -121,17 +118,6 @@ public class CustomerService {
     }
 
     /**
-     * It checks if an email exist in the database
-     *
-     * @param email the email to be checked
-     * @return true if the email exists, false otherwise
-     */
-    private boolean emailExist(String email) {
-        // we search the email in the database
-        return customerRepository.findByEmail(email).isPresent();
-    }
-
-    /**
      * It updates the email of a customer
      *
      * @param customerId the id of the customer
@@ -141,12 +127,18 @@ public class CustomerService {
      */
     public Customer updateEmail(Long customerId, String email) {
         log.debug("Updating customer: {} email: {}", customerId, email);
+
         // we get the Customer entity so we can save at the end
         Customer customer = customerRepository.findById(customerId).orElseThrow(
                 () -> new CustomerNotFoundException(
                         Exceptions.CUSTOMER.NOT_FOUND, customerId
                 )
         );
+
+        // check if the email is already taken
+        if (customerRepository.existsByEmail(email)) {
+            throw new CustomerEmailTakenException(Exceptions.CUSTOMER.EMAIL_TAKEN, email);
+        }
 
         // set the new email
         customer.setEmail(email);
