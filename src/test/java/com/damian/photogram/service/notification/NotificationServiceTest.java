@@ -5,7 +5,6 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;
 import com.damian.photogram.domain.notification.NotificationType;
-import com.damian.photogram.domain.notification.exception.NotificationSelfNotificationException;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
@@ -173,12 +172,8 @@ public class NotificationServiceTest extends AbstractServiceTest {
                 Instant.now().toString()
         );
         // when
-        NotificationSelfNotificationException exception = assertThrows(
-                NotificationSelfNotificationException.class,
-                () -> notificationService.publishNotification(event)
-        );
+        notificationService.publishNotification(event);
 
-        assertEquals(Exceptions.NOTIFICATION.SELF_NOTIFICATION, exception.getMessage());
         verify(notificationRepository, never()).save(any());
     }
 

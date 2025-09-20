@@ -4,7 +4,6 @@ import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.core.util.AuthHelper;
 import com.damian.photogram.domain.notification.Notification;
 import com.damian.photogram.domain.notification.NotificationRepository;
-import com.damian.photogram.domain.notification.exception.NotificationSelfNotificationException;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
@@ -93,11 +92,7 @@ public class NotificationService {
         // this is to prevent sending notifications to oneself
         // for example when a user likes or comment their own post
         if (currentCustomer.getId().equals(notificationEvent.recipientId())) {
-            log.debug("Notification failed: customer: {} tried to notify himself.", currentCustomer.getId());
-            throw new NotificationSelfNotificationException(
-                    Exceptions.NOTIFICATION.SELF_NOTIFICATION,
-                    currentCustomer.getId()
-            );
+            return;
         }
 
         // find recipient customer who will receive the notification

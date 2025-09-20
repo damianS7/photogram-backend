@@ -94,7 +94,6 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-
         Post post = new Post(customer);
         postRepository.save(post);
 
