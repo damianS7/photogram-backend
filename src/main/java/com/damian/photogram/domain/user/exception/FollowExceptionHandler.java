@@ -37,18 +37,6 @@ public class FollowExceptionHandler {
     @ExceptionHandler(FollowNotFoundException.class) // 404
     public ResponseEntity<ApiResponse<String>> handleFollowNotFound(FollowNotFoundException ex) {
         log.debug(
-                "Follow relationship between: follower: {} and followed: {} not found.",
-                ex.getFollowerCustomerId(),
-                ex.getFollowedCustomerId(),
-                ex
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
-    }
-
-    @ExceptionHandler(FollowBetweenUsersNotExistException.class) // 404
-    public ResponseEntity<ApiResponse<String>> handleFollowBetween(FollowBetweenUsersNotExistException ex) {
-        log.debug(
                 "customer: {} is not following customer: {}",
                 ex.getFollowerCustomerId(),
                 ex.getFollowedCustomerId(),
