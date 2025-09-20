@@ -62,9 +62,9 @@ public class AccountExceptionHandler {
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
-    @ExceptionHandler(AccountVerificationTokenNotFoundException.class) // 404
+    @ExceptionHandler(AccountTokenNotFoundException.class) // 404
     public ResponseEntity<ApiResponse<String>> handleAccountVerificationTokenNotFound(
-            AccountVerificationTokenNotFoundException ex
+            AccountTokenNotFoundException ex
     ) {
         log.warn(
                 "Customer: {} account: {} verification token: {} not found.",
