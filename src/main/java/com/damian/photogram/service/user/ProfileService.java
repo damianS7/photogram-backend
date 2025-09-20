@@ -109,6 +109,7 @@ public class ProfileService {
             switch (key) {
                 case "firstName" -> profile.setFirstName((String) value);
                 case "lastName" -> profile.setLastName((String) value);
+                case "userName" -> profile.setUsername((String) value);
                 case "phone" -> profile.setPhone((String) value);
                 case "avatarFilename" -> profile.setImageFilename((String) value);
                 case "gender" -> profile.setGender(CustomerGender.valueOf((String) value));

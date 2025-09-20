@@ -2,6 +2,7 @@ package com.damian.photogram.service.user.profile;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.util.ImageTestHelper;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
@@ -100,7 +101,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().is(200))
+                .andExpect(status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -110,9 +111,15 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                 ProfileDto.class
         );
 
-        assertThat(profileDTO).isNotNull();
-        assertEquals(profileDTO.firstName(), customerA.getProfile().getFirstName());
-        assertEquals(profileDTO.lastName(), customerA.getProfile().getLastName());
+        assertThat(profileDTO)
+                .isNotNull()
+                .extracting(
+                        ProfileDto::firstName,
+                        ProfileDto::lastName
+                ).containsExactly(
+                        customerA.getProfile().getFirstName(),
+                        customerA.getProfile().getLastName()
+                );
     }
 
     @Test
@@ -162,6 +169,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
         Map<String, Object> fields = new HashMap<>();
         fields.put("firstName", "alice");
         fields.put("lastName", "white");
+        fields.put("userName", "alice77");
         fields.put("phone", "999 999 999");
         fields.put("birthdate", LocalDate.of(1989, 1, 1));
         fields.put("gender", CustomerGender.FEMALE);
@@ -171,32 +179,41 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                 fields
         );
 
-        String jsonRequest = objectMapper.writeValueAsString(givenRequest);
-
         // when
         MvcResult result = mockMvc
                 .perform(
                         patch("/api/v1/customers/profile")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                                .content(jsonRequest))
+                                .content(JsonHelper.toJson(givenRequest)))
                 .andDo(print())
-                .andExpect(status().is(200))
+                .andExpect(status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        ProfileDto profileDTO = objectMapper.readValue(
+        ProfileDto profileDTO = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 ProfileDto.class
         );
 
-        assertThat(profileDTO).isNotNull();
-        assertThat(profileDTO.firstName()).isEqualTo(givenRequest.fieldsToUpdate().get("firstName"));
-        assertThat(profileDTO.lastName()).isEqualTo(givenRequest.fieldsToUpdate().get("lastName"));
-        assertThat(profileDTO.phone()).isEqualTo(givenRequest.fieldsToUpdate().get("phone"));
-        assertThat(profileDTO.birthdate()).isEqualTo(givenRequest.fieldsToUpdate().get("birthdate"));
-        assertThat(profileDTO.gender()).isEqualTo(givenRequest.fieldsToUpdate().get("gender"));
+        assertThat(profileDTO)
+                .isNotNull()
+                .extracting(
+                        ProfileDto::firstName,
+                        ProfileDto::lastName,
+                        ProfileDto::username,
+                        ProfileDto::phone,
+                        ProfileDto::birthdate,
+                        ProfileDto::gender
+                ).containsExactly(
+                        givenRequest.fieldsToUpdate().get("firstName"),
+                        givenRequest.fieldsToUpdate().get("lastName"),
+                        givenRequest.fieldsToUpdate().get("userName"),
+                        givenRequest.fieldsToUpdate().get("phone"),
+                        givenRequest.fieldsToUpdate().get("birthdate"),
+                        givenRequest.fieldsToUpdate().get("gender")
+                );
     }
 
     @Test
@@ -240,8 +257,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -276,7 +292,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 }))
 
                 .andDo(print())
-                .andExpect(status().is(201))
+                .andExpect(status().is(HttpStatus.CREATED.value()))
                 .andReturn();
 
         byte[] content = result.getResponse().getContentAsByteArray();
@@ -303,22 +319,15 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                 fields
         );
 
-        String jsonRequest = objectMapper.writeValueAsString(givenRequest);
-
         // when
-        MvcResult result = mockMvc
+        mockMvc
                 .perform(
                         patch("/api/v1/admin/profiles/{id}", customerA.getProfile().getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                                .content(jsonRequest))
+                                .content(JsonHelper.toJson(givenRequest)))
                 .andDo(print())
-                .andExpect(status().is(403))
-                .andReturn();
-
-        // then
-
-
+                .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
     }
 
     @Test
@@ -347,8 +356,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 }))
 
                 .andDo(print())
-                .andExpect(status().is(400))
-                .andReturn();
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
     }
 
     @Test
@@ -377,8 +385,7 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 }))
 
                 .andDo(print())
-                .andExpect(status().is(413))
-                .andReturn();
+                .andExpect(status().is(HttpStatus.PAYLOAD_TOO_LARGE.value()));
     }
 
     @Test
@@ -408,7 +415,6 @@ public class ProfileIntegrationTest extends AbstractIntegrationTest {
                                 }))
 
                 .andDo(print())
-                .andExpect(status().is(415))
-                .andReturn();
+                .andExpect(status().is(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()));
     }
 }
