@@ -1,6 +1,7 @@
 package com.damian.photogram.service.user.customer;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
@@ -8,8 +9,12 @@ import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.web.rest.user.dto.request.CustomerEmailUpdateRequest;
 import com.damian.photogram.web.rest.user.dto.response.CustomerDto;
 import com.damian.photogram.web.rest.user.dto.response.CustomerWithProfileDto;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -43,11 +48,6 @@ public class CustomerIntegrationTest extends AbstractIntegrationTest {
         customerRepository.save(customer);
     }
 
-    @AfterAll
-    void tearDown() {
-        customerRepository.deleteAll();
-    }
-
     @Test
     @DisplayName("Should get logged customer")
     void shouldGetCustomer() throws Exception {
@@ -60,19 +60,26 @@ public class CustomerIntegrationTest extends AbstractIntegrationTest {
                         get("/api/v1/customers")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        CustomerWithProfileDto customerWithProfileDTO = objectMapper.readValue(
+        CustomerWithProfileDto customerDto = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 CustomerWithProfileDto.class
         );
 
         // then
-        assertThat(customerWithProfileDTO).isNotNull();
-        assertThat(customerWithProfileDTO.email()).isEqualTo(customer.getEmail());
+        assertThat(customerDto)
+                .isNotNull()
+                .extracting(
+                        CustomerWithProfileDto::id,
+                        CustomerWithProfileDto::email
+                ).containsExactly(
+                        customer.getId(),
+                        customer.getEmail()
+                );
     }
 
     @Test
@@ -92,19 +99,26 @@ public class CustomerIntegrationTest extends AbstractIntegrationTest {
                         patch("/api/v1/customers/email")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(givenRequest)))
+                                .content(JsonHelper.toJson(givenRequest)))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andReturn();
 
         // then
-        CustomerDto customerDTO = objectMapper.readValue(
+        CustomerDto customerDto = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 CustomerDto.class
         );
 
         // then
-        assertThat(customerDTO).isNotNull();
-        assertThat(customerDTO.email()).isEqualTo(givenRequest.newEmail());
+        assertThat(customerDto)
+                .isNotNull()
+                .extracting(
+                        CustomerDto::id,
+                        CustomerDto::email
+                ).containsExactly(
+                        customer.getId(),
+                        givenRequest.newEmail()
+                );
     }
 }
