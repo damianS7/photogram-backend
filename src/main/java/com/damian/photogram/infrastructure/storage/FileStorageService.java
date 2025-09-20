@@ -97,6 +97,12 @@ public class FileStorageService {
      */
     public File getFile(String path, String filename) {
         Path filePath = getStoragePath(path).resolve(filename).normalize();
+
+        // check if file actually exists
+        if (!filePath.toFile().exists()) {
+            throw new FileStorageNotFoundException(Exceptions.STORAGE.NOT_FOUND, filePath.toString(), filename);
+        }
+
         log.debug("Retrieving file: {} at: {}", filename, filePath.getParent());
         return filePath.toFile();
     }
