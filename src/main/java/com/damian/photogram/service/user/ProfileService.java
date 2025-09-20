@@ -135,13 +135,10 @@ public class ProfileService {
     public void userProfileExists(String username) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
         log.debug("Customer: {} checking if username: {} exists", currentCustomer.getId(), username);
-        profileRepository
-                .findByUsernameIgnoreCase(username)
-                .orElseThrow(
-                        () -> {
-                            log.warn("Failed to find a profile with username: {}", username);
-                            return new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, null, null);
-                        }
-                );
+
+        if (!profileRepository.existsByUsernameIgnoreCase(username)) {
+            log.warn("Failed to find a profile with username: {}", username);
+            throw new ProfileNotFoundException(Exceptions.CUSTOMER.PROFILE.NOT_FOUND, null, null);
+        }
     }
 }

@@ -11,5 +11,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByUsernameIgnoreCase(String username);
 
     Optional<Profile> findByCustomer_Id(Long customerId);
+
+    boolean existsByUsernameIgnoreCase(String username);
 }
 
