@@ -1,15 +1,16 @@
-package com.damian.photogram.service.user;
+package com.damian.photogram.service.user.follow;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.exception.Exceptions;
 import com.damian.photogram.domain.user.exception.CustomerNotFoundException;
 import com.damian.photogram.domain.user.exception.FollowAlreadyExistsException;
-import com.damian.photogram.domain.user.exception.FollowBetweenUsersNotExistException;
+import com.damian.photogram.domain.user.exception.FollowNotFoundException;
 import com.damian.photogram.domain.user.exception.FollowersLimitExceededException;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.user.model.Follow;
 import com.damian.photogram.domain.user.repository.CustomerRepository;
 import com.damian.photogram.domain.user.repository.FollowRepository;
+import com.damian.photogram.service.user.FollowService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -41,37 +42,41 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should get followers paginated")
     void shouldGetFollowersPaginated() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
-        Customer follow1 = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer follow1 = Customer.create()
+                                   .setId(2L)
+                                   .setEmail("customer2@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
-        Customer follow2 = new Customer(
-                3L, "customer2@test.com", passwordEncoder.encode("password")
-        );
+        Customer follow2 = Customer.create()
+                                   .setId(3L)
+                                   .setEmail("customer3@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
-        Set<Follow> followList = Set.of(
+        Set<Follow> followerList = Set.of(
                 Follow.create().setFollowedCustomer(currentCustomer).setFollowerCustomer(follow1),
                 Follow.create().setFollowedCustomer(currentCustomer).setFollowerCustomer(follow2)
         );
 
-        Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
-        Pageable pageable = PageRequest.of(0, 2);
+        Page<Follow> followPage = new PageImpl<>(followerList.stream().toList());
+        Pageable pageable = PageRequest.of(0, followerList.size());
 
         // when
         when(customerRepository.existsById(currentCustomer.getId())).thenReturn(true);
         when(followRepository.findAllByFollowedCustomer_Id(currentCustomer.getId(), pageable))
                 .thenReturn(followPage);
+
         Page<Follow> result = followService.getFollowers(pageable);
 
         // then
         assertNotNull(result);
-        assertEquals(2, result.getSize());
+        assertEquals(followerList.size(), result.getSize());
         verify(followRepository, times(1)).findAllByFollowedCustomer_Id(currentCustomer.getId(), pageable);
     }
 
@@ -85,20 +90,22 @@ public class FollowServiceTest extends AbstractServiceTest {
         );
         setUpContext(currentCustomer);
 
-        Customer follow1 = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer follow1 = Customer.create()
+                                   .setId(2L)
+                                   .setEmail("customer2@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
-        Customer follow2 = new Customer(
-                3L, "customer2@test.com", passwordEncoder.encode("password")
-        );
+        Customer follow2 = Customer.create()
+                                   .setId(3L)
+                                   .setEmail("customer3@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
-        Set<Follow> followList = Set.of(
+        Set<Follow> followingList = Set.of(
                 new Follow(follow1, currentCustomer),
                 new Follow(follow2, currentCustomer)
         );
 
-        Page<Follow> followPage = new PageImpl<>(followList.stream().toList());
+        Page<Follow> followPage = new PageImpl<>(followingList.stream().toList());
         Pageable pageable = PageRequest.of(0, 2);
 
         // when
@@ -109,24 +116,24 @@ public class FollowServiceTest extends AbstractServiceTest {
 
         // then
         assertNotNull(result);
-        assertEquals(2, result.getSize());
+        assertEquals(followingList.size(), result.getSize());
         verify(followRepository, times(1)).findAllByFollowerCustomer_Id(currentCustomer.getId(), pageable);
     }
 
     @Test
-    @DisplayName("Should add a follow")
+    @DisplayName("Should follow a user")
     void shouldFollow() {
         // given
-        Customer currentCustomer = new Customer(
-                1L,
-                "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(currentCustomer);
 
-        Customer friendCustomer = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer friendCustomer = Customer.create()
+                                          .setId(2L)
+                                          .setEmail("customer2@test.com")
+                                          .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         Follow givenFollow = Follow
                 .create()
@@ -151,10 +158,10 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should not add a follow when limit reached")
     void shouldNotFollowWhenLimitReached() {
         // given
-        Customer followerCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer followerCustomer = Customer.create()
+                                            .setId(1L)
+                                            .setEmail("customer@test.com")
+                                            .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         setUpContext(followerCustomer);
         int MAX_FOLLOWS = 0;
@@ -183,16 +190,16 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should not add a follow when already exists")
     void shouldNotFollowWhenAlreadyExists() {
         // given
-        Customer currentCustomer = new Customer(
-                1L,
-                "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(currentCustomer);
 
-        Customer friend1 = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer friend1 = Customer.create()
+                                   .setId(2L)
+                                   .setEmail("customer2@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         // when
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.of(friend1));
@@ -210,16 +217,17 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should not add a follow when customer not found")
     void shouldNotFollowWhenCustomerNotFound() {
         // given
-        Customer currentCustomer = new Customer(
-                1L,
-                "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
-        Customer friend1 = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer friend1 = Customer.create()
+                                   .setId(2L)
+                                   .setEmail("customer2@test.com")
+                                   .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         // when
         when(customerRepository.findById(friend1.getId())).thenReturn(Optional.empty());
@@ -236,15 +244,17 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should unfollow")
     void shouldUnfollow() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
-        Customer followedCustomer = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer followedCustomer = Customer.create()
+                                            .setId(2L)
+                                            .setEmail("customer2@test.com")
+                                            .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         Follow givenFollow = new Follow(followedCustomer, currentCustomer);
         givenFollow.setId(1L);
@@ -265,12 +275,16 @@ public class FollowServiceTest extends AbstractServiceTest {
     @DisplayName("Should not delete a follow when not found")
     void shouldNotUnfollowWhenNotFound() {
         // given
-        Customer currentCustomer = new Customer(1L, "customer@test.com", passwordEncoder.encode("password"));
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@test.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
         setUpContext(currentCustomer);
 
-        Customer followedCustomer = new Customer(
-                2L, "customer1@test.com", passwordEncoder.encode("password")
-        );
+        Customer followedCustomer = Customer.create()
+                                            .setId(2L)
+                                            .setEmail("customer2@test.com")
+                                            .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         // when
         when(customerRepository.existsById(followedCustomer.getId())).thenReturn(true);
@@ -278,8 +292,8 @@ public class FollowServiceTest extends AbstractServiceTest {
                 anyLong(),
                 anyLong()
         )).thenReturn(Optional.empty());
-        FollowBetweenUsersNotExistException exception = assertThrows(
-                FollowBetweenUsersNotExistException.class,
+        FollowNotFoundException exception = assertThrows(
+                FollowNotFoundException.class,
                 () -> followService.unfollow(followedCustomer.getId())
         );
 

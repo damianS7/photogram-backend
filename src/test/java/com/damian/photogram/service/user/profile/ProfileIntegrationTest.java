@@ -1,4 +1,4 @@
-package com.damian.photogram.service.user.customer;
+package com.damian.photogram.service.user.profile;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.exception.Exceptions;
