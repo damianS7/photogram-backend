@@ -61,7 +61,7 @@ public class AccountPasswordService {
         // we get the CustomerAuth entity so we can save.
         Account customerAccount = accountRepository.findByCustomer_Id(customerId).orElseThrow(
                 () -> {
-                    log.error("Failed to update password. No customer found with id: {}", customerId);
+                    log.warn("Failed to update password. No customer found with id: {}", customerId);
                     return new CustomerNotFoundException(
                             Exceptions.CUSTOMER.NOT_FOUND, customerId
                     );
@@ -106,7 +106,7 @@ public class AccountPasswordService {
      * @param request the request with the password to set
      */
     public void passwordResetWithToken(String token, AccountPasswordResetSetRequest request) {
-        log.debug("Resetting password using token.");
+        log.debug("Resetting password using a token.");
         // verify the token
         final AccountToken accountToken = accountVerificationService.validateToken(token);
 
@@ -144,7 +144,6 @@ public class AccountPasswordService {
 
         // generate the token for password reset
         AccountToken token = new AccountToken(account.getOwner());
-        token.setToken(token.generateToken());
         token.setType(AccountTokenType.RESET_PASSWORD);
 
         log.debug("Password reset token generated successfully for email: {}", request.email());

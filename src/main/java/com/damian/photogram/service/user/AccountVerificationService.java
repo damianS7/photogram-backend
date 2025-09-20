@@ -47,24 +47,24 @@ public class AccountVerificationService {
      * @throws AccountVerificationNotPendingException when the account is not pending for activation.
      */
     public Account verifyAccount(String token) {
-        log.debug("Verifying account");
-
         // check the token is valid and not expired.
         AccountToken accountToken = this.validateToken(token);
+
+        log.debug("Verifying account from customer: {}", accountToken.getCustomer().getId());
 
         // find the customer associated with the token
         Account accountCustomer = accountRepository
                 .findByCustomer_Id(accountToken.getCustomer().getId())
                 .orElseThrow(
                         () -> {
-                            log.error("Failed to verify account. Account not found.");
+                            log.warn("Failed to verify account. Account not found.");
                             return new AccountNotFoundException(Exceptions.ACCOUNT.NOT_FOUND);
                         }
                 );
 
         // checks if the account is pending for activation.
         if (!accountCustomer.getAccountStatus().equals(AccountStatus.PENDING_VERIFICATION)) {
-            log.error("Failed to verify account. Account is not awaiting verification.");
+            log.warn("Failed to verify account. Account is not awaiting verification.");
             throw new AccountVerificationNotPendingException(
                     Exceptions.ACCOUNT.VERIFICATION.NOT_ELIGIBLE,
                     accountCustomer.getId(),
@@ -96,14 +96,14 @@ public class AccountVerificationService {
      * @return AccountToken the token entity
      */
     public AccountToken validateToken(String token) {
-        log.debug("Validating token: {}", token);
+        log.debug("Validating token");
         // check the token if it matches with the one in database
         AccountToken accountToken = accountTokenRepository
                 .findByToken(token)
                 .orElseThrow(
                         () -> {
-                            log.error("Failed to verify token: {}. Token not found.", token);
-                            return new AccountVerificationTokenNotFoundException(
+                            log.error("Failed to validate token. Token not found.");
+                            return new AccountTokenNotFoundException(
                                     Exceptions.ACCOUNT.VERIFICATION.TOKEN.NOT_FOUND,
                                     token,
                                     null,
@@ -114,7 +114,7 @@ public class AccountVerificationService {
 
         // check expiration
         if (!accountToken.getExpiresAt().isAfter(Instant.now())) {
-            log.error("Failed to verify token: {}. Token expired.", token);
+            log.error("Failed to validate token. Token expired.");
             throw new AccountVerificationTokenExpiredException(
                     Exceptions.ACCOUNT.VERIFICATION.TOKEN.EXPIRED,
                     token,
@@ -125,7 +125,7 @@ public class AccountVerificationService {
 
         // check if token is already used
         if (accountToken.isUsed()) {
-            log.error("Failed to verify token: {}. Token used.", token);
+            log.error("Failed to validate token. Token used.");
             throw new AccountVerificationTokenUsedException(
                     Exceptions.ACCOUNT.VERIFICATION.TOKEN.USED,
                     token,

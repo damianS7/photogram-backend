@@ -2,47 +2,51 @@ package com.damian.photogram.service.user.account;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.core.exception.Exceptions;
+import com.damian.photogram.core.util.ApiResponse;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.web.rest.user.dto.request.AccountPasswordUpdateRequest;
 import com.damian.photogram.web.rest.user.dto.request.AccountRegistrationRequest;
+import com.damian.photogram.web.rest.user.dto.response.CustomerWithProfileDto;
+import com.damian.photogram.web.rest.user.dto.response.ProfileDto;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AccountIntegrationTest extends AbstractIntegrationTest {
-    private final String email = "customer@test.com";
-
     private Customer customer;
 
     @BeforeAll
     void setUp() {
-        customer = new Customer();
-        customer.setRole(UserRole.ADMIN);
-        customer.setEmail(this.email);
-        customer.setPassword(passwordEncoder.encode(this.RAW_PASSWORD));
+        customer = Customer.create()
+                           .setEmail("customer@test.com")
+                           .setPassword(passwordEncoder.encode(this.RAW_PASSWORD))
+                           .setRole(UserRole.ADMIN)
+                           .setProfile(profile -> profile
+                                   .setFirstName("John")
+                                   .setLastName("Wick")
+                                   .setGender(CustomerGender.MALE)
+                                   .setBirthdate(LocalDate.of(1989, 1, 1))
+                                   .setImageFilename("images/avatar.jpg")
+                           );
         customer.getAccount().setAccountStatus(AccountStatus.VERIFIED);
-        customer.getProfile().setFirstName("John");
-        customer.getProfile().setLastName("Wick");
-        customer.getProfile().setPhone("123 123 123");
-        customer.getProfile().setGender(CustomerGender.MALE);
-        customer.getProfile().setBirthdate(LocalDate.of(1989, 1, 1));
-        customer.getProfile().setImageFilename("no photoPath");
-
         customerRepository.save(customer);
     }
 
@@ -61,23 +65,48 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                 CustomerGender.MALE
         );
 
-        // request to json
-        String json = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/accounts/register")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(json))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(201))
-               .andExpect(jsonPath("$.email").value(request.email()))
-               .andExpect(jsonPath("$.profile.firstName").value(request.firstName()))
-               .andExpect(jsonPath("$.profile.lastName").value(request.lastName()))
-               .andExpect(jsonPath("$.profile.phone").value(request.phone()))
-               .andExpect(jsonPath("$.profile.birthdate").value(request.birthdate().toString()))
-               .andExpect(jsonPath("$.profile.gender").value(request.gender().toString()))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                                          .post("/api/v1/accounts/register")
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content(JsonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
+
+        // then
+        CustomerWithProfileDto customerDto = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                CustomerWithProfileDto.class
+        );
+
+        // then
+        assertThat(customerDto)
+                .isNotNull()
+                .extracting(
+                        CustomerWithProfileDto::email
+                ).isEqualTo(
+                        request.email()
+                );
+
+        assertThat(customerDto.profile())
+                .isNotNull()
+                .extracting(
+                        ProfileDto::firstName,
+                        ProfileDto::lastName,
+                        ProfileDto::username,
+                        ProfileDto::phone,
+                        ProfileDto::birthdate,
+                        ProfileDto::gender
+                ).containsExactly(
+                        request.firstName(),
+                        request.lastName(),
+                        request.username(),
+                        request.phone(),
+                        request.birthdate(),
+                        request.gender()
+                );
     }
 
     @Test
@@ -95,17 +124,28 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                 CustomerGender.MALE
         );
 
-        // request to json
-        String json = objectMapper.writeValueAsString(request);
+        // then
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
+                                                                 .contentType(MediaType.APPLICATION_JSON)
+                                                                 .content(JsonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(json))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response)
+                .isNotNull()
+                .extracting(ApiResponse::getMessage)
+                .asString()
+                .isEqualTo(Exceptions.COMMON.VALIDATION_FAILED);
     }
 
     @Test
@@ -123,25 +163,42 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                 CustomerGender.MALE
         );
 
-        // request to json
-        String json = objectMapper.writeValueAsString(request);
+        // then
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
+                                                                 .contentType(MediaType.APPLICATION_JSON)
+                                                                 .content(JsonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                                  //                                  .andExpect(jsonPath("$.errors.email").value(containsString(
+                                  //                                          "Email must be a well-formed email address")))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts/register")
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(json))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
-               .andExpect(jsonPath("$.errors.email").value(containsString("Email must be a well-formed email address")))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        ApiResponse::getMessage
+                ).isEqualTo(
+                        Exceptions.COMMON.VALIDATION_FAILED
+                );
+
+        assertThat(response.getErrors().get("email"))
+                .contains("must be a well-formed email address");
     }
 
     @Test
     @DisplayName("Should not register customer when email is taken")
     void shouldNotRegisterCustomerWhenEmailIsTaken() throws Exception {
         AccountRegistrationRequest request = new AccountRegistrationRequest(
-                this.email,
+                customer.getEmail(),
                 "12345678X$",
                 "david",
                 "david",
@@ -151,24 +208,36 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                 CustomerGender.MALE
         );
 
-        // request to json
-        String json = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/accounts/register")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(json))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(409))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                                          .post("/api/v1/accounts/register")
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content(JsonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CONFLICT.value()))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
+
+        // then
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response)
+                .isNotNull()
+                .extracting(ApiResponse::getMessage)
+                .asString()
+                .isEqualTo(Exceptions.CUSTOMER.EMAIL_TAKEN);
     }
 
     @Test
     @DisplayName("Should not register customer when password policy not satisfied")
     void shouldNotRegisterCustomerWhenPasswordPolicyNotSatisfied() throws Exception {
         AccountRegistrationRequest request = new AccountRegistrationRequest(
-                this.email,
+                "customer@demo.com",
                 "123456",
                 "david",
                 "david",
@@ -178,19 +247,34 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
                 CustomerGender.MALE
         );
 
-        // request to json
-        String json = objectMapper.writeValueAsString(request);
-
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                       .post("/api/v1/accounts/register")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(json))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
-               .andExpect(jsonPath("$.errors.password").value(containsString("Password must be at least")))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                                          .post("/api/v1/accounts/register")
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content(JsonHelper.toJson(request)))
+                                  .andDo(print())
+                                  .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                                  .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                                  .andReturn();
+
+        // then
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        ApiResponse::getMessage
+                ).isEqualTo(
+                        Exceptions.COMMON.VALIDATION_FAILED
+                );
+
+        assertThat(response.getErrors().get("password"))
+                .containsIgnoringCase("password must be at least");
     }
 
     @Test
@@ -209,9 +293,9 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(updatePasswordRequest)))
+                                              .content(JsonHelper.toJson(updatePasswordRequest)))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().isOk());
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()));
     }
 
     @Test
@@ -229,9 +313,9 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                               .contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(updatePasswordRequest)))
+                                              .content(JsonHelper.toJson(updatePasswordRequest)))
                .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(403));
+               .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()));
     }
 
     @Test
@@ -245,16 +329,35 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
         );
 
         // when
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
+                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(JsonHelper.toJson(updatePasswordRequest)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
-                                              .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(updatePasswordRequest)))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
-               .andExpect(jsonPath("$.errors.newPassword").value(containsString("Password must be at least")))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        ApiResponse::getMessage
+                ).isEqualTo(
+                        Exceptions.COMMON.VALIDATION_FAILED
+                );
+
+        assertThat(response.getErrors().get("newPassword"))
+                .containsIgnoringCase("password must be at least");
+
+
     }
 
     @Test
@@ -269,14 +372,33 @@ public class AccountIntegrationTest extends AbstractIntegrationTest {
 
         // when
         // then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
-                                              .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(updatePasswordRequest)))
-               .andDo(print())
-               .andExpect(MockMvcResultMatchers.status().is(400))
-               .andExpect(jsonPath("$.message").value(Exceptions.COMMON.VALIDATION_FAILED))
-               .andExpect(jsonPath("$.errors.newPassword").value(containsString("must not be blank")))
-               .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.patch("/api/v1/accounts/password")
+                                               .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(JsonHelper.toJson(updatePasswordRequest)))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+
+        ApiResponse<?> response = JsonHelper.fromJson(
+                result.getResponse().getContentAsString(),
+                new TypeReference<ApiResponse<?>>() {
+                }
+        );
+
+        // then
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        ApiResponse::getMessage
+                ).isEqualTo(
+                        Exceptions.COMMON.VALIDATION_FAILED
+                );
+
+        assertThat(response.getErrors().get("newPassword"))
+                .containsIgnoringCase("must not be blank");
     }
 }

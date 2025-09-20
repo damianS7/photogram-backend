@@ -54,19 +54,17 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
     @DisplayName("Should update account password")
     void shouldUpdateAccountPassword() {
         // given
-        final String currentRawPassword = "123456";
-        final String currentEncodedPassword = passwordEncoder.encode(currentRawPassword);
         final String rawNewPassword = "1234";
         final String encodedNewPassword = passwordEncoder.encode(rawNewPassword);
 
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                currentEncodedPassword
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         AccountPasswordUpdateRequest updateRequest = new AccountPasswordUpdateRequest(
-                currentRawPassword,
+                RAW_PASSWORD,
                 rawNewPassword
         );
 
@@ -87,11 +85,11 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
     @DisplayName("Should not update password when current password does not match")
     void shouldNotUpdatePasswordWhenCurrentPasswordDoesNotMatch() {
         // given
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                bCryptPasswordEncoder.encode(RAW_PASSWORD)
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         // set the customer on the context
         setUpContext(customer);
@@ -116,11 +114,11 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
     @DisplayName("Should not update password when account not found")
     void shouldNotUpdatePasswordWhenAccountNotFound() {
         // given
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                passwordEncoder.encode(RAW_PASSWORD)
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         // set the customer on the context
         setUpContext(customer);
@@ -150,26 +148,27 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
         // given
         final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
 
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                currentEncodedPassword
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         AccountPasswordResetRequest passwordResetRequest = new AccountPasswordResetRequest(
                 customer.getEmail()
         );
 
-        AccountToken token = new AccountToken(customer);
-        token.setToken(token.generateToken());
-        token.setType(AccountTokenType.RESET_PASSWORD);
-
         // when
         when(accountRepository.findByCustomer_Email(customer.getEmail())).thenReturn(Optional.of(customer.getAccount()));
-        when(accountTokenRepository.save(any(AccountToken.class))).thenReturn(token);
-        accountPasswordService.generatePasswordResetToken(passwordResetRequest);
+        when(accountTokenRepository.save(any(AccountToken.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AccountToken generatedToken = accountPasswordService.generatePasswordResetToken(passwordResetRequest);
 
         // then
+        assertThat(generatedToken)
+                .isNotNull();
+        assertThat(generatedToken.getToken().length()).isGreaterThanOrEqualTo(5);
         verify(accountTokenRepository, times(1)).save(any(AccountToken.class));
     }
 
@@ -177,13 +176,11 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
     @DisplayName("Should not create password reset token when account not found")
     void shouldNotGeneratePasswordResetTokenWhenAccountNotFound() {
         // given
-        final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
-
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                currentEncodedPassword
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         AccountPasswordResetRequest passwordResetRequest = new AccountPasswordResetRequest(
                 customer.getEmail()
@@ -208,15 +205,14 @@ public class AccountPasswordServiceTest extends AbstractServiceTest {
     @DisplayName("Should set a new password after reset password")
     void shouldSetPasswordAfterGeneratePasswordResetToken() {
         // given
-        final String currentEncodedPassword = passwordEncoder.encode(RAW_PASSWORD);
         final String rawNewPassword = "1111000";
         final String encodedNewPassword = passwordEncoder.encode(rawNewPassword);
 
-        Customer customer = new Customer(
-                10L,
-                "customer@test.com",
-                currentEncodedPassword
-        );
+        Customer customer = Customer
+                .create()
+                .setId(10L)
+                .setEmail("customer@demo.com")
+                .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         AccountPasswordResetSetRequest passwordResetRequest = new AccountPasswordResetSetRequest(
                 rawNewPassword
