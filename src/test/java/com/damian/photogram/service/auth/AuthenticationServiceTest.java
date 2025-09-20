@@ -8,8 +8,8 @@ import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.service.auth.exception.AccountNotVerifiedException;
 import com.damian.photogram.service.auth.exception.AccountSuspendedException;
-import com.damian.photogram.web.auth.dto.AuthenticationRequest;
-import com.damian.photogram.web.auth.dto.AuthenticationResponse;
+import com.damian.photogram.web.rest.auth.dto.AuthenticationRequest;
+import com.damian.photogram.web.rest.auth.dto.AuthenticationResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -131,7 +131,7 @@ public class AuthenticationServiceTest extends AbstractServiceTest {
                                     .setId(1L)
                                     .setEmail("alice@demo.com")
                                     .setPassword(passwordEncoder.encode(RAW_PASSWORD));
-        
+
         User user = new User(customer);
         customer.getAccount().setAccountStatus(AccountStatus.PENDING_VERIFICATION);
 

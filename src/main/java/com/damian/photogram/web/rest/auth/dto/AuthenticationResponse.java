@@ -1,4 +1,4 @@
-package com.damian.photogram.web.auth.dto;
+package com.damian.photogram.web.rest.auth.dto;
 
 /**
  * Used for returning the token after successful authentication.

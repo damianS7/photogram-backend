@@ -1,4 +1,4 @@
-package com.damian.photogram.web.auth.dto;
+package com.damian.photogram.web.rest.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
