@@ -50,7 +50,7 @@ public class CommentService {
      * @return a page of comments
      */
     public Page<Comment> getPostComments(Long postId, Pageable pageable) {
-        log.debug("Fetch comments from post: {}", postId);
+        log.debug("Fetching comments from post: {}", postId);
 
         // check if the post exists
         if (!postRepository.existsById(postId)) {
@@ -70,7 +70,7 @@ public class CommentService {
      */
     public Comment addComment(Long postId, CommentCreateRequest request) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Customer: {} attempting to post a new comment on post: {}", currentCustomer.getId(), postId);
+        log.debug("customer: {} attempting to post a new comment on post: {}", currentCustomer.getId(), postId);
 
         // find the post
         Post post = postRepository.findById(postId).orElseThrow(
@@ -82,7 +82,16 @@ public class CommentService {
                                  .setMessage(request.comment());
 
         // save the created comment
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        log.debug(
+                "customer: {} posted a new comment: {} on post: {}",
+                currentCustomer.getId(),
+                comment.getId(),
+                postId
+        );
+        
+        return savedComment;
     }
 
     /**
@@ -119,6 +128,7 @@ public class CommentService {
 
         // delete the comment
         commentRepository.deleteById(commentId);
+        log.debug("customer: {} deleted comment: {}", currentCustomer.getId(), commentId);
     }
 
     /**

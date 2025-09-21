@@ -1,6 +1,7 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.comment;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.post.model.Comment;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.user.enums.AccountStatus;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -54,13 +56,14 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
 
-        Post post = new Post(customer);
-        post.setDescription("Hello world.");
         postRepository.save(post);
 
-        Comment comment1 = new Comment(customer, post);
-        comment1.setMessage("Hello this is my post!");
+        Comment comment1 = Comment.create(customer, post)
+                                  .setMessage("Hello this is my post!");
+
         commentRepository.save(comment1);
 
         // when
@@ -69,7 +72,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                         get("/api/v1/posts/{id}/comments", post.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -78,7 +81,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         JsonNode root = objectMapper.readTree(json);
         JsonNode contentNode = root.get("content");
 
-        CommentDto[] commentsDto = objectMapper.treeToValue(contentNode, CommentDto[].class);
+        CommentDto[] commentsDto = JsonHelper.fromJson(contentNode.toString(), CommentDto[].class);
 
         // then
         assertThat(commentsDto[0])
@@ -92,7 +95,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                 )
                 .containsExactly(
                         comment1.getId(),
-                        post.getId(),
+                        comment1.getPost().getId(),
                         comment1.getAuthor().getProfile().getUsername(),
                         comment1.getMessage(),
                         comment1.getCreatedAt().toString()
@@ -106,9 +109,9 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
 
-        Post post = new Post(customer);
-        post.setDescription("Hello world.");
         postRepository.save(post);
 
         CommentCreateRequest request = new CommentCreateRequest("This is my first comment.");
@@ -119,14 +122,14 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                         post("/api/v1/posts/{id}/comment", post.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(request)))
+                                .content(JsonHelper.toJson(request)))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        CommentDto commentDto = objectMapper.readValue(
+        CommentDto commentDto = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 CommentDto.class
         );
@@ -156,13 +159,14 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        Post post = new Post(customer);
-        post.setDescription("Hello world.");
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
+
         postRepository.save(post);
 
-        Comment comment = new Comment(customer, post);
-        comment.setMessage("hehehe");
-        comment.setMessage("hey");
+        Comment comment = Comment.create(customer, post)
+                                 .setMessage("Hello this is my post!");
+
         commentRepository.save(comment);
 
         // when
@@ -171,8 +175,7 @@ public class CommentIntegrationTest extends AbstractIntegrationTest {
                         delete("/api/v1/comments/{id}", comment.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(204))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NO_CONTENT.value()));
     }
 
 

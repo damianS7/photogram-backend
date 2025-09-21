@@ -1,4 +1,4 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.post;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
@@ -6,6 +6,8 @@ import com.damian.photogram.domain.post.exception.PostOwnershipException;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.post.PostImageService;
+import com.damian.photogram.service.post.PostService;
 import com.damian.photogram.web.rest.post.dto.request.PostCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

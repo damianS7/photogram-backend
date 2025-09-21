@@ -37,7 +37,7 @@ public class PostExceptionHandler {
 
     @ExceptionHandler(LikeNotFoundException.class) // 404
     public ResponseEntity<ApiResponse<String>> handleLikeNotFound(LikeNotFoundException ex) {
-        log.warn("Post: {} is not liked by customer: {} not found.", ex.getPostId(), ex.getCustomerId(), ex);
+        log.warn("Post: {} is not liked by customer: {}.", ex.getPostId(), ex.getCustomerId(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND));
     }

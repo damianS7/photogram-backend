@@ -1,4 +1,4 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.like;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
 import com.damian.photogram.domain.post.model.Like;

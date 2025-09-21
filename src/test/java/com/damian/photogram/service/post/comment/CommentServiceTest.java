@@ -1,4 +1,4 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.comment;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.domain.post.exception.CommentNotFoundException;
@@ -9,6 +9,7 @@ import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.CommentRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.post.CommentService;
 import com.damian.photogram.web.rest.post.dto.request.CommentCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,34 +42,30 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should get comments paginated")
     void shouldGetCommentsPaginated() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
-        //        setUpContext(currentCustomer);
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
 
         Post post = Post.create(currentCustomer)
                         .setId(1L)
                         .setImageFilename("image.jpg")
                         .setDescription("Hello world");
 
-        Comment comment1 = Comment.create(currentCustomer, post)
-                                  .setMessage("comment 1");
-
-        Comment comment2 = Comment.create(currentCustomer, post)
-                                  .setMessage("comment 2");
-
         Set<Comment> commentList = Set.of(
-                comment1, comment2
+                Comment.create(currentCustomer, post)
+                       .setMessage("comment 1"),
+                Comment.create(currentCustomer, post)
+                       .setMessage("comment 2")
         );
 
-        Page<Comment> commentPage = new PageImpl<>(commentList.stream().toList());
-        Pageable pageable = PageRequest.of(0, 2);
+        Page<Comment> commentsPage = new PageImpl<>(commentList.stream().toList());
+        Pageable pageable = PageRequest.of(0, commentList.size());
 
         // when
         when(postRepository.existsById(post.getId())).thenReturn(true);
         when(commentRepository.findAllByPostId(post.getId(), pageable))
-                .thenReturn(commentPage);
+                .thenReturn(commentsPage);
         Page<Comment> result = commentService.getPostComments(post.getId(), pageable);
 
         // then
@@ -81,10 +78,11 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should comment in a post")
     void shouldComment() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -108,7 +106,7 @@ public class CommentServiceTest extends AbstractServiceTest {
         // then
         assertThat(result)
                 .isNotNull()
-                .extracting("message")
+                .extracting(Comment::getMessage)
                 .isEqualTo(request.comment());
         verify(postRepository, times(1)).findById(post.getId());
         verify(commentRepository, times(1)).save(any(Comment.class));
@@ -118,10 +116,11 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should not comment when post not exists")
     void shouldNotCommentWhenPostNotExists() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -141,6 +140,7 @@ public class CommentServiceTest extends AbstractServiceTest {
                 PostNotFoundException.class,
                 () -> commentService.addComment(post.getId(), request)
         );
+
         verify(postRepository, times(1)).findById(post.getId());
     }
 
@@ -148,10 +148,11 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should delete a comment")
     void shouldDeleteComment() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -180,10 +181,11 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should not delete a comment when not exists")
     void shouldNotDeleteCommentWhenNotExists() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -215,10 +217,11 @@ public class CommentServiceTest extends AbstractServiceTest {
     @DisplayName("Should not delete a comment when logged customer is not author")
     void shouldNotDeleteCommentWhenNotAuthor() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Customer author = new Customer(

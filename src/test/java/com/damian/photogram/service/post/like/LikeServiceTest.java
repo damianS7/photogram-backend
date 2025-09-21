@@ -1,7 +1,6 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.like;
 
 import com.damian.photogram.core.AbstractServiceTest;
-import com.damian.photogram.domain.user.model.Customer;
 import com.damian.photogram.domain.post.exception.LikeNotFoundException;
 import com.damian.photogram.domain.post.exception.PostAlreadyLikedException;
 import com.damian.photogram.domain.post.exception.PostNotFoundException;
@@ -9,6 +8,8 @@ import com.damian.photogram.domain.post.model.Like;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.post.repository.LikeRepository;
 import com.damian.photogram.domain.post.repository.PostRepository;
+import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.service.post.LikeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package com.damian.photogram.service.post;
+package com.damian.photogram.service.post.post;
 
 import com.damian.photogram.core.AbstractServiceTest;
 import com.damian.photogram.core.util.ImageTestHelper;
@@ -11,6 +11,7 @@ import com.damian.photogram.infrastructure.storage.FileStorageService;
 import com.damian.photogram.infrastructure.storage.ImageProcessingService;
 import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.infrastructure.storage.ImageValidationService;
+import com.damian.photogram.service.post.PostImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
