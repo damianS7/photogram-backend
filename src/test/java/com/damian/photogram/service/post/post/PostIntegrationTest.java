@@ -7,6 +7,8 @@ import com.damian.photogram.domain.user.enums.AccountStatus;
 import com.damian.photogram.domain.user.enums.CustomerGender;
 import com.damian.photogram.domain.user.enums.UserRole;
 import com.damian.photogram.domain.user.model.Customer;
+import com.damian.photogram.infrastructure.storage.FileStorageService;
+import com.damian.photogram.infrastructure.storage.ImageUploaderService;
 import com.damian.photogram.web.rest.post.dto.request.PostCreateRequest;
 import com.damian.photogram.web.rest.post.dto.response.ImageUploadedDto;
 import com.damian.photogram.web.rest.post.dto.response.PostDto;
@@ -15,17 +17,24 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,7 +42,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostIntegrationTest extends AbstractIntegrationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(PostIntegrationTest.class);
+    @MockitoBean
+    private FileStorageService fileStorageService;
+
+    @MockitoBean
+    private ImageUploaderService imageUploaderService;
+
     private Customer customer;
 
     @BeforeAll
@@ -174,17 +188,52 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should get post image")
+    void shouldGetPostImage() throws Exception {
+        // given
+        loginWithCustomer(customer);
+
+        MultipartFile imageMultipart = ImageTestHelper.createDefaultJpg();
+        File imageFile = ImageTestHelper.multipartToFile(imageMultipart);
+        Resource imageResource = new UrlResource(imageFile.toURI());
+
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.")
+                        .setImageFilename(imageFile.getName());
+        postRepository.save(post);
+
+        when(fileStorageService.getFile(anyString(), anyString())).thenReturn(imageFile);
+        when(fileStorageService.createResource(any(File.class))).thenReturn(imageResource);
+
+        mockMvc
+                .perform(
+                        get("/api/v1/posts/{id}/image", post.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.IMAGE_JPEG))
+                .andReturn();
+    }
+
+    @Test
     @DisplayName("Should upload post image")
     void shouldUploadPostImage() throws Exception {
         // given
         loginWithCustomer(customer);
-        MockMultipartFile givenImage = ImageTestHelper.createDefaultJpg();
+        MockMultipartFile imageMultipart = ImageTestHelper.createDefaultJpg();
+        File imageFile = ImageTestHelper.multipartToFile(imageMultipart);
+
+        when(imageUploaderService.uploadImage(
+                any(MultipartFile.class),
+                anyString()
+        )).thenReturn(imageFile);
 
         // when
         MvcResult result = mockMvc
                 .perform(
                         multipart("/api/v1/posts/image")
-                                .file(givenImage)
+                                .file(imageMultipart)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                 .param("currentPassword", this.RAW_PASSWORD)
                                 .with(request -> {
@@ -238,7 +287,4 @@ public class PostIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().is(400))
                 .andReturn();
     }
-
-    // TODO shouldGetPostImage
-
 }

@@ -39,32 +39,36 @@ public class PostServiceTest extends AbstractServiceTest {
     @DisplayName("Should create a post")
     void shouldCreatePost() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
-        Post post = Post.create(currentCustomer)
-                        .setId(1L)
-                        .setImageFilename("image.jpg")
-                        .setDescription("Hello world");
-
         PostCreateRequest request = new PostCreateRequest(
-                post.getImageFilename(),
-                post.getDescription()
+                "34234324234234.jpg",
+                "Hello world"
         );
 
         // when
-        when(postRepository.save(any(Post.class))).thenReturn(post);
+        when(postRepository.save(any(Post.class))).thenAnswer(
+                invocation -> invocation.getArgument(0)
+        );
 
         Post result = postService.createPost(request);
 
         // then
         assertThat(result)
                 .isNotNull()
-                .extracting("imageFilename", "description")
-                .containsExactly(request.imageFilename(), request.description());
+                .extracting(
+                        Post::getImageFilename,
+                        Post::getDescription
+                )
+                .containsExactly(
+                        request.imageFilename(),
+                        request.description()
+                );
         verify(postRepository, times(1)).save(any(Post.class));
     }
 
@@ -72,10 +76,11 @@ public class PostServiceTest extends AbstractServiceTest {
     @DisplayName("Should delete a post")
     void shouldDeletePost() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -97,10 +102,11 @@ public class PostServiceTest extends AbstractServiceTest {
     @DisplayName("Should not delete a post when not exists")
     void shouldNotDeletePostWhenNotExists() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+
         setUpContext(currentCustomer);
 
         Post post = Post.create(currentCustomer)
@@ -123,10 +129,11 @@ public class PostServiceTest extends AbstractServiceTest {
     @DisplayName("Should not delete a comment when logged customer is not author")
     void shouldNotDeletePostWhenNotAuthor() {
         // given
-        Customer currentCustomer = new Customer(
-                1L, "customer@test.com",
-                passwordEncoder.encode("password")
-        );
+        Customer currentCustomer = Customer.create()
+                                           .setId(1L)
+                                           .setEmail("customer@demo.com")
+                                           .setPassword(passwordEncoder.encode(RAW_PASSWORD));
+        
         setUpContext(currentCustomer);
 
         Customer author = new Customer(

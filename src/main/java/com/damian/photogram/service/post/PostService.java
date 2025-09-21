@@ -44,11 +44,12 @@ public class PostService {
      * @return Page<Post>
      */
     public Page<Post> getPostsByUsername(String username, Pageable pageable) {
-        log.debug("Fetching posts from username: {}", username);
+        log.debug("Fetching posts for username: {}", username);
+
         // check if the customer exists by this username
-        profileRepository.findByUsernameIgnoreCase(username).orElseThrow(
-                () -> new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, username)
-        );
+        if (!profileRepository.existsByUsernameIgnoreCase(username)) {
+            throw new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, username);
+        }
 
         return postRepository.findAllByUsername(username, pageable);
     }
@@ -69,9 +70,7 @@ public class PostService {
                         .setDescription(request.description());
 
         // save the post
-        return postRepository.save(
-                post
-        );
+        return postRepository.save(post);
     }
 
     /**

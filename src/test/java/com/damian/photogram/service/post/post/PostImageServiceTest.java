@@ -77,6 +77,7 @@ public class PostImageServiceTest extends AbstractServiceTest {
     void shouldUploadPostImage() throws IOException {
         // given
         setUpContext(customer);
+        
         MockMultipartFile multipartFile = ImageTestHelper.createDefaultJpg();
         File givenFile = ImageTestHelper.multipartToFile(
                 multipartFile

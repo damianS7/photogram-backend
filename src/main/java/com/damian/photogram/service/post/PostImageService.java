@@ -65,7 +65,7 @@ public class PostImageService {
      */
     public File uploadImage(MultipartFile image) {
         final Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Customer: {} uploading an image for post. ", currentCustomer.getId());
+        log.debug("Customer: {} uploading an image for post.", currentCustomer.getId());
 
         // run basic validations for the image to be uploaded
         imageValidationService.validateImage(
