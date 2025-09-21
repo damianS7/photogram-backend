@@ -86,12 +86,17 @@ public class NotificationService {
      */
     public void publishNotification(NotificationEvent notificationEvent) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Publishing Notification to customer: {}", notificationEvent.recipientId());
+        log.debug(
+                "Publishing Notification ({}) to customer: {}",
+                notificationEvent.type(),
+                notificationEvent.recipientId()
+        );
 
         // if the receiverId is the same as senderId then do nothing
         // this is to prevent sending notifications to oneself
         // for example when a user likes or comment their own post
         if (currentCustomer.getId().equals(notificationEvent.recipientId())) {
+            log.debug("Recipient is the same customer. No need to notify.");
             return;
         }
 

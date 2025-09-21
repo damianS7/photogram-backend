@@ -73,7 +73,7 @@ public class LikeService {
      */
     public Like likePost(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Customer: {} like post: {}", currentCustomer.getId(), postId);
+        log.debug("Customer: {} liked post: {}", currentCustomer.getId(), postId);
 
         // find the post to like
         Post post = postRepository.findById(postId).orElseThrow(
@@ -101,7 +101,7 @@ public class LikeService {
      */
     public void unlike(Long postId) {
         Customer currentCustomer = AuthHelper.getLoggedCustomer();
-        log.debug("Customer: {} unlike post: {}", currentCustomer.getId(), postId);
+        log.debug("Customer: {} unliked post: {}", currentCustomer.getId(), postId);
 
         // check if the post exists
         if (!postRepository.existsById(postId)) {
@@ -130,7 +130,6 @@ public class LikeService {
      */
     public void sendLikeNotification(Like like) {
         final String likedByUsername = like.getCustomer().getProfile().getUsername();
-        log.debug("Sending like notification to post: {} from: {}", like.getPost().getId(), likedByUsername);
         Map<String, Object> metadata = Map.of(
                 "postId", like.getPost().getId(),
                 "username", likedByUsername

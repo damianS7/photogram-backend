@@ -1,6 +1,7 @@
 package com.damian.photogram.service.post.like;
 
 import com.damian.photogram.core.AbstractIntegrationTest;
+import com.damian.photogram.core.util.JsonHelper;
 import com.damian.photogram.domain.post.model.Like;
 import com.damian.photogram.domain.post.model.Post;
 import com.damian.photogram.domain.user.enums.AccountStatus;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -53,12 +55,12 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
 
-        Post post = new Post(customer);
-        post.setDescription("Hello world.");
         postRepository.save(post);
 
-        Like like = new Like(post, customer);
+        Like like = Like.create(post, customer);
         likeRepository.save(like);
 
         // when
@@ -67,12 +69,12 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
                         get("/api/v1/posts/{id}/likes", post.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        PostLikeDataDto postLikeData = objectMapper.readValue(
+        PostLikeDataDto postLikeData = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 PostLikeDataDto.class
         );
@@ -94,7 +96,9 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
-        Post post = new Post(customer);
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
+
         postRepository.save(post);
 
         // when
@@ -103,12 +107,12 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
                         post("/api/v1/posts/{id}/like", post.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(201))
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         // then
-        LikeDto likeDto = objectMapper.readValue(
+        LikeDto likeDto = JsonHelper.fromJson(
                 result.getResponse().getContentAsString(),
                 LikeDto.class
         );
@@ -129,8 +133,9 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
         // given
         loginWithCustomer(customer);
 
+        Post post = Post.create(customer)
+                        .setDescription("Hello world.");
 
-        Post post = new Post(customer);
         postRepository.save(post);
 
         Like like = new Like(post, customer);
@@ -142,7 +147,6 @@ public class LikeIntegrationTest extends AbstractIntegrationTest {
                         delete("/api/v1/posts/{id}/unlike", post.getId())
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is(204))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NO_CONTENT.value()));
     }
 }
