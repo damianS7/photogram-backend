@@ -209,7 +209,7 @@ public class AccountVerificationService {
         String host = env.getProperty("app.frontend.host");
         String port = env.getProperty("app.frontend.port");
         String url = String.format("http://%s:%s", host, port);
-        String activationLink = url + "/accounts/activate/" + token;
+        String activationLink = url + "/accounts/verification/" + token;
 
         // Send email to confirm registration
         emailSenderService.send(
