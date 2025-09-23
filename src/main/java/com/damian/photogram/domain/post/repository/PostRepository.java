@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.author.profile.username = :username")
-    Page<Post> findAllByUsername(String username, Pageable pageable);
+    Page<Post> findAllByUsernameIgnoreCase(String username, Pageable pageable);
 
     // count the number of post for a specific author
     @Query("SELECT COUNT(p) FROM Post p WHERE p.author.id = :authorId")

@@ -51,7 +51,7 @@ public class PostService {
             throw new CustomerNotFoundException(Exceptions.CUSTOMER.NOT_FOUND, username);
         }
 
-        return postRepository.findAllByUsername(username, pageable);
+        return postRepository.findAllByUsernameIgnoreCase(username, pageable);
     }
 
     /**
